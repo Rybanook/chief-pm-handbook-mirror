@@ -1,7 +1,16 @@
 {
-  "pm-continuity": "e19155",
-  "phase-v3-9": "c7f3b5",
-  "worker-playbook": "882e12",
-  "ops-log": "0f5df1",
-  "planning-sandbox": "7d2b0d"
+  "pm-continuity": "6557e1",
+  "phase-v3-9": "f3d0f6",
+  "worker-playbook": "34938c",
+  "ops-log": "8479d7",
+  "planning-sandbox": "c18e1d",
+  "pm-ledger": "eea774",
+  "worker-ledger": "073cee",
+  "nav-pm": "14c4ce",
+  "nav-worker": "d92418",
+  "nav-planner": "79015f",
+  "nav-overview": "4e6705",
+  "pm-training": "9ab2f1",
+  "worker-training": "b1127f",
+  "planner-training": "8a3a6c"
 }
