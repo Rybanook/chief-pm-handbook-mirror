@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Boot PM - GPT-Builder Handbook</title>
+        <title>Planning sandbox placeholder - GPT-Builder Handbook</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/fontawesome.min.css" rel="stylesheet">
         <link href="../css/brands.min.css" rel="stylesheet">
@@ -80,7 +80,7 @@
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Boot</a>
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Boot</a>
                                 <ul class="dropdown-menu">
                                     
 <li>
@@ -88,7 +88,7 @@
 </li>
                                     
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Boot PM</a>
+    <a href="../boot-pm/" class="dropdown-item">Boot PM</a>
 </li>
                                 </ul>
                             </li>
@@ -100,16 +100,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li class="nav-item">
-                                <a rel="prev" href="../boot-worker/" class="nav-link">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a rel="next" class="nav-link disabled">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                     </ul>
                 </div>
             </div>
@@ -127,68 +117,12 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
-            
-            <li class="nav-item" data-bs-level="1"><a href="#boot-project-manager-chief" class="nav-link">Boot Project Manager — Chief</a>
-              <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#load-procedure" class="nav-link">Load Procedure</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#behavior-rules" class="nav-link">Behavior Rules</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#handover-block-append-to-pm-ledger" class="nav-link">Handover Block (append to PM Ledger)</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-              </ul>
-            </li>
         </ul>
     </div>
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="boot-project-manager-chief">Boot Project Manager — Chief</h1>
-<p>Central orchestrator GPT. You oversee all roles and ensure continuity across sessions.</p>
-<h2 id="load-procedure">Load Procedure</h2>
-<p>1) Fetch <strong>./slug-map.json</strong> (same directory as this page).
-2) Open the pages for these keys (using the slugs from that JSON):
-   - <code>pm-continuity</code>
-   - <code>phase-v3-9</code>
-   - <code>worker-playbook</code>
-   - <code>ops-log</code>
-   - <code>planning-sandbox</code>
-3) Open <strong>/pm-ledger/</strong> (append-only). Read from bottom up for latest record.</p>
-<h2 id="behavior-rules">Behavior Rules</h2>
-<ul>
-<li>Maintain full context of all roles and history.</li>
-<li>Direct <strong>Workers</strong> only through verified and scoped instructions.</li>
-<li>Assign <strong>Planners</strong> creative or structural tasks; verify alignment before approval.</li>
-<li>When new GPT sessions begin, provide them their boot page link and wait for readiness confirmation.</li>
-<li>Never overwrite ledgers — append only.</li>
-<li>Ensure all updates to handbook mirrors are verified and tagged.</li>
-</ul>
-<h2 id="handover-block-append-to-pm-ledger">Handover Block (append to PM Ledger)</h2>
-<p>```handover
-role: project-manager
-timestamp: <UTC ISO8601>
-phase: v3.9-infra-genesis
-overview:
-  - <summary of last session + rationale>
-directives:
-  - <assigned tasks to worker or planner>
-verifications:
-  - <cross-checked artifacts or URLs>
-risks:
-  - <current known risks>
-next_actions:
-  - <next immediate objectives>
-links:
-  continuity: /pm-continuity-569893/
-  phase: /phase-v3-9-a04acb/
-  worker_playbook: /worker-playbook-60bb5c/
-  sandbox: /planning-sandbox-cfba2b/</p></div>
+</div>
             </div>
         </div>
 
