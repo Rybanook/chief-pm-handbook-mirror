@@ -2183,7 +2183,120 @@ py -3 -m wrapper memory status
 py -3 -m wrapper memory show</p>
 <p>11) Handover integrity</p>
 <p>Receipts-backed; zero legacy regressions; policy/caps/per-WIN enforced; pushed to origin/main.</p>
-<p>Codename: Apple</p></div>
+<p>Codename: Apple</p>
+<pre><code class="language-bash">notepad docs/handovers/worker/index.md
+</code></pre>
+<p>Paste this <strong>at the very bottom</strong> (below older entries), then Save and close:</p>
+<hr />
+<h3 id="worker-handover-ai-lab-wrapper-m4m6_1">Worker Handover — AI-Lab Wrapper (M4–M6)</h3>
+<p><strong>Date:</strong> Nov 6, 2025 (America/Vancouver)
+<strong>Repo:</strong> <code>Rybanook/ai-lab</code>
+<strong>Branch:</strong> <code>feat/release-notes-demo</code> (created this session)
+<strong>HEAD:</strong> <code>acda4829f61e7906d6263aac067ec3d47abe127f</code> (short: <code>acda482</code>)
+<strong>Tag (annotated):</strong> <code>test-m6-1</code></p>
+<h4 id="1-overview-this-chats-scope_1">1) Overview (this chat’s scope)</h4>
+<p>We advanced the GPT wrapper and AI-Lab tooling through:</p>
+<ul>
+<li><strong>M4 — PR-grade receipts &amp; run-log index</strong>: append-only exec index + extended receipts.</li>
+<li><strong>M5 — CI hooks &amp; PR template glue</strong>: deterministic Markdown PR body + smoke script.</li>
+<li><strong>M6 — Branch/Tag utilities + Release notes scaffold</strong>: annotated tag helper, branch helper, release-notes generator, and CHANGELOG.</li>
+</ul>
+<p>All changes preserved legacy behavior; stdlib-only; no network calls.</p>
+<h4 id="2-architecture-key-files-touched_1">2) Architecture &amp; key files touched</h4>
+<ul>
+<li>
+<p><code>wrapper/__main__.py</code> — (M4) added:</p>
+</li>
+<li>
+<p><strong>Run-log index:</strong> <code>logs/exec/index.jsonl</code> (append-only on allowed/timeout execs).</p>
+</li>
+<li><code>receipt --json --with-logs N</code> (adds <code>"logs":[…]</code> newest-first).</li>
+<li><code>receipt pr --json</code> (PR-grade single-line JSON: branch/head/files/summary/db/counts/last_log).</li>
+<li>
+<p><strong>M5 scripts:</strong></p>
+</li>
+<li>
+<p><code>scripts/pr_body.py</code> — reads <code>receipt pr --json</code> → renders deterministic Markdown.</p>
+</li>
+<li><code>scripts/pr_body.sh</code> — tiny wrapper for POSIX/Git Bash.</li>
+<li><code>scripts/ci_smoke.sh</code> — validates single-line JSON responses (fixed Windows pipe issue).</li>
+<li><code>scripts/open_pr_locally.md</code> — doc with exact local PR steps (no API).</li>
+<li>
+<p><strong>M6 scripts &amp; docs:</strong></p>
+</li>
+<li>
+<p><code>scripts/tag.sh</code> — creates <strong>annotated</strong> tag on current HEAD; prints <code>git show --stat &lt;tag&gt;</code>.</p>
+</li>
+<li><code>scripts/branch.sh</code> — creates branch; prints branch name only.</li>
+<li><code>scripts/release_notes.py</code> — stdlib generator using <code>git show</code>, <code>git log</code>, and <code>receipt pr --json</code>.</li>
+<li><code>scripts/release_notes.sh</code> — convenience wrapper.</li>
+<li><code>docs/CHANGELOG.md</code> — header + “append at top” guidance.</li>
+</ul>
+<h4 id="3-progress-receipts-acceptance-proofs_1">3) Progress &amp; receipts (acceptance proofs)</h4>
+<ul>
+<li>
+<p><strong>M4 smokes:</strong> two allowed exec runs (<code>node -e "one"</code>, <code>"two"</code>) → index appended twice; deny (<code>SERVER rm</code>) wrote <strong>no</strong> index.</p>
+</li>
+<li>
+<p><code>receipt --json --with-logs 2</code> returned single-line JSON with 2 entries.</p>
+</li>
+<li><code>receipt pr --json</code> returned single-line PR payload including last_log.</li>
+<li>
+<p><strong>M5 smokes:</strong></p>
+</li>
+<li>
+<p><code>scripts/pr_body.sh</code> produced non-empty <code>PR_BODY.md</code> with <strong>Title, Summary, Files, Memory, Last log, Raw JSON</strong>.</p>
+</li>
+<li><code>scripts/ci_smoke.sh</code> → <code>CI_SMOKE=ok</code> (exit 0).</li>
+<li>
+<p><strong>M6 smokes:</strong></p>
+</li>
+<li>
+<p>Branch helper → <code>feat/release-notes-demo</code>.</p>
+</li>
+<li>Tag helper → <code>test-m6-1</code> (annotated).</li>
+<li><code>scripts/release_notes.sh test-m6-1 HEAD</code> → <code>REL_NOTES.md</code> with <strong>Title, Summary, Commits, Files, Memory, Last exec log, Footer</strong>.</li>
+<li><code>docs/CHANGELOG.md</code> created with top-append instructions.</li>
+</ul>
+<h4 id="4-known-constraints-non-goals_1">4) Known constraints / non-goals</h4>
+<ul>
+<li>Index only appends on <strong>allow/timeout exec</strong>; never on deny.</li>
+<li>All JSON responses remain <strong>single-line</strong>; legacy suggest allow path stays <strong>exactly 2 lines</strong>.</li>
+<li>No network/API usage in scripts; POSIX shell &amp; Python stdlib only.</li>
+<li><code>logs/exec/*</code> ignored by git per <code>.gitignore</code>.</li>
+</ul>
+<h4 id="5-exact-next-steps-awaiting-pm_1">5) Exact next steps (awaiting PM)</h4>
+<ul>
+<li><strong>M7 (PM to assign):</strong> version bump utilities, meta-tag, publish checklists (per PM hint).</li>
+<li>
+<p>If approved, consider:</p>
+</li>
+<li>
+<p>Optional: per-WIN caps overrides and deny-reason catalog.</p>
+</li>
+<li>Optional: expose run-log index query (<code>runlog index --json</code>) for CI consumption.</li>
+</ul>
+<h4 id="6-verification-commands-quick_1">6) Verification commands (quick)</h4>
+<pre><code class="language-bash"># M4
+python -m wrapper suggest --exec --win BACKEND -- node -e &quot;console.log('ping')&quot;; echo $?
+tail -n 1 logs/exec/index.jsonl
+
+# M5
+bash scripts/ci_smoke.sh; echo $?
+python -m wrapper receipt pr --json | python scripts/pr_body.py | head -n 10
+
+# M6
+bash scripts/branch.sh demo/check; git rev-parse --abbrev-ref HEAD
+bash scripts/tag.sh demo-m6 &quot;demo&quot;; git show --stat demo-m6 | head -n 5
+bash scripts/release_notes.sh demo-m6 HEAD | head -n 20
+</code></pre>
+<h4 id="7-state-snapshot_1">7) State snapshot</h4>
+<ul>
+<li><strong>Branch:</strong> <code>feat/release-notes-demo</code></li>
+<li><strong>HEAD:</strong> <code>acda482</code> (same commit as <code>test-m6-1</code>)</li>
+<li><strong>Index tail:</strong> latest <code>BACKEND</code> exec run present; deny writes none.</li>
+</ul>
+<p><strong>Codename: Gorilla</strong></p></div>
             </div>
         </div>
 
