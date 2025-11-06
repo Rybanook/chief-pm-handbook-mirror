@@ -229,6 +229,10 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2025-11-06" class="nav-link">2025-11-06 —</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -367,52 +371,27 @@ If information is missing, state that; never invent it.</p>
 </blockquote>
 <hr />
 <h3 id="c-uploading-the-handover-to-the-handbook-exact-process">C) Uploading the Handover to the Handbook (Exact Process)</h3>
-<p><strong>1. Move into the correct repo</strong>
-```bash
-cd ~/Desktop/Chief/gpt-handbook-source
-✅ Prompt shows (main) inside gpt-handbook-source.</p>
-<ol>
-<li>Create or edit today’s handover</li>
-</ol>
-<p>bash
-Copy code
-nano docs/handovers/worker/YYYY-MM-DD-worker-handover.md
-Paste the handover text → Ctrl + O, Enter → Ctrl + X.</p>
-<ol>
-<li>Syntax check</li>
-</ol>
-<p>bash
-Copy code
-bash -n scripts/publish.sh
-✅ No output = clean.</p>
-<ol>
-<li>Publish mirrors</li>
-</ol>
-<p>bash
-Copy code
-bash scripts/publish.sh
-✅ Ends with &gt;&gt; pm mirror push complete.</p>
-<ol>
-<li>Verify upload</li>
-</ol>
-<p>bash
-Copy code
-ls ../gpt-pm-handbook-mirror/handovers/worker
-✅ Your filename appears in the list.</p>
-<p>If missing, re-run publish or confirm path.</p>
-<ol>
-<li>Visual confirmation
-Open the PM-mirror URL and confirm the new handover appears under /handovers/worker/.</li>
-</ol>
-<p>Upload is complete only when the file exists in both the source repo and the PM mirror.</p>
-<p>D) Quality Rules
-One command at a time; no chaining.</p>
-<p>Confirm success after each command.</p>
-<p>Always show verification outputs.</p>
-<p>If uncertain, write “I don’t know” and show how to verify.</p>
-<p>Continuity is sacred. Leave the next Worker unstoppable.</p>
-<p>yaml
-Copy code</p></div>
+<p>Append a new Worker handover (same file, add at the bottom)</p>
+<p>Use your [SOURCE] Git Bash window (~/Desktop/Chief/gpt-handbook-source).
+Canonical file to edit: docs/handovers/worker/2025-11-05-worker-handover.md
+Public link to verify/share: https://rybanook.github.io/chief-handbook-mirror/handovers/worker/2025-11-05-worker-handover/</p>
+<p>[SOURCE] — cd to the repo</p>
+<p>cd ~/Desktop/Chief/gpt-handbook-source</p>
+<p>[SOURCE] — open the Worker handovers file</p>
+<p>notepad docs/handovers/worker/2025-11-05-worker-handover.md</p>
+<p>— In Notepad: scroll to the very bottom, then add:</p>
+<hr />
+<h2 id="2025-11-06">2025-11-06 — <Short Title></h2>
+<p><paste full handover body here></p>
+<p>[SOURCE] — publish</p>
+<p>bash scripts/publish.sh</p>
+<p>— Verify:</p>
+<p>Open: https://rybanook.github.io/chief-handbook-mirror/handovers/worker/2025-11-05-worker-handover/</p>
+<p>Confirm today’s entry appears at the bottom (chronological order).</p>
+<p>Notes</p>
+<p>Never create new per-handover files for Worker; always append to the file above.</p>
+<p>If a new date is needed, just add a new ## YYYY-MM-DD — <Title> section at the bottom.</p>
+<p>Add a brief, descriptive title so future GPTs can scan quickly.</p></div>
             </div>
         </div>
 
