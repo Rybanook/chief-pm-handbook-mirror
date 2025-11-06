@@ -342,6 +342,11 @@
             </li>
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-2025-11-06-c-001-health-pr-training-fork-ai-lab-repo-init" class="nav-link">Worker Handover — 2025-11-06 — C-001 Health PR (Training Fork) + AI-Lab Repo Init</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -1638,7 +1643,177 @@ kill &quot;$SERVER_PID&quot; &gt;/dev/null 2&gt;&amp;1 || true
 <li>The sandbox README <strong>exists and is committed</strong>; it documents route contract and smokes.</li>
 <li>Workers must follow single‑step protocol; PM accepts.</li>
 <li>If chat nears 72–75% capacity, prepare the next handover before proceeding.</li>
-</ul></div>
+</ul>
+<h1 id="worker-handover-2025-11-06-c-001-health-pr-training-fork-ai-lab-repo-init">Worker Handover — 2025-11-06 — C-001 Health PR (Training Fork) + AI-Lab Repo Init</h1>
+<blockquote>
+<p>Scope: Everything that happened in this chat only — exhaustive, linear, no omissions. One file format using collapsible sections.</p>
+</blockquote>
+<details>
+<summary><strong>0) Snapshot (What’s Done)</strong></summary>
+
+- **C-001.PR (training fork)**: Added `GET /health` returning one-line JSON; PR opened to `main`; local smoke passed; caps respected.
+- **AI-Lab (GPT wrapper)**: Private repo created; `main` pushed; **v0.1.0** tag + GitHub Release published.
+- **Boundary respected**: Stopped exactly at PM directive scope when asked.
+</details>
+
+<details>
+<summary><strong>Key Links</strong></summary>
+
+- Training fork: `https://github.com/Rybanook/chief-backend-train.git`  
+- PR #1 (C-001): https://github.com/Rybanook/chief-backend-train/pull/1  
+- AI-Lab repo: https://github.com/Rybanook/ai-lab  
+- AI-Lab Release v0.1.0: https://github.com/Rybanook/ai-lab/releases/tag/v0.1.0
+</details>
+
+<details>
+<summary><strong>1) How We Worked (Rules Followed)</strong></summary>
+
+- One step at a time; window labels **[BACKEND] / [SERVER] / [AI-LAB]** above copyable command blocks.  
+- Verify after each step; paste exact outputs.  
+- Error handling: identify exact cause → surgical fix (e.g., fork lacked `main`; AI-Lab remote mismatch).  
+- No unrequested work; pause at directive boundary.
+</details>
+
+<details>
+<summary><strong>2) C-001.PR — Health Route via Training Fork (Full Detail)</strong></summary>
+
+**Objective (per directive):** Add minimal `/health` endpoint returning one-line JSON `{"status":"ok","ts":"<iso>"}`, adapt to actual structure, keep within caps (≤3 files, ≤120 LOC, no new deps). Provide discovery, PR link, smoke, files/LOC, HEAD.
+
+**Discovery (deterministic):**
+- Top-level (selected): `_fix_plan.js`, `backups/`, `data/`, `docs/`, `lib/`, `package.json`, `routes/`, `server.cjs`, `tests/`, etc.
+- **Entrypoint:** `server.cjs` (Express, `PORT = process.env.PORT || 8080`).
+- **Router pattern:** Modular `routes/*.cjs` via `require("./routes/...")`, mounted with `app.use("/path", router)`.
+  - `require` at **L17–19** & **L533**: `auth.cjs`, `profile.cjs`, `intent.cjs`, `oauth.cjs`.
+  - `app.use` at **L528–534**: `/auth`, `/profile`, `/intent`, `/oauth`.
+- **Pre-existing check:** `app.get("/healthz", ...)` near L176 → returns `{ ok: true }` (left untouched).
+- **Discovery Deliverable (concise):** Entrypoint `server.cjs`; modular `routes/*.cjs`; mounts at L528–534; existing `/auth`, `/profile`, `/intent`, `/oauth`.
+
+**Implementation (feature branch):**
+- Branch: `feat/C-001-health`.
+- New file: `routes/health.cjs`
+  ```js
+  const express = require("express");
+  const router = express.Router();
+  router.get("/", (_req, res) => {
+    res.set("Content-Type", "application/json");
+    res.send(JSON.stringify({ status: "ok", ts: new Date().toISOString() }));
+  });
+  module.exports = router;
+Wire-in (server.cjs, after /oauth region):
+
+js
+Copy code
+const healthRouter = require("./routes/health.cjs");
+app.use("/health", healthRouter);
+Caps: 2 files, +12 insertions, no new deps → PASSED.
+
+Local run & smoke:
+
+Server boot (expected dev warning):
+[auth] WARNING: AUTH_ENCRYPT_KEY missing or invalid length (needs 32 bytes Base64).
+[Chief TTS] Listening on http://localhost:8080
+
+Smoke:
+
+bash
+Copy code
+curl -s http://localhost:8080/health
+{"status":"ok","ts":"2025-11-06T03:24:48.813Z"}
+Commit & PR:
+
+Commit: C-001: add /health route (one-line JSON) and wire router
+→ 2 files changed, 12 insertions(+); create mode 100644 routes/health.cjs
+
+Initial PR attempt failed because fork lacked main.
+
+Fix: Create local main from origin/feat/v3.9-onboarding-consent-backend, push main, then create PR.
+
+PR: https://github.com/Rybanook/chief-backend-train/pull/1
+
+HEAD (feature tip): f0afd31
+
+</details>
+<details> <summary><strong>3) AI-Lab (GPT Wrapper) — Repo Bring-Up</strong></summary>
+Situation: Local repo existed with origin pointed to https://github.com/Rybanook/ai-lab.git, but GitHub repo didn’t exist (ls-remote failed).
+
+Actions:
+
+Create GitHub repo (private) & push source
+
+gh repo create Rybanook/ai-lab --private --source=. --remote=origin --push --description "Self-Improving GPT lab: prompts, policies, tools, harness."
+
+CLI noted “Unable to add remote origin” (already present locally) → Fix: git remote set-url origin https://github.com/Rybanook/ai-lab.git
+
+Push: git push -u origin main → success; origin/main at 262fdb23…
+
+Verify: git ls-remote --heads origin shows refs/heads/main.
+
+Baseline tag + release
+
+Tag: v0.1.0 → pushed
+
+Release: v0.1.0 created at https://github.com/Rybanook/ai-lab/releases/tag/v0.1.0
+
+Current State: Private repo live; branch main tracking origin; anchor tag/release v0.1.0.
+Mode note: Wrapper is in suggest-only mode (no execution).
+
+</details>
+<details> <summary><strong>4) Command Log (Material Highlights Only)</strong></summary>
+BACKEND discovery:
+ls -1 → confirm layout • sed -n '1,120p' server.cjs • grep -n "app.use" server.cjs (L528–534) • grep -n "routes/.*\.cjs" server.cjs (L17–19, L533)
+
+Feature & code:
+git checkout -b feat/C-001-health • create routes/health.cjs • wire via sed -i insertion after /oauth
+
+Install & run:
+npm install (0 vulns) • [SERVER] node server.cjs
+
+Smoke:
+curl -s http://localhost:8080/health → one-line JSON
+
+Commit & push & PR fix:
+git add … (CRLF warnings benign) • git commit … • git push -u origin feat/C-001-health
+PR fail (no main) → git checkout -b main origin/feat/v3.9-onboarding-consent-backend → git push -u origin main → gh pr create … → PR #1
+
+AI-Lab bring-up:
+gh repo create … (created; remote fix) • git remote set-url origin … • git push -u origin main • git tag -a v0.1.0 • git push origin v0.1.0 • gh release create v0.1.0 …
+
+</details>
+<details> <summary><strong>5) Decisions, Constraints, Notes</strong></summary>
+Directive adherence: Stopped at PM boundary on request; confirmed C-001 completion.
+
+Pre-existing /healthz: Left untouched; added /health per directive.
+
+CRLF warnings: Safe to ignore for Node app.
+
+Auth warning on boot: Expected in dev; irrelevant to /health.
+
+CI: Optional per directive; manual smoke recorded.
+
+Fork base fix: Created main to enable PR base.
+
+</details>
+<details> <summary><strong>6) Return Bundle (as requested by PM)</strong></summary>
+DISCOVERY OUTPUT: Entrypoint server.cjs; modular routers routes/*.cjs (requires at L17–19 & L533; mounts at L528–534); existing mounts /auth, /profile, /intent, /oauth.
+
+PR LINK/NUMBER: https://github.com/Rybanook/chief-backend-train/pull/1
+
+SMOKE OUTPUT: {"status":"ok","ts":"2025-11-06T03:24:48.813Z"}
+
+FILES TOUCHED: routes/health.cjs (new); server.cjs (+2 lines: require + mount).
+
+HEAD (feature): f0afd31
+
+Caps: ≤3 files, +12 LOC, no new deps — PASSED.
+
+</details>
+<details> <summary><strong>7) Next Steps (Only When PM Directs)</strong></summary>
+C-001 follow-ups: Merge PR in training fork if/when approved.
+
+AI-Lab: Await directive for Day-2 loop/governance; baseline anchored at v0.1.0.
+
+</details>
+<p>```</p></div>
             </div>
         </div>
 
