@@ -1900,7 +1900,177 @@ Copy code
 <li>Handover appended with newest section at the bottom.</li>
 </ul>
 <hr />
-<p><strong>codename Banana</strong></p></div>
+<p><strong>codename Banana</strong></p>
+<p>Worker Handover — AI-Lab Wrapper</p>
+<p>Date: Nov 6, 2025 (America/Vancouver)
+Repo: Rybanook/ai-lab (default branch main)
+Current HEAD: 3132e5f (plus .gitignore tidy acda482)</p>
+<p>1) Project overview (this chat’s scope)</p>
+<p>We upgraded the CLI wrapper from a context-aware suggester into a policy-gated tool that can check, dry-run, and now execute commands safely, with per-window allowlists, tee’d run logs, and JSON receipts—without altering legacy behaviors unless explicitly requested by flags.</p>
+<p>Deliverables completed (this session):</p>
+<p>M1-003 — Policy Check (read-only gate).</p>
+<p>M2 — Policy-Enforced Suggest + Dry-Run.</p>
+<p>M3 — Policy-Gated Exec + Tee Logs + Per-WIN allowlists (+ JSON-exec one-line fix).</p>
+<p>Status: Implemented, tested, pushed. Waiting for PM to issue M4 — PR-grade receipts &amp; run-log index.</p>
+<p>2) How we work (rules I followed)</p>
+<p>One command at a time. Exact Git Bash commands; read exit codes.</p>
+<p>Ask for current file before edits. Do not assume or “get creative.”</p>
+<p>You call when to save/commit/push/tag. I propose timing; you approve.</p>
+<p>Zero regressions to legacy paths. Legacy suggest remains exactly two lines on allow.</p>
+<p>Exhaustive receipts. Paste exact outputs + exit codes.</p>
+<p>Truth over momentum. No placeholders; call unknowns out explicitly.</p>
+<p>3) Repo &amp; relevant files</p>
+<p>Top-level (truncated to relevant paths):</p>
+<p>./wrapper/<strong>main</strong>.py      # the CLI wrapper (updated)
+./policies/allowlist.yaml  # minimal tokens + per-WIN allowlists
+./policies/caps.yaml       # caps: max_args, max_len
+./memory/*                 # sqlite + context/ops loggers
+./logs/exec/               # created by exec runs (ignored in git)</p>
+<p>Runtime artifacts ignored/untracked:</p>
+<p>memory/memory.db — not committed; reverted before push.</p>
+<p>logs/exec/ — untracked; added to .gitignore in acda482.</p>
+<p>4) Technical architecture (wrapper)</p>
+<p>Entry: python -m wrapper <subcommand></p>
+<p>Subcommands:</p>
+<p>status [--json] — model/mode/db (unchanged).</p>
+<p>suggest [--win WIN] [--json] [--dry-run] [--exec] [--timeout SEC] -- <cmd…></p>
+<p>Policy gate first (M1-003 + per-WIN allowlists).</p>
+<p>Legacy allow: two lines (preview, context), exit 0.</p>
+<p>Legacy deny: adds line 3 DENY=<reason>, exit 2.</p>
+<p>Dry-run: adds DRYRUN={...}, exit 0; no execution.</p>
+<p>Exec: if allowed, runs no shell, streams to console (legacy mode only), tees to file and writes JSON receipt.</p>
+<p>JSON mode: single line only; in --exec we suppress child stdout to keep output to one JSON line.</p>
+<p>memory status|add|show [--json] — unchanged.</p>
+<p>receipt — git info + DB counts (unchanged).</p>
+<p>Exec logging (M3):</p>
+<p>logs/exec/<ISO>-<WIN>-<slug>.log — combined stdout/stderr.</p>
+<p>logs/exec/<ISO>-<WIN>-<slug>.json — receipt:</p>
+<p>{"win":"<WIN>","argv":[...],
+ "policy":{"allow":true},
+ "exit":<code>,
+ "duration_ms":<n>,
+ "bytes_out":null,
+ "timed_out":false|true,
+ "log":"<abs path>"}}</p>
+<p>Exit codes:</p>
+<p>Allow (suggest/dry-run): 0</p>
+<p>Deny: 2</p>
+<p>Exec success: child exit (usually 0)</p>
+<p>Exec timeout: 124</p>
+<p>Command not found: 127 (receipt written)</p>
+<p>5) Policy system</p>
+<p>Minimal YAML parser (stdlib only). Safe defaults always apply.</p>
+<p>Safe deny (always): ["rm","mkfs","shutdown","reboot","poweroff"]</p>
+<p>Caps defaults: max_args=20, max_len=240</p>
+<p>Per-WIN allowlists (strict): if <win>_allow exists, first token must be listed or the request is denied with reason win-allow:<win>:<token>.</p>
+<p>Current allowlist (at acceptance):</p>
+<p>allow:
+  - echo
+deny:
+  - rm</p>
+<p>backend_allow:
+  - node
+  - npm
+  - echo</p>
+<p>server_allow:
+  - node
+  - echo</p>
+<p>android_allow:
+  - adb
+  - echo
+  - python
+  - py</p>
+<p>6) Progress &amp; acceptance receipts
+M1-003 — Policy Check (allow/deny + caps)</p>
+<p>Examples:</p>
+<p>py -3 -m wrapper policy check --win BACKEND -- echo ok
+→ POLICY=allow (exit 0)</p>
+<p>py -3 -m wrapper policy check --json --win SERVER -- rm -rf tmp
+→ {"allow": false, "reasons": ["deny-token:rm"], "caps": {"args": 3, "len": 10}} (exit 0)</p>
+<p>M2 — Policy-Enforced Suggest + Dry-Run</p>
+<p>Allow, legacy (two lines + exit 0):</p>
+<p>py -3 -m wrapper suggest --win BACKEND -- echo ok
+[WIN=BACKEND] echo ok
+CONTEXT={...}
+exit 0</p>
+<p>Deny, legacy (adds line 3 + exit 2):</p>
+<p>py -3 -m wrapper suggest --win SERVER -- rm -rf tmp
+[WIN=SERVER] rm -rf tmp
+CONTEXT={...}
+DENY=deny-token:rm
+exit 2</p>
+<p>Allow + dry-run (adds DRYRUN=… + exit 0):</p>
+<p>py -3 -m wrapper suggest --dry-run --win ANDROID -- adb devices
+[WIN=ANDROID] adb devices
+CONTEXT={...}
+DRYRUN={"win":"ANDROID","argv":["adb","devices"],"len":11,"args":2}
+exit 0</p>
+<p>Ledger bump proof:</p>
+<p>py -3 -m wrapper memory status
+MEMORY=ok
+DB=.../memory.db
+COUNTS=facts:1 decisions:1 ops:7 (later 9)</p>
+<p>M3 — Exec + Tee Logs + Per-WIN Allowlists</p>
+<p>A. Allowed exec (BACKEND)</p>
+<p>py -3 -m wrapper suggest --exec --win BACKEND -- node -e "console.log('hi')"
+[WIN=BACKEND] node -e console.log('hi')
+CONTEXT={...}
+hi
+echo $? → 0</p>
+<p>Artifacts:
+logs/exec/20251106T193037Z-BACKEND-node-_e-console_log__hi__.{log,json}</p>
+<p>B. Denied exec (SERVER)</p>
+<p>py -3 -m wrapper suggest --exec --win SERVER -- rm -rf tmp
+[WIN=SERVER] rm -rf tmp
+CONTEXT={...}
+DENY=win-allow:server:rm
+echo $? → 2</p>
+<p>No exec artifacts (ops row only).</p>
+<p>C. Timeout (ANDROID)</p>
+<p>py -3 -m wrapper suggest --exec --timeout 1 --win ANDROID -- py -3 -c "import time; time.sleep(2); print('done')"
+[WIN=ANDROID] py -3 -c import time; time.sleep(2); print('done')
+CONTEXT={...}
+echo $? → 124</p>
+<p>Receipt:</p>
+<p>{"win":"ANDROID","argv":["py","-3","-c","import time; time.sleep(2); print('done')"],
+ "policy":{"allow":true},"exit":124,"duration_ms":1190,"timed_out":true,"log":"...py-_3-_c.log"}</p>
+<p>D. JSON allow (BACKEND, exec) — single line only</p>
+<p>py -3 -m wrapper suggest --json --exec --win BACKEND -- echo ok
+{"preview":"[WIN=BACKEND] echo ok","context":{...},"policy":{"allow":true,"reasons":[]},
+ "exec":{"started":true,"exit":0,"duration_ms":169,"timed_out":false,"log":"...echo-ok.log"}}</p>
+<p>E. Per-WIN allowlist proof (ANDROID)</p>
+<p>py -3 -m wrapper suggest --exec --win ANDROID -- adb devices
+echo $? → 127   # adb not found (still proves allowed exec)</p>
+<p>py -3 -m wrapper suggest --exec --win ANDROID -- node -v
+DENY=win-allow:android:node
+echo $? → 2</p>
+<p>F. Ledger bump</p>
+<p>COUNTS ... ops:9
+latest.ops.detail: "ANDROID: node -v (deny)"</p>
+<p>7) Current repo state</p>
+<p>HEADs pushed: fffbbbf (M2), 9c35c5e (M3 base), 61ca91f (android python), 3132e5f (JSON exec fix), acda482 (.gitignore).</p>
+<p>Working tree: clean (after reverting memory/memory.db).</p>
+<p>Ignored: logs/exec/.</p>
+<p>8) Known constraints</p>
+<p>adb not on PATH; allowed run exits 127 (fine for proof).</p>
+<p>JSON exec fixed to print exactly one line.</p>
+<p>9) Next (waiting for PM): M4 — PR-grade receipts &amp; run-log index</p>
+<p>Index logs/exec/*.json (filters: date/win/exit/timeout).</p>
+<p>CLI output for CI: runlog index --json.</p>
+<p>Optional: suggest --receipt --json to return receipt path.</p>
+<p>Consider per-WIN caps overrides &amp; deny-reason catalog.</p>
+<p>Commit cadence: cohesive change → smokes → push; tag after PM approval.</p>
+<p>10) Re-verification commands
+py -3 -m wrapper suggest --win BACKEND -- echo ok; echo $?
+py -3 -m wrapper suggest --win SERVER -- rm -rf tmp; echo $?
+py -3 -m wrapper suggest --dry-run --win ANDROID -- adb devices; echo $?
+py -3 -m wrapper suggest --json --exec --win BACKEND -- echo ok
+py -3 -m wrapper suggest --exec --timeout 1 --win ANDROID -- py -3 -c "import time; time.sleep(2); print('done')"; echo $?
+py -3 -m wrapper memory status
+py -3 -m wrapper memory show</p>
+<p>11) Handover integrity</p>
+<p>Receipts-backed; zero legacy regressions; policy/caps/per-WIN enforced; pushed to origin/main.</p>
+<p>Codename: Apple</p></div>
             </div>
         </div>
 
