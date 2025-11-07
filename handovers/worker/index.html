@@ -327,6 +327,51 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-s1s2-ailab" class="nav-link">Worker Handover — S1/S2 (AI‑Lab)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#purpose" class="nav-link">Purpose</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#how-we-work-from-training-essentials" class="nav-link">How We Work (from Training — essentials)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#repo-context" class="nav-link">Repo &amp; Context</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#s1-model-runner-prompt-scaffold-approved" class="nav-link">S1 — Model Runner + Prompt Scaffold (Approved ✅)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#s2-task-harness-metrics-approved" class="nav-link">S2 — Task Harness + Metrics (Approved ✅)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-state-end-of-chat" class="nav-link">Current State (end of chat)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#risks-watchouts" class="nav-link">Risks / Watch‑outs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-steps-queued" class="nav-link">Next Steps (queued)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#appendix-key-commands-outputs-verbatim" class="nav-link">Appendix — Key Commands &amp; Outputs (verbatim)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#code-name-christmas" class="nav-link">Code name: Christmas</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -2529,7 +2574,107 @@ CI_GUARD=ok
 <li>Smoke proofs pasted above (Windows); Makefile present for POSIX.</li>
 </ul>
 <hr />
-<p><strong>Codename:</strong> Matchstick</p></div>
+<p><strong>Codename:</strong> Matchstick</p>
+<hr />
+<h1 id="worker-handover-s1s2-ailab">Worker Handover — S1/S2 (AI‑Lab)</h1>
+<p><strong>Date:</strong> Thu Nov 6, 2025 (America/Vancouver)</p>
+<h2 id="purpose">Purpose</h2>
+<p>Lock in everything we accomplished in this chat for the <strong>AI‑Lab</strong> repo. This handover is self‑contained so the next Worker can continue immediately, following <strong>How We Work</strong>.</p>
+<h2 id="how-we-work-from-training-essentials">How We Work (from Training — essentials)</h2>
+<ul>
+<li><strong>Single‑step flow:</strong> one command at a time; confirm before proceeding.</li>
+<li><strong>Truth over optimism:</strong> if unsure, stop and verify.</li>
+<li><strong>Outputs:</strong> machine outputs are single‑line JSON when applicable.</li>
+<li><strong>Safety:</strong> stdlib‑only; no network unless explicitly required.</li>
+<li><strong>Handover hygiene:</strong> include absolute facts (paths, SHAs, commands used, verification results).</li>
+</ul>
+<h2 id="repo-context">Repo &amp; Context</h2>
+<ul>
+<li><strong>Repo:</strong> <code>ai-lab</code></li>
+<li><strong>Base branch (start of session):</strong> <code>feat/release-notes-demo</code></li>
+<li><strong>Temp branches created by harness:</strong> <code>auto/s2-…</code> (see S2 below)</li>
+<li><strong>OS/Env:</strong> Windows (Git Bash). Line‑ending warnings (CRLF→LF) observed but non‑blocking.</li>
+</ul>
+<hr />
+<h2 id="s1-model-runner-prompt-scaffold-approved">S1 — Model Runner + Prompt Scaffold (Approved ✅)</h2>
+<p><strong>Goal:</strong> Add a pluggable model adapter + code‑writer prompt path that outputs wrapper‑compatible JSON and diffs.</p>
+<p><strong>Files (≤5):</strong></p>
+<ol>
+<li><code>models/adapter.py</code> — stdlib‑only stub <code>generate(prompt, max_tokens)</code>; reads completion text from <code>MODEL_STUB_PATH</code>.</li>
+<li><code>prompts/code_writer.md</code> — role, guardrails, <strong>JSON‑only</strong> output contract with <code>plan</code>, <code>commands</code>, <code>patch</code>.</li>
+<li><code>agents/self_improver.py</code> — adds <code>run_task()</code> and CLI <code>python -m agents.self_improver run --task … --dry-run</code> that prints single‑line JSON <code>{ ok, proposal, commands }</code> and writes <code>.patch</code> to <code>.chief/proposals/&lt;ts&gt;.patch</code>.</li>
+<li><code>tasks/examples/patch_echo.yaml</code> — tiny demo task (append a line to README or create minimal file).</li>
+<li><code>README.md</code> — added one demo line under first heading (after creating backup <code>README.bak</code>).</li>
+</ol>
+<p><strong>Stub completion file:</strong> <code>stub.txt</code> (JSON per contract) used to drive S1 without network.</p>
+<p><strong>Commit (S1 code):</strong> <code>abfb4a990dcaffb625c2840654c0e27128ec051c</code></p>
+<ul>
+<li><strong>Diff summary:</strong> 5 files changed, 96 insertions, 146 deletions; new files: <code>models/adapter.py</code>, <code>prompts/code_writer.md</code>, <code>tasks/examples/patch_echo.yaml</code>.</li>
+<li><strong>SMOKE (S1):</strong> <code>python -m agents.self_improver run --task tasks/examples/patch_echo.yaml --dry-run</code> → single‑line JSON with <code>ok:true</code>, <code>proposal:&lt;path&gt;</code>, <code>commands:[…]</code>.</li>
+</ul>
+<p><strong>Notes:</strong> No network/APIs; wrapper behavior unchanged.</p>
+<hr />
+<h2 id="s2-task-harness-metrics-approved">S2 — Task Harness + Metrics (Approved ✅)</h2>
+<p><strong>Goal:</strong> Apply proposals on a temp branch, run guard checks, compute diffstat, and log metrics to <code>.chief/metrics.jsonl</code> — stdlib only.</p>
+<p><strong>New files (3):</strong></p>
+<ul>
+<li><code>harness/diffstat.py</code> — parses <code>git show --stat</code> summary → <code>{ files, insertions, deletions }</code>.</li>
+<li><code>harness/metrics.py</code> — <code>write_metrics(entry)</code> appends one JSON line to <code>.chief/metrics.jsonl</code> with normalized schema <code>{ ts, branch, head, ok, files, insertions, deletions, ci_exit }</code>.</li>
+<li><code>harness/apply.py</code> — CLI+lib: <code>--proposal &lt;path.patch&gt; [--branch &lt;name&gt;]</code> → creates temp branch, <code>git apply --index</code>, commit, runs <code>bash scripts/ci_guard.sh</code>, emits one JSON line <code>{ ok, branch, head, ci_guard:{exit,out}, delta:{…} }</code>.</li>
+</ul>
+<p><strong>Integration (1 updated):</strong></p>
+<ul>
+<li><code>agents/self_improver.py</code> — adds <code>apply_proposal()</code> and CLI <code>apply --proposal &lt;path.patch&gt; [--branch &lt;name&gt;]</code>; calls harness, writes metrics, prints the <strong>same normalized JSON</strong> line that was appended (including <code>ts</code>).</li>
+</ul>
+<p><strong>Commit (S2 code):</strong> <code>1146eea77457eab85de0fb82061c2bf8b0dcae7d</code></p>
+<ul>
+<li><strong>Diff summary:</strong> 4 files changed, 159 insertions, 1 deletion; new files: <code>harness/apply.py</code>, <code>harness/diffstat.py</code>, <code>harness/metrics.py</code>.</li>
+</ul>
+<p><strong>S2 SMOKE sequence &amp; results:</strong></p>
+<ul>
+<li>First attempts failed (patch didn’t match): metrics show <code>ok:false</code> for branches <code>auto/s2-20251106T205839</code> and <code>auto/s2-20251106T210246</code> (zero deltas; <code>ci_exit:0</code>).</li>
+<li>Adjusted proposal to create <code>S2_DEMO.txt</code> with a single line.</li>
+<li>
+<p><strong>Success:</strong> <code>python -m agents.self_improver apply --proposal .chief/proposals/20251106T210145.patch</code> →</p>
+</li>
+<li>
+<p>Printed JSON: <code>{ "ts": "2025-11-06T21:05:27-0800", "branch": "auto/s2-20251106T210524", "head": "ff1043d6f275a5f1bdeb06151f77d8d528911b30", "ok": true, "files": 1, "insertions": 1, "deletions": 0, "ci_exit": 0 }</code></p>
+</li>
+<li>Metrics tail includes the same line; fields match exactly.</li>
+</ul>
+<p><strong>Artifacts left in repo:</strong></p>
+<ul>
+<li><code>.chief/proposals/&lt;ts&gt;.patch</code> proposals.</li>
+<li><code>.chief/metrics.jsonl</code> (append‑only; latest success recorded).</li>
+<li>Temp branch <code>auto/s2-20251106T210524</code> containing a committed application of the demo patch.</li>
+</ul>
+<p><strong>Notes:</strong> Guard script <code>bash scripts/ci_guard.sh</code> executed; exit <code>0</code> on success. No network; wrapper remains unchanged.</p>
+<hr />
+<h2 id="current-state-end-of-chat">Current State (end of chat)</h2>
+<ul>
+<li><strong>S1 + S2 delivered</strong> and verified offline.</li>
+<li><strong>HEAD (code):</strong> <code>1146eea7…</code> on <code>feat/release-notes-demo</code>; latest temp branch from harness: <code>auto/s2-20251106T210524</code> with HEAD <code>ff1043d6…</code>.</li>
+<li><strong>Metrics</strong> show two failed dry runs followed by one success (1 file, +1/−0).</li>
+</ul>
+<h2 id="risks-watchouts">Risks / Watch‑outs</h2>
+<ul>
+<li>Patch formatting must be clean (no trailing whitespace or mismatched context). When using Notepad, prefer minimalist diffs.</li>
+<li>On Windows, line‑ending warnings (CRLF→LF) are expected; do not auto‑fix unless tests complain.</li>
+</ul>
+<h2 id="next-steps-queued">Next Steps (queued)</h2>
+<ol>
+<li><strong>S3 — Safe Exec Loop:</strong> auto‑revert/accept with caps; promote only when metrics meet threshold; ensure wrapper policy gates remain intact.</li>
+<li><strong>Proposal source:</strong> Replace <code>MODEL_STUB_PATH</code> with real adapter behind the same interface when we’re ready (no caller changes).</li>
+<li><strong>Docs:</strong> When requested by PM, append a brief S1/S2 summary to Worker Handovers and publish via the standard script.</li>
+</ol>
+<h2 id="appendix-key-commands-outputs-verbatim">Appendix — Key Commands &amp; Outputs (verbatim)</h2>
+<ul>
+<li><code>python -m agents.self_improver run --task tasks/examples/patch_echo.yaml --dry-run</code> → single‑line JSON with <code>{ ok, proposal, commands }</code>.</li>
+<li><code>python -m agents.self_improver apply --proposal .chief/proposals/20251106T210145.patch</code> → printed the normalized metrics JSON (see S2 success).</li>
+<li><code>tail -n 3 .chief/metrics.jsonl</code> → last line matches printed JSON.</li>
+</ul>
+<hr />
+<h2 id="code-name-christmas"><strong>Code name: Christmas</strong></h2></div>
             </div>
         </div>
 
