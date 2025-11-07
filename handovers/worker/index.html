@@ -316,6 +316,10 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2025-11-06-worker-handover-m7m9-v10-cut-guardrails-ops-pack" class="nav-link">2025-11-06 — Worker Handover — M7–M9: v1.0 cut, guardrails, ops pack</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -2296,7 +2300,122 @@ bash scripts/release_notes.sh demo-m6 HEAD | head -n 20
 <li><strong>HEAD:</strong> <code>acda482</code> (same commit as <code>test-m6-1</code>)</li>
 <li><strong>Index tail:</strong> latest <code>BACKEND</code> exec run present; deny writes none.</li>
 </ul>
-<p><strong>Codename: Gorilla</strong></p></div>
+<p><strong>Codename: Gorilla</strong></p>
+<p>Got it. I read your training page carefully and I’ll follow that upload flow exactly. Here’s the <strong>handover entry</strong> to paste at the very bottom of the Worker handovers file.</p>
+<hr />
+<h2 id="2025-11-06-worker-handover-m7m9-v10-cut-guardrails-ops-pack">2025-11-06 — Worker Handover — <strong>M7–M9: v1.0 cut, guardrails, ops pack</strong></h2>
+<p><strong>Scope:</strong> We cut wrapper <strong>v1.0.0</strong>, added CI guardrails, index rotation, YAML policy hardening, and an Ops pack (prune, error budget, HTML report). All changes are stdlib-only, offline, and keep legacy behaviors intact.</p>
+<h3 id="summary-what-why">Summary (what &amp; why)</h3>
+<ul>
+<li><strong>M7 (Versioning &amp; notes):</strong> Single-source <code>VERSION=1.0.0</code>, annotated tag <code>v1.0.0</code> (<code>release: v1.0.0</code>), release notes snapshot to <code>releases/v1.0.0.md</code>, CHANGELOG prepend, and a publish checklist. Reason: deterministic versioning + reproducible receipts for the first stable wrapper.</li>
+<li>
+<p><strong>M8 (Hardening):</strong></p>
+</li>
+<li>
+<p><code>scripts/ci_guard.sh</code> enforces <strong>single-line JSON</strong> for all <code>--json</code> commands and gates on <code>CI_SMOKE=ok</code>.</p>
+</li>
+<li><strong>Exec index rotation</strong> (&gt;5000 lines OR &gt;1 MB): archive to <code>logs/exec/index-YYYY…jsonl</code>, keep most recent 1000 lines in the live <code>index.jsonl</code>.</li>
+<li><strong>YAML policy parser</strong> now ignores comments/whitespace/case and supports <code>&lt;win&gt;_allow:</code> keys; deny tokens + caps defaults preserved.
+    Reason: prevent drift and runaway indexes; make policies resilient without adding deps.</li>
+<li>
+<p><strong>M9 (Ops pack):</strong></p>
+</li>
+<li>
+<p><code>prune_logs</code>: keep last N <code>.log/.json</code> pairs (default 200), <strong>never</strong> touch index files.</p>
+</li>
+<li><code>error_budget</code>: one-line JSON counters from index(es).</li>
+<li><code>ops_report</code>: single, inline-CSS HTML summary (branch/head, memory counts, error budget, last 50 runs).
+    Reason: day-to-day cleanliness and observability, still offline/stdlib.</li>
+</ul>
+<h3 id="technical-architecture-relevant-surfaces">Technical architecture (relevant surfaces)</h3>
+<ul>
+<li><strong>CLI:</strong> <code>python -m wrapper …</code> (unchanged legacy + JSON contracts).</li>
+<li><strong>Exec logging:</strong> append-only receipts + index; rotation added in wrapper; archives immutable.</li>
+<li><strong>Policies:</strong> <code>policies/allowlist.yaml</code>, <code>policies/caps.yaml</code>; parser hardened inside <code>wrapper/__main__.py</code>.</li>
+<li><strong>Receipts:</strong> <code>python -m wrapper receipt</code> / <code>receipt pr --json</code> unchanged (single-line JSON).</li>
+<li>
+<p><strong>Scripts (new/updated):</strong></p>
+</li>
+<li>
+<p>M7: <code>scripts/version.sh</code>, <code>docs/PUBLISH.md</code>, <code>releases/v1.0.0.md</code>, <code>docs/CHANGELOG.md</code>.</p>
+</li>
+<li>M8: <code>scripts/ci_guard.sh</code>, wrapper updates (rotation + YAML).</li>
+<li>M9: <code>scripts/prune_logs.py</code> + <code>scripts/prune_logs.sh</code>, <code>scripts/error_budget.py</code>, <code>scripts/ops_report.py</code> + <code>scripts/ops_report.sh</code>.</li>
+</ul>
+<h3 id="current-state-repo">Current state (repo)</h3>
+<ul>
+<li><strong>Branch:</strong> <code>feat/release-notes-demo</code></li>
+<li><strong>HEAD:</strong> <code>518c3cb1a21f958d322113da7760c74caf54d238</code></li>
+<li><strong>Tag:</strong> <code>v1.0.0</code> (annotated; message starts with <code>release: v1.0.0</code>)</li>
+<li><strong>Version:</strong> <code>bash scripts/version.sh</code> → <code>1.0.0</code></li>
+<li><strong>Acceptance:</strong> M7, M8, M9 all verified with exact commands and expected outputs (see Receipts).</li>
+</ul>
+<h3 id="files-changed-high-signal">Files changed (high-signal)</h3>
+<ul>
+<li><code>VERSION</code> (1.0.0); <code>scripts/version.sh</code></li>
+<li><code>releases/v1.0.0.md</code>; <code>docs/CHANGELOG.md</code>; <code>docs/PUBLISH.md</code></li>
+<li><code>scripts/ci_guard.sh</code></li>
+<li><code>wrapper/__main__.py</code> (index rotation; YAML hardening; <code>policy check</code> CLI)</li>
+<li><code>scripts/prune_logs.py</code>, <code>scripts/prune_logs.sh</code></li>
+<li><code>scripts/error_budget.py</code></li>
+<li><code>scripts/ops_report.py</code>, <code>scripts/ops_report.sh</code></li>
+</ul>
+<h3 id="commands-run-representative-receipts">Commands run (representative receipts)</h3>
+<pre><code class="language-bash"># M7
+bash scripts/version.sh                  # → 1.0.0
+bash scripts/tag.sh v1.0.0 &quot;release: v1.0.0&quot;
+bash scripts/release_notes.sh test-m6-1 v1.0.0 &gt; releases/v1.0.0.md
+# prepended CHANGELOG with v1.0.0 + notes
+
+# M8
+bash scripts/ci_guard.sh                 # → CI_GUARD=ok; exit 0
+python -m wrapper policy check --win BACKEND -- echo ok   # ALLOW
+python -m wrapper policy check --win SERVER  -- rm -rf tmp # DENY
+
+# M9
+bash scripts/prune_logs.sh --dry-run --keep 1             # DRYDELETE … ; exit 0
+bash scripts/prune_logs.sh --keep 1                       # DELETED 14 files; kept 1 pairs.
+python scripts/error_budget.py                            # {&quot;total&quot;:7336,&quot;ok&quot;:7336,&quot;deny&quot;:0,&quot;timeout&quot;:0,&quot;nonzero&quot;:0,&quot;last_ts&quot;:&quot;2025-11-07T00:44:52Z&quot;}
+bash scripts/ops_report.sh &gt; OPS.html
+</code></pre>
+<h3 id="verification-contract-checks">Verification (contract checks)</h3>
+<ul>
+<li><strong>Legacy suggest (text):</strong> exactly two lines (preview + CONTEXT).</li>
+<li><strong>JSON suggest:</strong> exactly <strong>one</strong> line; policy + context present.</li>
+<li><strong>CI guard:</strong> ensures all <code>--json</code> outputs are single line; smoke prints <code>CI_SMOKE=ok</code>.</li>
+<li><strong>Rotation:</strong> creates <code>logs/exec/index-YYYY…jsonl</code>; live <code>index.jsonl</code> trimmed to ≤1000 lines.</li>
+<li><strong>Prune:</strong> never touches <code>index.jsonl</code> or <code>index-*.jsonl</code>.</li>
+<li><strong>Ops report:</strong> single HTML with header/counters/last 50 runs.</li>
+</ul>
+<h3 id="open-issues-risks">Open issues / risks</h3>
+<ul>
+<li>None blocking. Note: <code>deny</code> is intentionally <strong>0</strong> in error budget (denied execs are not indexed by design).</li>
+<li>Optional: push tag(s) to remote when PM approves publishing strategy.</li>
+</ul>
+<h3 id="exact-next-step">Exact next step</h3>
+<ul>
+<li>Await PM directive for <strong>M10</strong> / merge strategy. If asked to merge: open PR from <code>feat/release-notes-demo</code> → <code>main</code>, attach <code>OPS.html</code> and acceptance receipts.</li>
+</ul>
+<hr />
+<h3 id="uploading-this-handover-to-the-handbook-exact-process">Uploading this handover to the Handbook (exact process)</h3>
+<p>Per your training page: append a new Worker entry <strong>at the bottom</strong> of the canonical handovers file, then publish. Steps:</p>
+<ol>
+<li><strong>[SOURCE]</strong> (handbook source repo):</li>
+</ol>
+<pre><code class="language-bash">cd ~/Desktop/Chief/gpt-handbook-source
+notepad docs/handovers/worker/2025-11-05-worker-handover.md
+# scroll to the very bottom and paste this whole handover block
+</code></pre>
+<ol>
+<li><strong>Publish:</strong></li>
+</ol>
+<pre><code class="language-bash">bash scripts/publish.sh
+</code></pre>
+<ol>
+<li><strong>Verify:</strong> open the Worker handovers page and confirm today’s entry appears at the <strong>bottom</strong> (chronological). ([rybanook.github.io][1])</li>
+</ol>
+<hr />
+<p><strong>Codename: Pineapple</strong> 🍍</p></div>
             </div>
         </div>
 
