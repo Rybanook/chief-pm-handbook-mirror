@@ -154,6 +154,47 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#wrapper-v10-mini-handbook-worker-pm" class="nav-link">Wrapper v1.0 — Mini-Handbook (Worker + PM)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0-how-we-work-operational-rules" class="nav-link">0) How we work (operational rules)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1-quickstart" class="nav-link">1) Quickstart</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-cli-reference" class="nav-link">2) CLI Reference</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-policy-exec-model" class="nav-link">3) Policy &amp; Exec Model</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-ci-ops" class="nav-link">4) CI &amp; Ops</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-windows-shims-posix-make" class="nav-link">5) Windows shims &amp; POSIX Make</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-acceptance-bundle-template" class="nav-link">6) Acceptance Bundle (template)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-discovery-dont-get-lost" class="nav-link">7) Discovery (don’t get lost)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-handover-footer-paste-this-at-the-end-of-worker-handovers" class="nav-link">8) Handover footer (paste this at the end of Worker handovers)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
             <li class="nav-item" data-bs-level="2"><a href="#7-handover-protocol-required" class="nav-link">7. Handover Protocol (Required)</a>
               <ul class="nav flex-column">
               </ul>
@@ -253,6 +294,236 @@ Copy code</p>
 <li><strong>Tone:</strong> Sharp, calm, brief humor OK.  </li>
 <li><strong>Protect momentum.</strong> Re-anchor quickly when context shifts.</li>
 </ul>
+<hr />
+<h1 id="wrapper-v10-mini-handbook-worker-pm">Wrapper v1.0 — Mini-Handbook (Worker + PM)</h1>
+<p>Deterministic, <strong>policy-gated</strong> CLI around our GPT tools.
+<strong>Machine outputs are single-line JSON.</strong> Legacy <code>suggest</code> preview is <strong>two lines</strong>.</p>
+<h2 id="0-how-we-work-operational-rules">0) How we work (operational rules)</h2>
+<ul>
+<li><strong>One step at a time.</strong> One Git Bash command at a time; <strong>confirm output</strong> before proceeding.</li>
+<li><strong>Notepad workflow for files.</strong> I give the <code>notepad</code> command → you paste full contents → say <strong>Done</strong>.</li>
+<li><strong>“No output = didn’t run.”</strong> If you don’t paste results, I assume the step never happened.</li>
+<li><strong>Windows shims.</strong> Use <code>.cmd</code> wrappers; all route via <code>scripts\_run_bash.cmd</code> to find <code>bash.exe</code>.</li>
+<li><strong>POSIX <code>make</code> optional.</strong> If <code>make</code> isn’t installed, run the underlying scripts directly.</li>
+<li><strong>Handover protocol.</strong> Append new Worker handover <strong>at the bottom</strong> of the canonical page → publish → verify.</li>
+</ul>
+<hr />
+<h2 id="1-quickstart">1) Quickstart</h2>
+<h3 id="windows-cmd">Windows (CMD)</h3>
+<pre><code class="language-bat">REM Smoke &amp; guard
+scripts\ci_smoke.cmd
+scripts\ci_guard.cmd
+
+REM PR body (writes PR_BODY.md)
+scripts\pr_body.cmd &gt; PR_BODY.md
+
+REM Ops report (writes OPS.html)
+scripts\ops_report.cmd &gt; OPS.html
+</code></pre>
+<h3 id="posix-macoslinux">POSIX (macOS/Linux)</h3>
+<pre><code class="language-sh">make smoke
+make guard
+make pr-body &amp;&amp; head -n 10 PR_BODY.md
+make ops &amp;&amp; head -n 10 OPS.html
+# Optional release:
+# make release FROM=&lt;tag&gt; TO=&lt;tag|HEAD&gt;
+</code></pre>
+<h3 id="minimal-wrapper-examples">Minimal wrapper examples</h3>
+<pre><code class="language-txt">wrapper status
+# MODEL=...
+# MODE=suggest
+# DB=...
+
+wrapper suggest --win=BACKEND -- dry-run &quot;pip list&quot;
+# [WIN=BACKEND] pip list
+# CONTEXT={...single-line-json...}
+</code></pre>
+<p><strong>Where things land</strong></p>
+<ul>
+<li>Logs / run-indexes: <code>logs/</code> (e.g., <code>baseline.log</code>, <code>smoke-chief-evals.log</code>)</li>
+<li>Receipts / reports: <code>PR_BODY.md</code>, <code>OPS.html</code>, releases → <code>releases/&lt;UTC&gt;.md</code></li>
+</ul>
+<hr />
+<h2 id="2-cli-reference">2) CLI Reference</h2>
+<h3 id="wrapper-status"><code>wrapper status</code></h3>
+<p><strong>Text</strong></p>
+<pre><code>MODEL=...
+MODE=suggest
+DB=...
+</code></pre>
+<h3 id="wrapper-suggest-winname-json-command"><code>wrapper suggest [--win=NAME] [--json] -- &lt;command…&gt;</code></h3>
+<ul>
+<li><strong>Text (legacy, 2 lines)</strong></li>
+</ul>
+<p><code>[WIN=BACKEND] pip list
+  CONTEXT={"...single-line-json..."}</code>
+* <strong>JSON</strong></p>
+<p><code>{"win":"BACKEND","cmd":"pip list","context":{...}}</code></p>
+<h3 id="wrapper-policy-check-command"><code>wrapper policy check -- &lt;command…&gt;</code></h3>
+<ul>
+<li>Validate against allowlist &amp; caps. <strong>Exit:</strong> <code>0</code> allow, <code>2</code> deny.</li>
+</ul>
+<h3 id="wrapper-memory-status"><code>wrapper memory status</code></h3>
+<ul>
+<li>Counts of facts / decisions / ops.</li>
+</ul>
+<h3 id="wrapper-memory-show"><code>wrapper memory show</code></h3>
+<ul>
+<li>Prints bounded recent memory rows.</li>
+</ul>
+<h3 id="wrapper-receipt-id"><code>wrapper receipt &lt;id&gt;</code></h3>
+<ul>
+<li>Show a stored receipt/log.</li>
+</ul>
+<h3 id="wrapper-receipt-pr-shahead"><code>wrapper receipt pr &lt;sha|HEAD&gt;</code></h3>
+<ul>
+<li>Emit PR-sized summary for a commit/HEAD.</li>
+</ul>
+<p><strong>Exit codes</strong></p>
+<ul>
+<li><code>0</code> success/allow</li>
+<li><code>2</code> deny (policy/caps)</li>
+<li><code>124</code> timeout (no exec performed)</li>
+</ul>
+<p><strong>Determinism</strong></p>
+<ul>
+<li>All JSON is <strong>single-line</strong>. No network. Pure stdlib.</li>
+</ul>
+<hr />
+<h2 id="3-policy-exec-model">3) Policy &amp; Exec Model</h2>
+<p><strong>Sources</strong></p>
+<ul>
+<li>Defaults (baked-in), <code>policies/allowlist.yaml</code>, per-WIN scopes (<code>--win=BACKEND</code>, <code>--win=ANDROID</code>, etc.)</li>
+</ul>
+<p><strong>Caps</strong></p>
+<ul>
+<li><code>max_args</code>, <code>max_len</code>; YAML rules are strict (<strong>no sneaky casing/whitespace/comments</strong> tricks).</li>
+</ul>
+<p><strong>Deny path</strong></p>
+<ul>
+<li><strong>No exec</strong> runs, <strong>no run-log writes</strong>. An ops row may record the deny reason + timestamp.</li>
+</ul>
+<p><strong>Dry-run vs Exec</strong></p>
+<ul>
+<li>Dry-run emits deterministic preview only (<code>[WIN=…] …</code> + <code>CONTEXT={…}</code>).</li>
+<li>Exec happens only if policy allows; obeys timeout.</li>
+</ul>
+<p><strong>Timeouts</strong></p>
+<ul>
+<li>Exit <strong>124</strong>. Partial outputs discarded; concise note may be logged.</li>
+</ul>
+<hr />
+<h2 id="4-ci-ops">4) CI &amp; Ops</h2>
+<p><strong>CI</strong></p>
+<ul>
+<li><code>scripts/ci_smoke.sh</code> → prints <code>CI_SMOKE=ok</code> (exit 0)</li>
+<li><code>scripts/ci_guard.sh</code> → prints <code>CI_GUARD=ok</code> (exit 0)</li>
+<li>Windows via shims: <code>ci_smoke.cmd</code>, <code>ci_guard.cmd</code> (both call <code>_run_bash.cmd</code>)</li>
+</ul>
+<p><strong>Ops</strong></p>
+<ul>
+<li>Run-log index: <code>logs/</code> (+ <code>index.jsonl</code> if present)</li>
+<li>Rotation: <code>scripts/prune_logs.sh</code> (has <code>.cmd</code> shim)</li>
+<li>Error budget: <code>scripts/error_budget.py</code> (totals/denies/timeouts)</li>
+<li>HTML ops report: <code>scripts/ops_report.sh</code> → <code>OPS.html</code></li>
+</ul>
+<p><strong>Release helpers</strong></p>
+<ul>
+<li>PR body: <code>scripts/pr_body.sh</code> → <code>PR_BODY.md</code></li>
+<li>Release notes: <code>scripts/release_notes.sh FROM TO</code> → <code>releases/&lt;UTC&gt;.md</code></li>
+<li>Tag / branch helpers: <code>scripts/tag.sh</code>, <code>scripts/branch.sh</code></li>
+</ul>
+<hr />
+<h2 id="5-windows-shims-posix-make">5) Windows shims &amp; POSIX Make</h2>
+<ul>
+<li><strong>Windows</strong>: <code>.cmd</code> wrappers <strong>only forward</strong> to the existing <code>.sh</code> (no extra logic).
+  All <code>.cmd</code> call: <code>scripts\_run_bash.cmd &lt;script&gt;.sh %*</code></li>
+<li>
+<p><strong>POSIX</strong>: <code>Makefile</code> provides thin wrappers:</p>
+</li>
+<li>
+<p><code>smoke → bash scripts/ci_smoke.sh</code></p>
+</li>
+<li><code>guard → bash scripts/ci_guard.sh</code></li>
+<li><code>pr-body → bash scripts/pr_body.sh &gt; PR_BODY.md</code></li>
+<li><code>ops → bash scripts/ops_report.sh &gt; OPS.html</code></li>
+<li><code>release → bash scripts/release_notes.sh "$(FROM)" "$(TO)" &gt; releases/&lt;UTC&gt;.md</code></li>
+</ul>
+<hr />
+<h2 id="6-acceptance-bundle-template">6) Acceptance Bundle (template)</h2>
+<p>Return <strong>exactly</strong> the following when asked to prove a change:</p>
+<ol>
+<li>
+<p><strong>Tree snapshot</strong></p>
+</li>
+<li>
+<p>If <code>tree</code> exists: <code>tree -a -I .git -L 2</code></p>
+</li>
+<li>
+<p>Else fallback: <code>find . -maxdepth 2 -mindepth 1 -print | sed 's|^\./||'</code></p>
+</li>
+<li>
+<p><strong>Change stats</strong></p>
+</li>
+<li>
+<p><code>git show --stat HEAD</code></p>
+</li>
+<li>
+<p><strong>Full HEAD SHA</strong></p>
+</li>
+<li>
+<p><code>git rev-parse HEAD</code></p>
+</li>
+<li>
+<p><strong>Doc smoke</strong> (examples)</p>
+</li>
+<li>
+<p><code>head -n 20 docs/wrapper/quickstart.md</code></p>
+</li>
+<li><code>head -n 20 docs/wrapper/cli.md</code></li>
+<li><code>head -n 20 docs/wrapper/policy-exec.md</code></li>
+<li>
+<p><code>head -n 20 docs/wrapper/ci-ops.md</code></p>
+</li>
+<li>
+<p><strong>README check</strong> (if applicable)</p>
+</li>
+<li>
+<p><code>grep -n "Wrapper v1.0" -n README.md</code></p>
+</li>
+<li>
+<p><code>sed -n '/&lt;!-- Wrapper v1.0 --&gt;/,/&lt;!-- End Wrapper v1.0 --&gt;/p' README.md</code></p>
+</li>
+<li>
+<p><strong>Short confirmation</strong></p>
+</li>
+<li>
+<p>“No runtime changes; docs only.” (if docs)</p>
+</li>
+<li>“.cmd shims only call <code>.sh</code>; behavior unchanged.” (if shims)</li>
+<li>“Make targets are thin; deterministic.” (if Makefile)</li>
+</ol>
+<hr />
+<h2 id="7-discovery-dont-get-lost">7) Discovery (don’t get lost)</h2>
+<ul>
+<li><strong>Primary entry</strong>: Root <code>README.md</code> → <strong>Wrapper v1.0</strong> box (links to all wrapper docs).</li>
+<li><strong>Training page</strong>: must include a <strong>Wrapper v1.0 (Required)</strong> section with the same links and the operational rules (Section 0).</li>
+<li><strong>Docs index</strong>: optional <code>docs/wrapper/index.md</code> that lists these pages.</li>
+<li><strong>Fallback query</strong>: list READMEs in Git Bash:</li>
+</ul>
+<p><code>bash
+  find . -type f -iname 'readme*' -not -path '*/.git/*' | sed 's|^\./||'</code></p>
+<p>(Git-tracked only: <code>git ls-files | grep -i 'readme'</code>)</p>
+<hr />
+<h2 id="8-handover-footer-paste-this-at-the-end-of-worker-handovers">8) Handover footer (paste this at the end of Worker handovers)</h2>
+<blockquote>
+<p><strong>Wrapper v1.0 quick links:</strong>
+Quickstart — <code>docs/wrapper/quickstart.md</code>
+CLI — <code>docs/wrapper/cli.md</code>
+Policy/Exec — <code>docs/wrapper/policy-exec.md</code>
+CI/Ops — <code>docs/wrapper/ci-ops.md</code>
+Notes: single-line JSON; legacy suggest = 2 lines; Windows via <code>.cmd</code> → <code>_run_bash.cmd</code>; Notepad workflow; “no output = didn’t run.”</p>
+</blockquote>
 <hr />
 <h2 id="7-handover-protocol-required">7. Handover Protocol (Required)</h2>
 <h3 id="a-structure">A) Structure</h3>
