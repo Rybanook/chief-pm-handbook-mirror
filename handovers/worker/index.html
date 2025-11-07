@@ -322,6 +322,11 @@
             </li>
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#pr-a352c1c-on-featrelease-notes-demo" class="nav-link">PR: a352c1c on feat/release-notes-demo</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -2415,7 +2420,116 @@ notepad docs/handovers/worker/2025-11-05-worker-handover.md
 <li><strong>Verify:</strong> open the Worker handovers page and confirm today’s entry appears at the <strong>bottom</strong> (chronological). ([rybanook.github.io][1])</li>
 </ol>
 <hr />
-<p><strong>Codename: Pineapple</strong> 🍍</p></div>
+<p><strong>Codename: Pineapple</strong> 🍍</p>
+<hr />
+<pre><code class="language-markdown">## 2025-11-06 — M10–M11 Wrap: Cross-Platform Polish + Wrapper v1.0 Docs
+
+**Scope:**  
+- **M10:** Cross-Platform Polish — Windows `.cmd` shims (via `_run_bash.cmd`), POSIX Makefile targets, README Quickstart.  
+- **M11:** Wrapper v1.0 Handbook docs — Quickstart, CLI, Policy/Exec, CI/Ops, plus README “Wrapper v1.0” section.
+
+### Summary (what changed &amp; why)
+- Added **Windows shims** so every script runs from **CMD** without requiring Bash on PATH. Shims have **no logic** beyond forwarding to existing `.sh` via `_run_bash.cmd`.  
+- Added **Makefile** thin targets for POSIX convenience (no new behavior).  
+- Appended **Quickstart** to root README; then added four **short, mirror-ready** docs under `docs/wrapper/…` so any GPT/human can ramp instantly.  
+- **Zero runtime behavior change** to the wrapper itself.
+
+---
+
+### Files changed (with reasons)
+- `scripts/_run_bash.cmd` — centralized **bash resolver** (searches common Git-for-Windows install paths; forwards to `.sh`), keeps shims tiny &amp; under LOC cap.  
+- `scripts/*.cmd` — **all shims** now: `call &quot;%~dp0_run_bash.cmd&quot; &lt;script&gt;.sh %*`.  
+- `Makefile` — `smoke`, `guard`, `pr-body`, `ops`, `release` thin wrappers.  
+- `README.md` — **Quickstart** (M10) and **Wrapper v1.0** section (M11) linking the docs.  
+- `docs/wrapper/quickstart.md`, `cli.md`, `policy-exec.md`, `ci-ops.md` — concise, role-segmented docs (PM + Worker).
+
+---
+
+### Commands run (audit trail)
+
+**Create/update shims + Makefile, README**  
+- Created: `scripts/_run_bash.cmd`  
+- Updated: `scripts/{ci_smoke,ci_guard,pr_body,prune_logs,error_budget,ops_report,release_notes,tag,branch,version}.cmd` → all route via `_run_bash.cmd`  
+- `Makefile` with minimal targets  
+- README Quickstart + “Wrapper v1.0” section
+
+**Commits**
+- `a352c1c` — add Windows .cmd shims, Makefile, README Quickstart (no behavior change)  
+- `551bbe5` — add `_run_bash.cmd` and route all .cmd via resolver (no behavior change)  
+- `7748660` — add Wrapper v1.0 docs (quickstart, cli, policy-exec, ci-ops) and README links — **docs only**
+
+---
+
+### Verification (exact outputs captured)
+
+**Windows shims via CMD**
+</code></pre>
+<p>C:...\ai-lab&gt;scripts\ci_smoke.cmd &amp; echo %ERRORLEVEL%
+CI_SMOKE=ok
+0</p>
+<pre><code></code></pre>
+<p>C:...\ai-lab&gt;scripts\ci_guard.cmd &amp; echo %ERRORLEVEL%
+CI_GUARD=ok
+0</p>
+<pre><code></code></pre>
+<p>C:...\ai-lab&gt;scripts\pr_body.cmd &gt; PR_BODY.md &amp; type PR_BODY.md | more</p>
+<h1 id="pr-a352c1c-on-featrelease-notes-demo">PR: a352c1c on feat/release-notes-demo</h1>
+<p>...
+| Files | + | - |
+|  12   |151| 4 |
+...</p>
+<pre><code></code></pre>
+<p>C:...\ai-lab&gt;scripts\ops_report.cmd &gt; OPS.html &amp; more OPS.html</p>
+<!doctype html>
+
+<p><title>Ops Report ù feat/release-notes-demo @ a352c1c</title>
+...
+<b>Branch:</b> feat/release-notes-demo  <b>Head:</b> a352c1c ...
+```</p>
+<p><strong>POSIX make on this host</strong></p>
+<ul>
+<li><code>make</code> <strong>not installed</strong> (verified: <code>bash: make: command not found</code>).</li>
+<li>Targets present and map 1:1 to <code>.sh</code>; behavior validated via Windows shims.</li>
+</ul>
+<p><strong>Docs present (HEAD <code>7748660</code>)</strong></p>
+<ul>
+<li><code>docs/wrapper/{quickstart.md,cli.md,policy-exec.md,ci-ops.md}</code></li>
+<li>
+<p>README markers:</p>
+</li>
+<li>
+<p><code>&lt;!-- Wrapper v1.0 --&gt;</code> … <code>&lt;!-- End Wrapper v1.0 --&gt;</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="open-issues-risks_1">Open issues / risks</h3>
+<ul>
+<li><strong>Bash discovery</strong>: <code>_run_bash.cmd</code> covers common Git-for-Windows installs; exotic custom paths may still require launching from <strong>Git Bash</strong> or adding <code>bash.exe</code> to PATH.</li>
+<li><strong>Make on Windows</strong>: Not required; POSIX users use <code>make</code>, Windows users use <code>.cmd</code>.</li>
+</ul>
+<hr />
+<h3 id="next-steps">Next steps</h3>
+<ol>
+<li><strong>(Training sync)</strong> Ensure Worker Training page includes the <strong>Wrapper v1.0 Mini-Handbook</strong> (already appended) and keeps “append → publish → verify” protocol explicit.</li>
+<li><strong>(Optional)</strong> Add <code>docs/wrapper/index.md</code> listing all four docs for easier discovery.</li>
+<li><strong>(Handover hygiene)</strong> Paste the <strong>“Wrapper v1.0 quick links”</strong> footer in future Worker handovers.</li>
+</ol>
+<hr />
+<h3 id="acceptance-bundle-m10-m11">Acceptance bundle (M10 + M11)</h3>
+<ul>
+<li>Tree snapshot (fallback) — captured.</li>
+<li><code>git show --stat</code> — <strong>M10</strong> (151 insertions) then resolver refactor; <strong>M11</strong> (209 insertions, docs only).</li>
+<li>
+<p>HEAD SHAs:</p>
+</li>
+<li>
+<p>M10 commits: <code>a352c1c</code>, <code>551bbe5</code></p>
+</li>
+<li>M11 commit: <code>7748660</code></li>
+<li>Smoke proofs pasted above (Windows); Makefile present for POSIX.</li>
+</ul>
+<hr />
+<p><strong>Codename:</strong> Matchstick</p></div>
             </div>
         </div>
 
