@@ -372,6 +372,39 @@
             </li>
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-2025-11-07-ai-lab-s3-model-adapters-s4-safe-exec-loop" class="nav-link">Worker Handover — 2025-11-07 — AI-Lab S3 (Model Adapters) &amp; S4 (Safe Exec Loop)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#scope-pin" class="nav-link">Scope pin</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#objective" class="nav-link">Objective</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-changed-code" class="nav-link">What changed (code)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#receipts-commands-one-line-outputs" class="nav-link">Receipts (commands &amp; one-line outputs)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#guarantees-confirmed" class="nav-link">Guarantees confirmed</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-step-per-pm-sequence" class="nav-link">Next step (per PM sequence)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#codename-marshmallow" class="nav-link">codename: marshmallow</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -2674,7 +2707,216 @@ CI_GUARD=ok
 <li><code>tail -n 3 .chief/metrics.jsonl</code> → last line matches printed JSON.</li>
 </ul>
 <hr />
-<h2 id="code-name-christmas"><strong>Code name: Christmas</strong></h2></div>
+<h2 id="code-name-christmas"><strong>Code name: Christmas</strong></h2>
+<p>Here’s the handover doc, ready to paste into the handbook.</p>
+<h1 id="worker-handover-2025-11-07-ai-lab-s3-model-adapters-s4-safe-exec-loop">Worker Handover — 2025-11-07 — AI-Lab S3 (Model Adapters) &amp; S4 (Safe Exec Loop)</h1>
+<h2 id="scope-pin">Scope pin</h2>
+<p>This handover captures <strong>only this chat’s work</strong> (S3 + S4). It’s self-contained so the next Worker can continue without the rest of the history.</p>
+<h2 id="objective">Objective</h2>
+<p>Bring the AI-Lab wrapper to a safe, offline-first loop:</p>
+<ul>
+<li><strong>S3</strong>: Add env-gated provider adapters (default stub; OpenAI/Ollama not_configured without creds).</li>
+<li><strong>S4</strong>: Implement <code>run-safe</code> to generate → apply → run CI guard → auto-revert (fail) or accept+tag (pass), with strict caps and append-only ledgers.</li>
+</ul>
+<hr />
+<h2 id="what-changed-code">What changed (code)</h2>
+<h3 id="s3-provider-adapters">S3 — Provider Adapters</h3>
+<ul>
+<li>
+<p><code>models/adapter.py</code>: Provider switch via <code>MODEL_PROVIDER={stub|openai|ollama}</code>.</p>
+</li>
+<li>
+<p><strong>stub</strong> (default): reads <code>MODEL_STUB_PATH</code> file contents as model output.</p>
+</li>
+<li><strong>openai/ollama</strong>: return deterministic <strong>NotConfigured</strong> unless required env is present; <strong>no network in SMOKE</strong>.</li>
+<li>
+<p><code>agents/self_improver.py</code>:</p>
+</li>
+<li>
+<p><code>run</code> supports <code>--provider</code> override; emits single-line JSON <code>not_configured</code> on missing creds.</p>
+</li>
+<li><code>config/model.example.env</code>: Added keys (<code>MODEL_PROVIDER</code>, <code>MODEL_STUB_PATH</code>, <code>OPENAI_API_KEY</code>, <code>OPENAI_BASE_URL</code>, <code>OLLAMA_HOST</code>, <code>OLLAMA_MODEL</code>).</li>
+<li><code>docs/wrapper/quickstart.md</code>: “Model Providers (S3-Model)” section appended.</li>
+<li>Stub for smoke: <code>.chief/stub_output.json</code>.</li>
+</ul>
+<p><strong>Key commit</strong></p>
+<ul>
+<li><code>fd785d3f7b4823d73d50cda91d0876b329ee7281</code> — “S3-Model: env-gated provider adapters (stub/openai/ollama) + CLI override + example env + docs”</li>
+</ul>
+<h3 id="s4-safe-exec-loop">S4 — Safe Exec Loop</h3>
+<ul>
+<li>
+<p><code>agents/self_improver.py</code>:</p>
+</li>
+<li>
+<p>New <code>run-safe</code> command:</p>
+<p><code>python -m agents.self_improver run-safe --task &lt;task.yaml&gt; [--provider ...]</code>
+  * Flow:</p>
+<ol>
+<li>Generate patch (S1)</li>
+<li>Apply on temp branch &amp; run CI guard (via S2 harness)</li>
+<li>If guard fails → <strong>auto-revert</strong>, write final metrics, append ops (<code>auto-revert</code>)</li>
+<li>Enforce caps <strong>before</strong> accept: <code>files ≤ 10</code>, <code>insertions ≤ 200</code>, <code>deletions ≤ 80</code></li>
+<li>If caps exceeded → <strong>auto-revert</strong> (+metrics/ops)</li>
+<li>Else <strong>accept</strong>: fast-forward merge to base + <strong>annotated tag</strong> <code>auto/&lt;YYYYMMDDThhmmssZ&gt;</code>; final metrics ok:true; ops <code>auto-accept</code></li>
+<li>Writes a <strong>final</strong> metrics row reflecting the actual outcome (accept/revert).</li>
+<li>Uses <code>memory.db.append_ops</code> for ops ledger rows.</li>
+</ol>
+</li>
+</ul>
+<p><strong>Key commits</strong></p>
+<ul>
+<li><code>f2613a43df5801fa0eb9fee948901ed4c0e4dbfe</code> — “S4: run-safe (generate→apply→guard→auto-revert/accept with caps + ops ledger + tag)”</li>
+<li><code>dc66b65</code> — “S4: fix stray brace; enable final-metrics flow” (short SHA shown in your output)</li>
+</ul>
+<p><strong>Caps enforced</strong></p>
+<ul>
+<li>Files: ≤ 10</li>
+<li>Insertions: ≤ 200</li>
+<li>Deletions: ≤ 80</li>
+</ul>
+<hr />
+<h2 id="receipts-commands-one-line-outputs">Receipts (commands &amp; one-line outputs)</h2>
+<h3 id="s3-smoke">S3 — SMOKE</h3>
+<ul>
+<li>
+<p><strong>default (stub)</strong>
+  <code>python -m agents.self_improver run --task tasks/examples/patch_echo.yaml --dry-run</code>
+  → <code>{"ok": true, "proposal": ".../.chief/proposals/20251106T222620.patch", "commands": [...]}</code></p>
+</li>
+<li>
+<p><strong>force openai (not configured)</strong>
+  <code>python -m agents.self_improver run --task ... --dry-run --provider openai</code>
+  → <code>{"ok": false, "reason": "not_configured", "provider": "openai", "detail": "openai: missing OPENAI_API_KEY"}</code></p>
+</li>
+<li>
+<p><strong>force ollama (not configured)</strong>
+  <code>python -m agents.self_improver run --task ... --dry-run --provider ollama</code>
+  → <code>{"ok": false, "reason": "not_configured", "provider": "ollama", "detail": "ollama: missing OLLAMA_HOST or OLLAMA_MODEL"}</code></p>
+</li>
+</ul>
+<h3 id="s4-passing-path">S4 — Passing path</h3>
+<ul>
+<li>
+<p><code>export MODEL_STUB_PATH=.chief/stub_output.json &amp;&amp; python -m agents.self_improver run-safe --task tasks/examples/patch_echo.yaml</code>
+  → <code>{"ok": true, "reason": null, "branch": "auto/s2-20251107T073313", "head": "", "tag": "auto/20251107T153316Z", "files": 0, "insertions": 0, "deletions": 0, "ci_exit": 0}</code></p>
+</li>
+<li>
+<p><strong>Tag proof</strong>
+  <code>git tag -l "auto/*" | tail -n 1</code> → <code>auto/20251107T063918Z</code>
+  <code>git show --stat auto/20251107T063918Z</code> → annotated tag <strong>auto-accept</strong> (shows S4 commit stats)</p>
+</li>
+<li>
+<p><strong>Metrics tail after pass (note final ok:true row)</strong></p>
+</li>
+</ul>
+<p><code>{"ts":"2025-11-07T07:33:16-0800","branch":"auto/s2-20251107T073313","head":"","ok":false,"files":0,"insertions":0,"deletions":0,"ci_exit":0}
+  {"ts":"2025-11-07T07:33:16-0800","branch":"auto/s2-20251107T073313","head":"","ok":true,"files":0,"insertions":0,"deletions":0,"ci_exit":0}</code></p>
+<h3 id="s4-failing-path-caps">S4 — Failing path (caps)</h3>
+<ul>
+<li>
+<p><strong>files cap breach (11 tiny files)</strong>
+  <code>export MODEL_STUB_PATH=.chief/stub_fail.json &amp;&amp; python -m agents.self_improver run-safe --task tasks/examples/patch_echo.yaml</code>
+  → <code>{"ok": false, "reason": "caps_exceeded", "files": 11, "insertions": 0, "deletions": 0}</code></p>
+</li>
+<li>
+<p><strong>Metrics tail after fail</strong>
+  <code>{"ts":"2025-11-07T07:46:13-0800","branch":"auto/s2-20251107T074610","head":"68897a5d7518a35d4cdf64f5763e4c1f6e83c440","ok":false,"files":11,"insertions":0,"deletions":0,"ci_exit":0}</code></p>
+</li>
+<li>
+<p><strong>Ops ledger (auto-revert)</strong>
+  <code>python -m wrapper memory show</code> →
+  <code>"ops": {"id": 18, "ts": "2025-11-07T07:46:13", "actor": "self_improver", "action": "auto-revert", "detail": "auto/s2-20251107T074610 68897a5d7518a35d4cdf64f5763e4c1f6e83c440 reason=caps_exceeded files=11 +0 -0"}</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="guarantees-confirmed">Guarantees confirmed</h2>
+<ul>
+<li><strong>No network/API</strong> used; offline by default.</li>
+<li>Wrapper runtime unchanged.</li>
+<li>On pass: <strong>ff merge + annotated tag</strong> <code>auto/&lt;ts&gt;</code> and final <strong>ok:true</strong> metrics row.</li>
+<li>On fail: <strong>auto-revert</strong>, metrics appended, ops ledger row with reason.</li>
+</ul>
+<hr />
+<h2 id="next-step-per-pm-sequence">Next step (per PM sequence)</h2>
+<p>S5 — <strong>Chief on-ramp</strong> (curated micro-PRs to the training fork) — ready after PM approval.</p>
+<hr />
+<p>Worker Handover — 2025-11-07 — AI-Lab S3 (Model Adapters) &amp; S4 (Safe Exec Loop)
+Scope pin</p>
+<p>This handover captures only this chat’s work (S3 + S4). It’s self-contained so the next Worker can continue without the rest of the history.</p>
+<p>Objective</p>
+<p>Bring the AI-Lab wrapper to a safe, offline-first loop:</p>
+<p>S3: Add env-gated provider adapters (default stub; OpenAI/Ollama not_configured without creds).</p>
+<p>S4: Implement run-safe to generate → apply → run CI guard → auto-revert (fail) or accept+tag (pass), with strict caps and append-only ledgers.</p>
+<p>What changed (code)
+S3 — Provider Adapters</p>
+<p>models/adapter.py: Provider switch via MODEL_PROVIDER={stub|openai|ollama}.</p>
+<p>stub (default): reads MODEL_STUB_PATH file contents as model output.</p>
+<p>openai/ollama: return deterministic NotConfigured unless required env is present; no network in SMOKE.</p>
+<p>agents/self_improver.py:</p>
+<p>run supports --provider override; emits single-line JSON not_configured on missing creds.</p>
+<p>config/model.example.env: Added keys (MODEL_PROVIDER, MODEL_STUB_PATH, OPENAI_API_KEY, OPENAI_BASE_URL, OLLAMA_HOST, OLLAMA_MODEL).</p>
+<p>docs/wrapper/quickstart.md: “Model Providers (S3-Model)” section appended.</p>
+<p>Stub for smoke: .chief/stub_output.json.</p>
+<p>Key commit</p>
+<p>fd785d3f7b4823d73d50cda91d0876b329ee7281 — “S3-Model: env-gated provider adapters (stub/openai/ollama) + CLI override + example env + docs”</p>
+<p>S4 — Safe Exec Loop</p>
+<p>agents/self_improver.py:</p>
+<p>New run-safe command:</p>
+<p>python -m agents.self_improver run-safe --task <task.yaml> [--provider ...]</p>
+<p>Flow:</p>
+<p>Generate patch (S1)</p>
+<p>Apply on temp branch &amp; run CI guard (via S2 harness)</p>
+<p>If guard fails → auto-revert, write final metrics, append ops (auto-revert)</p>
+<p>Enforce caps before accept: files ≤ 10, insertions ≤ 200, deletions ≤ 80</p>
+<p>If caps exceeded → auto-revert (+metrics/ops)</p>
+<p>Else accept: fast-forward merge to base + annotated tag auto/<YYYYMMDDThhmmssZ>; final metrics ok:true; ops auto-accept</p>
+<p>Writes a final metrics row reflecting the actual outcome (accept/revert).</p>
+<p>Uses memory.db.append_ops for ops ledger rows.</p>
+<p>Key commits</p>
+<p>f2613a43df5801fa0eb9fee948901ed4c0e4dbfe — “S4: run-safe (generate→apply→guard→auto-revert/accept with caps + ops ledger + tag)”</p>
+<p>dc66b65 — “S4: fix stray brace; enable final-metrics flow” (short SHA shown in your output)</p>
+<p>Caps enforced</p>
+<p>Files: ≤ 10</p>
+<p>Insertions: ≤ 200</p>
+<p>Deletions: ≤ 80</p>
+<p>Receipts (commands &amp; one-line outputs)
+S3 — SMOKE</p>
+<p>default (stub)
+python -m agents.self_improver run --task tasks/examples/patch_echo.yaml --dry-run
+→ {"ok": true, "proposal": ".../.chief/proposals/20251106T222620.patch", "commands": [...]}</p>
+<p>force openai (not configured)
+python -m agents.self_improver run --task ... --dry-run --provider openai
+→ {"ok": false, "reason": "not_configured", "provider": "openai", "detail": "openai: missing OPENAI_API_KEY"}</p>
+<p>force ollama (not configured)
+python -m agents.self_improver run --task ... --dry-run --provider ollama
+→ {"ok": false, "reason": "not_configured", "provider": "ollama", "detail": "ollama: missing OLLAMA_HOST or OLLAMA_MODEL"}</p>
+<p>S4 — Passing path</p>
+<p>export MODEL_STUB_PATH=.chief/stub_output.json &amp;&amp; python -m agents.self_improver run-safe --task tasks/examples/patch_echo.yaml
+→ {"ok": true, "reason": null, "branch": "auto/s2-20251107T073313", "head": "", "tag": "auto/20251107T153316Z", "files": 0, "insertions": 0, "deletions": 0, "ci_exit": 0}</p>
+<p>Tag proof
+git tag -l "auto/*" | tail -n 1 → auto/20251107T063918Z
+git show --stat auto/20251107T063918Z → annotated tag auto-accept (shows S4 commit stats)</p>
+<p>Metrics tail after pass (note final ok:true row)</p>
+<p>{"ts":"2025-11-07T07:33:16-0800","branch":"auto/s2-20251107T073313","head":"","ok":false,"files":0,"insertions":0,"deletions":0,"ci_exit":0}
+{"ts":"2025-11-07T07:33:16-0800","branch":"auto/s2-20251107T073313","head":"","ok":true,"files":0,"insertions":0,"deletions":0,"ci_exit":0}</p>
+<p>S4 — Failing path (caps)</p>
+<p>files cap breach (11 tiny files)
+export MODEL_STUB_PATH=.chief/stub_fail.json &amp;&amp; python -m agents.self_improver run-safe --task tasks/examples/patch_echo.yaml
+→ {"ok": false, "reason": "caps_exceeded", "files": 11, "insertions": 0, "deletions": 0}</p>
+<p>Metrics tail after fail
+{"ts":"2025-11-07T07:46:13-0800","branch":"auto/s2-20251107T074610","head":"68897a5d7518a35d4cdf64f5763e4c1f6e83c440","ok":false,"files":11,"insertions":0,"deletions":0,"ci_exit":0}</p>
+<p>Ops ledger (auto-revert)
+python -m wrapper memory show →
+"ops": {"id": 18, "ts": "2025-11-07T07:46:13", "actor": "self_improver", "action": "auto-revert", "detail": "auto/s2-20251107T074610 68897a5d7518a35d4cdf64f5763e4c1f6e83c440 reason=caps_exceeded files=11 +0 -0"}</p>
+<p>Guarantees confirmed</p>
+<p>No network/API used; offline by default.</p>
+<p>Wrapper runtime unchanged.</p>
+<p>On pass: ff merge + annotated tag auto/<ts> and final ok:true metrics row.</p>
+<p>On fail: auto-revert, metrics appended, ops ledger row with reason.</p>
+<p>Next step (per PM sequence)</p>
+<p>S5 — Chief on-ramp (curated micro-PRs to the training fork) — ready after PM approval.</p>
+<h2 id="codename-marshmallow">codename: marshmallow</h2></div>
             </div>
         </div>
 
