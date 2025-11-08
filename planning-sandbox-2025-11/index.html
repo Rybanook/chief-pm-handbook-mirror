@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Boot Project Manager — Chief - Chief Handbook</title>
+        <title>Index - Chief Handbook</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/fontawesome.min.css" rel="stylesheet">
         <link href="../css/brands.min.css" rel="stylesheet">
@@ -41,7 +41,7 @@
                                 <a href=".." class="nav-link">Home</a>
                             </li>
                             <li class="nav-item">
-                                <a href="./" class="nav-link active" aria-current="page">Boot Project Manager — Chief</a>
+                                <a href="../boot-pm/" class="nav-link">Boot Project Manager — Chief</a>
                             </li>
                             <li class="nav-item">
                                 <a href="../boot-worker/" class="nav-link">Boot Worker — Chief</a>
@@ -141,11 +141,11 @@
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Planning sandbox 2025 11</a>
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Planning sandbox 2025 11</a>
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="../planning-sandbox-2025-11/" class="dropdown-item">Index</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
 </li>
                                 </ul>
                             </li>
@@ -175,12 +175,12 @@
                             </a>
                         </li>
                             <li class="nav-item">
-                                <a rel="prev" href=".." class="nav-link">
+                                <a rel="prev" href="../navigation/worker/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a rel="next" href="../boot-worker/" class="nav-link">
+                                <a rel="next" href="../roles/planner-training/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -202,17 +202,41 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#boot-project-manager-chief" class="nav-link">Boot Project Manager — Chief</a>
+            <li class="nav-item" data-bs-level="1"><a href="#adr-001-reasoning-core-v0-advisor-sandbox-for-chief" class="nav-link">ADR-001 — Reasoning Core v0 (“Advisor Sandbox”) for Chief</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#load-procedure" class="nav-link">Load Procedure</a>
-              <ul class="nav flex-column">
-              </ul>
-            </li>
-            <li class="nav-item" data-bs-level="2"><a href="#behavior-rules" class="nav-link">Behavior Rules</a>
+            <li class="nav-item" data-bs-level="2"><a href="#decision" class="nav-link">Decision</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#handover-block-append-to-pm-ledger" class="nav-link">Handover Block (append to PM Ledger)</a>
+            <li class="nav-item" data-bs-level="2"><a href="#api-internal-only" class="nav-link">API (internal only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#child-process-call-deterministic" class="nav-link">Child-process call (deterministic)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#data-model-append-only" class="nav-link">Data model (append-only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#ops-receipts" class="nav-link">Ops &amp; receipts</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#safety-caps" class="nav-link">Safety &amp; caps</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rollout" class="nav-link">Rollout</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#extra-reuse-from-what-weve-already-built" class="nav-link">Extra reuse from what we’ve already built</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#one-sharp-thought" class="nav-link">One sharp thought</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -223,46 +247,73 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
-<h1 id="boot-project-manager-chief">Boot Project Manager — Chief</h1>
-<p>Central orchestrator GPT. You oversee all roles and ensure continuity across sessions.</p>
-<h2 id="load-procedure">Load Procedure</h2>
-<p>1) Fetch <strong>./slug-map.json</strong> (same directory as this page).
-2) Open the pages for these keys (using the slugs from that JSON):
-   - <code>pm-continuity</code>
-   - <code>phase-v3-9</code>
-   - <code>worker-playbook</code>
-   - <code>ops-log</code>
-   - <code>planning-sandbox</code>
-3) Open <strong>/pm-ledger/</strong> (append-only). Read from bottom up for latest record.</p>
-<h2 id="behavior-rules">Behavior Rules</h2>
+<p>the following is suggested by the gpt pm.</p>
+<p>Got you. Here’s the tight ADR plus what else we can reuse.</p>
+<h1 id="adr-001-reasoning-core-v0-advisor-sandbox-for-chief">ADR-001 — Reasoning Core v0 (“Advisor Sandbox”) for Chief</h1>
+<p><strong>Status:</strong> Proposed • <strong>Owner:</strong> PM • <strong>Date:</strong> 2025-11-08
+<strong>Goal:</strong> Give Chief a safe, auditable “thinking lane” that runs prompts, stores receipts, and never mutates user data.</p>
+<h2 id="decision">Decision</h2>
+<p>Add an internal Node route that shells out to our <strong>model adapter</strong> (stub by default) and writes <strong>append-only</strong> receipts to SQLite. No automations or side-effects in v0; advise-only.</p>
+<h2 id="api-internal-only">API (internal only)</h2>
 <ul>
-<li>Maintain full context of all roles and history.</li>
-<li>Direct <strong>Workers</strong> only through verified and scoped instructions.</li>
-<li>Assign <strong>Planners</strong> creative or structural tasks; verify alignment before approval.</li>
-<li>When new GPT sessions begin, provide them their boot page link and wait for readiness confirmation.</li>
-<li>Never overwrite ledgers — append only.</li>
-<li>Ensure all updates to handbook mirrors are verified and tagged.</li>
+<li>
+<p><strong>POST</strong> <code>/_internal/advisor/run</code></p>
+</li>
+<li>
+<p><strong>body:</strong> <code>{ "domain":"health|finance|projects|…", "prompt":"&lt;user/PM question&gt;", "provider?":"stub|openai|ollama" }</code></p>
+</li>
+<li><strong>returns (200):</strong> one JSON:
+    <code>{"run_id":"&lt;ulid&gt;", "ok":true|false, "provider":"…", "tokens":&lt;n?&gt;, "text":"&lt;advisor output&gt;", "receipts":{"stdout":"…","stderr":"…","ms":1234}}</code></li>
 </ul>
-<h2 id="handover-block-append-to-pm-ledger">Handover Block (append to PM Ledger)</h2>
-<p>```handover
-role: project-manager
-timestamp: <UTC ISO8601>
-phase: v3.9-infra-genesis
-overview:
-  - <summary of last session + rationale>
-directives:
-  - <assigned tasks to worker or planner>
-verifications:
-  - <cross-checked artifacts or URLs>
-risks:
-  - <current known risks>
-next_actions:
-  - <next immediate objectives>
-links:
-  continuity: /pm-continuity-<slug>/
-  phase: /phase-v3-9-<slug>/
-  worker_playbook: /worker-playbook-<slug>/
-  sandbox: /planning-sandbox-<slug>/</p></div>
+<p>Auth: same admin/ops guard you use for other internals; rate-limit; payload size cap.</p>
+<h2 id="child-process-call-deterministic">Child-process call (deterministic)</h2>
+<ul>
+<li>Node spawns: <code>python -m models.adapter_cli --provider &lt;p&gt; --prompt-file &lt;tmp&gt;</code>
+  (tiny CLI on top of our existing <code>models/adapter.py</code>; outputs <strong>one line JSON</strong>)</li>
+<li><strong>Default provider:</strong> <code>stub</code> (no keys).</li>
+<li>OpenAI/Ollama only allowed if env creds present; otherwise return <code>not_configured</code>.</li>
+</ul>
+<h2 id="data-model-append-only">Data model (append-only)</h2>
+<p>Tables (SQLite):</p>
+<ul>
+<li><code>advisor_runs(id INTEGER PK, run_id TEXT UNIQUE, ts TEXT, domain TEXT, provider TEXT, input_json TEXT, output_json TEXT, receipts_json TEXT, latency_ms INTEGER)</code></li>
+<li><code>advisor_audits(id INTEGER PK, run_id TEXT, ts TEXT, score REAL, findings_json TEXT)</code>
+  No updates after insert except adding audits; never delete—rotate with the same index/rotation rules we already use.</li>
+</ul>
+<h2 id="ops-receipts">Ops &amp; receipts</h2>
+<ul>
+<li>Write a plain log: <code>logs/advisor/&lt;ts&gt;-&lt;run_id&gt;.log</code></li>
+<li>Maintain <code>logs/advisor/index.jsonl</code> (rotate at 5k lines / 1MB; keep last 1k) — same policy as wrapper.</li>
+<li>Add a tiny <code>/ops/advisor/report.html</code> generator later (reuse our HTML report skeleton).</li>
+</ul>
+<h2 id="safety-caps">Safety &amp; caps</h2>
+<ul>
+<li>Max prompt length (env): <code>ADVISOR_MAX_CHARS</code> (e.g., 4k).</li>
+<li>Max tokens (env): <code>ADVISOR_MAX_TOKENS</code> (e.g., 800 stub / 1,500 real).</li>
+<li>v0 is <strong>read-only</strong>: advisor returns text + rationale; no writes/automations.</li>
+</ul>
+<h2 id="rollout">Rollout</h2>
+<ol>
+<li>Add route + adapter CLI + DB tables + file logging (stub provider).</li>
+<li>Add <code>advisor:reflect</code> cron to write <code>advisor_audits</code> rows (simple rubric).</li>
+<li>Introduce <strong>domain brains</strong> by passing a domain-specific preamble into the adapter.</li>
+<li>Flip to a real provider later by env when you’re ready.</li>
+</ol>
+<hr />
+<h2 id="extra-reuse-from-what-weve-already-built">Extra reuse from what we’ve already built</h2>
+<ul>
+<li><strong>Receipts discipline:</strong> Single-line JSON everywhere; copy the wrapper’s receipts/metrics pattern for advisor runs &amp; audits.</li>
+<li><strong>Rotation &amp; prune:</strong> Drop-in reuse of index rotation + <code>prune_logs</code> for advisor logs.</li>
+<li><strong>Error budget:</strong> Reuse the counter to track ok/nonzero/timeouts for advisor calls.</li>
+<li><strong>HTML ops report:</strong> Clone <code>ops_report.py</code> to <code>advisor_report.py</code> for a quick dashboard.</li>
+<li><strong>Policy/caps mindset:</strong> Add a tiny “advisor caps” check (prompt len, provider allowlist) before we call the adapter.</li>
+<li><strong>Tag/branch helpers:</strong> Not needed for v0, but later we can version “advice packs” with annotated tags if we snapshot personas/preambles.</li>
+<li><strong>.cmd shims/Makefile:</strong> Apply the same cross-platform shims to the advisor scripts so Windows is first-class.</li>
+</ul>
+<h2 id="one-sharp-thought">One sharp thought</h2>
+<p>Keep Advisor v0 <strong>advice-only</strong> until we see consistent quality; when you want “action,” route it through a separate “executor” lane with human confirmation. That keeps trust high and blast radius low.</p>
+<hr />
+<p>If this looks right, I’ll turn it into a Worker directive to implement <strong>route + adapter CLI + tables + logging (stub-only)</strong> in one pass. Approve?</p></div>
             </div>
         </div>
 
