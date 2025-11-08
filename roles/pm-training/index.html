@@ -289,6 +289,14 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#20-ryleys-official-pm-handover-request-chief-handbook" class="nav-link">20 | Ryley’s Official PM Handover Request — Chief Handbook</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#21-uploading-pm-handovers-to-this-handbook-exact" class="nav-link">21 | Uploading PM Handovers to This Handbook (Exact)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -403,7 +411,82 @@ To docs: Markdown with explicit paths.</p>
 <h2 id="18-handover-preparation">18 | Handover Preparation</h2>
 <p>Update docs, verify last phase, write continuity summary (phase, branches, pending, risks, philosophy), open new PM chat with it.</p>
 <h2 id="19-core-ethos">19 | Core Ethos</h2>
-<p>Protect the feeling of calm clarity in every line of code, plan, and word.</p></div>
+<p>Protect the feeling of calm clarity in every line of code, plan, and word.</p>
+<p>Got it. Keep your PM training as-is and <strong>append these two sections</strong> to the end.</p>
+<hr />
+<h2 id="20-ryleys-official-pm-handover-request-chief-handbook">20 | Ryley’s Official PM Handover Request — Chief Handbook</h2>
+<blockquote>
+<p>It’s time for a PM handover.
+Build an <strong>incredibly thorough, self-contained handover</strong> so the next PM/Worker can continue instantly — <strong>no gaps, no guessing</strong>. Include:</p>
+<ul>
+<li><strong>Project overview &amp; phase context</strong> (what we’re building, why, current phase)</li>
+<li><strong>How we work</strong> (one-step Git Bash flow, confirmation rules, proof-before-progress)</li>
+<li><strong>Technical architecture &amp; key files touched</strong> (paths, modules, roles)</li>
+<li><strong>What changed this session</strong> (decisions, reasoning, trade-offs)</li>
+<li><strong>Verification evidence</strong> (key logs/output proving success)</li>
+<li><strong>Open issues &amp; risks</strong> (status, owner, unblockers)</li>
+<li><strong>Exact next step</strong> (single, unambiguous action for the next PM/Worker)</li>
+<li><strong>Commands/paths/configs</strong> (verbatim; paste-ready)</li>
+<li><strong>Tags/branches</strong> (current branch, tag if any)</li>
+</ul>
+<p><strong>Format:</strong> hybrid sections + plain explanation, <strong>verified facts only</strong>.
+Must be <strong>exhaustive and linear</strong> — roadmap + design doc + tech spec + continuity brief.
+If something’s unknown, <strong>state UNKNOWN and how to verify</strong>.</p>
+</blockquote>
+<h3 id="paste-ready-pm-handover-skeleton">Paste-ready PM Handover skeleton</h3>
+<pre><code># 🧭 PM Handover — &lt;Short Title&gt;
+**Date:** YYYY-MM-DD
+**Phase:** &lt;e.g., v3.9 Onboarding &amp; Consent&gt;
+**Scope:** [what this PM session covered]
+
+## Overview
+What we’re building and why; current phase intent.
+
+## Architecture &amp; Key Files
+- path/to/file — role
+- path/to/other — role
+
+## What Changed (Decisions &amp; Reasoning)
+- Change → why it was done (trade-offs)
+
+## Verification
+- Key output lines / screenshots proved X worked.
+
+## Open Issues / Risks
+- issue → status / owner / unblocker
+
+## Next Step (single action)
+Exactly what the next PM/Worker does first.
+
+## Commands Run
+[one command per line, exact; include working dir]
+
+## Branches/Tags
+- branch: &lt;name&gt;
+- tag: &lt;if any&gt;
+</code></pre>
+<hr />
+<h2 id="21-uploading-pm-handovers-to-this-handbook-exact">21 | Uploading PM Handovers to <strong>This</strong> Handbook (Exact)</h2>
+<p><strong>Source repo (edit &amp; run here):</strong>
+<code>~/Desktop/Chief/chief-handbook-source</code></p>
+<p><strong>PM handovers (single rolling index, newest on top):</strong>
+<code>docs/handovers/pm/index.md</code></p>
+<p><strong>Commands</strong></p>
+<pre><code>cd ~/Desktop/Chief/chief-handbook-source
+notepad docs/handovers/pm/index.md
+# paste a NEW handover section at the VERY TOP using the PM skeleton above
+bash scripts/publish.sh
+</code></pre>
+<p><strong>Verify</strong></p>
+<ul>
+<li>PM mirror (full, no-index, no search): <code>/handovers/pm/</code></li>
+<li>Public mirror: PM pages are <strong>stripped by the script</strong> (expected)</li>
+</ul>
+<p><strong>Notes</strong></p>
+<ul>
+<li>CRLF warnings are fine unless a build breaks.</li>
+</ul>
+<hr /></div>
             </div>
         </div>
 
