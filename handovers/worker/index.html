@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails) - Chief Handbook</title>
+        <link href="../../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../../css/fontawesome.min.css" rel="stylesheet">
+        <link href="../../css/brands.min.css" rel="stylesheet">
+        <link href="../../css/solid.min.css" rel="stylesheet">
+        <link href="../../css/v4-font-face.min.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link id="hljs-light" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" >
+        <link id="hljs-dark" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css" disabled>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script>hljs.highlightAll();</script>
+   
+  <meta name="robots" content="noindex,nofollow">
+
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="../..">Chief Handbook</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="nav-item">
+                                <a href="../.." class="nav-link">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../boot-pm/" class="nav-link">Boot Project Manager — Chief</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../boot-worker/" class="nav-link">Boot Worker — Chief</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../ops-log-placeholder/" class="nav-link">Ops log placeholder</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../phase-v3-9-placeholder/" class="nav-link">Phase v3 9 placeholder</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../planning-sandbox-placeholder/" class="nav-link">Planning sandbox placeholder</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../pm-continuity-placeholder/" class="nav-link">Pm continuity placeholder</a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../../worker-playbook-placeholder/" class="nav-link">Worker playbook placeholder</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle active" aria-current="page" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Handovers</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../2025-11-04-handover-worker-session/" class="dropdown-item">2025 11 04 handover worker session</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Pm</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../pm/" class="dropdown-item">Index</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Worker</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="./" class="dropdown-item active" aria-current="page">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Ledgers</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../ledgers/pm-handover-2025-11-04/" class="dropdown-item">Chief — Project Manager Handover (Permanent Record Edition)</a>
+</li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Pm</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../ledgers/pm/" class="dropdown-item">PM Ledger</a>
+</li>
+    </ul>
+  </li>
+                                    
+  <li class="dropdown-submenu">
+    <a href="#" class="dropdown-item">Worker</a>
+    <ul class="dropdown-menu">
+            
+<li>
+    <a href="../../ledgers/worker/" class="dropdown-item">Worker Ledger</a>
+</li>
+    </ul>
+  </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Navigation</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../navigation/overview/" class="dropdown-item">Navigation Overview — Chief Handbook System</a>
+</li>
+                                    
+<li>
+    <a href="../../navigation/planner/" class="dropdown-item">Planner Navigation — Chief Handbook System</a>
+</li>
+                                    
+<li>
+    <a href="../../navigation/pm/" class="dropdown-item">Pm</a>
+</li>
+                                    
+<li>
+    <a href="../../navigation/worker/" class="dropdown-item">Worker Navigation — Chief Handbook System</a>
+</li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown"  aria-expanded="false">Roles</a>
+                                <ul class="dropdown-menu">
+                                    
+<li>
+    <a href="../../roles/planner-training/" class="dropdown-item">Planner Training — Chief</a>
+</li>
+                                    
+<li>
+    <a href="../../roles/pm-training/" class="dropdown-item">Project-Manager Training Manual (Ryley Method)</a>
+</li>
+                                    
+<li>
+    <a href="../../roles/worker-training/" class="dropdown-item">Worker Training — Chief</a>
+</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ms-md-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-bs-toggle="modal" data-bs-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../pm/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../../ledgers/pm-handover-2025-11-04/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-bs-toggle="collapse" data-bs-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#chief-handover-v39-onboarding-ui-oauth-guardrails" class="nav-link">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-project-overview" class="nav-link">1) Project overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-how-we-work-together-ryley-rules" class="nav-link">2) How we work together (Ryley rules)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-technical-architecture-current" class="nav-link">3) Technical architecture (current)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-current-progress-this-chat" class="nav-link">4) Current progress (this chat)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-guardrails-oauth-sync-donotbreak" class="nav-link">5) Guardrails — OAuth &amp; Sync (Do‑Not‑Break)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-features-flow-user-perspective" class="nav-link">6) Features &amp; flow (user perspective)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-outstanding-issues-actionable" class="nav-link">7) Outstanding issues (actionable)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-next-steps-immediate" class="nav-link">8) Next steps (immediate)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-commands-verification" class="nav-link">9) Commands &amp; verification</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-code-snippets-ground-truth" class="nav-link">10) Code snippets (ground truth)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-roadmap" class="nav-link">11) Roadmap</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#12-handoff-checklist-for-next-gpt" class="nav-link">12) Handoff checklist (for next GPT)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#13-risks-mitigations" class="nav-link">13) Risks &amp; mitigations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#14-appendix-quick-links-ids-dev" class="nav-link">14) Appendix — Quick links / IDs (dev)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="chief-handover-v39-onboarding-ui-oauth-guardrails">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</h1>
+<p><strong>Date:</strong> 2025‑11‑07
+<strong>Scope:</strong> This chat only. Facts only. No guesses.
+<strong>Repos/Branch:</strong></p>
+<ul>
+<li><strong>Android:</strong> <code>chief-android</code> — branch <code>feat/v3.9-onboarding-consent</code> (synced to tag <code>v3.9-oauth-restored-2025-11-07</code> as baseline)</li>
+<li><strong>Backend:</strong> <code>chief-tts-backend</code> — branch <code>feat/v3.9-onboarding-consent-backend</code></li>
+<li><strong>Training fork (read‑only):</strong> <code>chief-backend-train</code> (mirror of backend for GPT Builder training)</li>
+</ul>
+<hr />
+<h2 id="1-project-overview">1) Project overview</h2>
+<p><strong>Chief</strong> is a voice‑first, truthful daily brief assistant. It reads Google Calendar, composes a clean human narrative (“Morning Brief”), and speaks it with TTS. v3.9 adds a relationship‑style <strong>onboarding</strong> that gently sets proactive consent and quiet hours, while keeping our <strong>OAuth</strong> and sync rock‑solid.</p>
+<p><strong>Key pillars:</strong></p>
+<ul>
+<li><strong>Stable OAuth &amp; Sync:</strong> Google Sign‑In (WEB client) → serverAuthCode → backend <code>/auth/google/mobile-exchange</code> → refresh token stored per <strong>deviceId</strong>. All protected calls send <code>x-user-id: &lt;deviceId&gt;</code>.</li>
+<li><strong>Narrative Brief:</strong> <code>/brief/narrative</code> (server) composes text; Android fetches and speaks via <code>CloudTtsEngine</code> with cached offline fallback.</li>
+<li><strong>Onboarding (v3.9):</strong> Human, calm, decisive screens; optional greeting audio via <code>/onboarding/greet</code>; consent + quiet hours posted to <code>/profile</code>.</li>
+</ul>
+<p><strong>Tone &amp; UX:</strong> Calm, steady, lightly warm. Each onboarding step ends with <strong>Done</strong>, <strong>Skip</strong>, or <strong>Set for later</strong>. No open‑ended chats during onboarding.</p>
+<hr />
+<h2 id="2-how-we-work-together-ryley-rules">2) How we work together (Ryley rules)</h2>
+<ul>
+<li><strong>One step at a time.</strong> Single Git Bash command at a time; paste results; proceed.</li>
+<li><strong>No fluff.</strong> Be direct; one clarifying question max.</li>
+<li><strong>Guardrails:</strong> Never break OAuth/ZeroAuth. Truth over momentum. If unsure, say so and verify.</li>
+<li><strong>Windows:</strong> We label terminals <code>[ANDROID]</code>, <code>[BACKEND]</code>, <code>[SERVER]</code> when giving commands.</li>
+<li><strong>Verification:</strong> Build → run → logs. Use <code>adb reverse tcp:8080 tcp:8080</code> for local.</li>
+</ul>
+<hr />
+<h2 id="3-technical-architecture-current">3) Technical architecture (current)</h2>
+<h3 id="android-kotlin-compose">Android (Kotlin, Compose)</h3>
+<ul>
+<li><strong>Package:</strong> <code>app.chief.app</code> (confirmed; fixed from earlier <code>app.chief.android</code>).</li>
+<li>
+<p><strong>Key files:</strong></p>
+</li>
+<li>
+<p><code>NetworkConfig.kt</code> — stores persistent per‑install <strong>UUID</strong> (<code>device_uuid</code> in <code>chief_prefs</code>).</p>
+</li>
+<li><code>GoogleAuthHelper.kt</code> — GoogleSignIn client using <strong>WEB</strong> client; obtains <code>serverAuthCode</code>.</li>
+<li><code>network/OauthApi.kt</code> — <code>POST /auth/google/mobile-exchange</code> with header <code>x-user-id: &lt;deviceId&gt;</code> and JSON <code>{ "authCode": "..." }</code>.</li>
+<li>
+<p><code>MainActivity.kt</code> —</p>
+<ul>
+<li>Initializes <code>deviceId = NetworkConfig.getDeviceId(this)</code> once.</li>
+<li>Wire up <code>OauthApi</code>, <code>SyncPoller(userId=deviceId)</code>, and <code>CloudTtsEngine</code>.</li>
+<li>On sign‑in result, sends auth code via <code>OauthApi.sendAuthCode(...)</code>, then refreshes <code>/profile</code>.</li>
+<li><strong>Onboarding hook:</strong> calls <code>CloudTtsEngine.playOnboardingGreeting()</code> on first resume <strong>after</strong> profile fetch (see §6 for current status).</li>
+<li><code>speech/CloudTtsEngine.kt</code> — centralized TTS client + <strong>new</strong> <code>suspend fun playOnboardingGreeting(): Boolean</code> that <code>POST</code>s <code>/onboarding/greet</code>, saves MP3 to cache, and plays it via <strong>ExoPlayer</strong>. Includes MP3 header/length sanity checks for offline cache.</li>
+<li><code>BriefCache</code>, <code>SyncPoller</code>, <code>SyncBus</code> — calendar diff + local pending actions replay.</li>
+<li><strong>Config:</strong> <code>BASE_URL = "http://127.0.0.1:8080"</code>; <code>GOOGLE_SERVER_CLIENT_ID = &lt;WEB client id&gt;</code>.</li>
+<li><strong>Media:</strong> <code>media3-exoplayer</code> for audio; ElevenLabs used server‑side so client stays provider‑agnostic.</li>
+</ul>
+</li>
+</ul>
+<h3 id="backend-node-express">Backend (Node + Express)</h3>
+<ul>
+<li>
+<p><strong>server.cjs</strong> —</p>
+</li>
+<li>
+<p><code>/tts</code> — ElevenLabs primary → Google TTS fallback; returns <code>audio/mpeg</code>.</p>
+</li>
+<li><code>/brief/format</code>, <code>/brief/speak</code> — legacy helpers.</li>
+<li><code>/brief/narrative</code> — narrative composer (reads Google Calendar via stored refresh token per <code>x-user-id</code>).</li>
+<li><strong>NEW:</strong> <code>/onboarding/greet</code> — persona‑authored greeting (SSML), synthesized via internal <code>/tts</code>. Supports <code>?debug=1</code> JSON sidecar.</li>
+<li><code>/sync/calendar</code> (shim for day view) and <code>/sync/resolve</code>.</li>
+<li><code>/intent/confirm</code> — creates Google Calendar event.</li>
+<li>Routers: <code>/auth</code> (code exchange), <code>/profile</code>, <code>/intent</code>, <code>/oauth</code>.</li>
+<li><strong>Persona libs:</strong> <code>voicePersona.cjs</code> / <code>buildOnboardingGreetingPersona(...)</code> (Bill‑style, calm on‑ramp); <code>briefNarrative.cjs</code>.</li>
+<li><strong>OAuth storage:</strong> <code>dbProfile.cjs</code> + <code>googleAccess.cjs</code> (refresh token per <code>x-user-id</code>).</li>
+</ul>
+<hr />
+<h2 id="4-current-progress-this-chat">4) Current progress (this chat)</h2>
+<h3 id="backend-greeting-route-is-live">✅ Backend greeting route is live</h3>
+<ul>
+<li>
+<p>Implemented <strong><code>POST /onboarding/greet</code></strong> that:</p>
+</li>
+<li>
+<p>Loads profile (read‑only) by <code>x-user-id</code>.</p>
+</li>
+<li>Builds onboarding greeting SSML via <code>buildOnboardingGreetingPersona()</code>.</li>
+<li>Synthesizes MP3 via internal <code>/tts</code> (Eleven → Google fallback).</li>
+<li><code>?debug=1</code> returns <code>{ ok, text, ssml }</code> JSON for inspection.</li>
+<li>
+<p><strong>Verified:</strong></p>
+</li>
+<li>
+<p>JSON: <code>curl -i -X POST -H "x-user-id: dev" "http://127.0.0.1:8080/onboarding/greet?debug=1"</code> → <strong>200 OK</strong> with SSML containing “Take a breath…”.</p>
+</li>
+<li>Audio stream: <code>curl -i -X POST -H "x-user-id: dev" http://127.0.0.1:8080/onboarding/greet</code> → <strong>200 OK</strong> with <code>Content-Type: audio/mpeg</code>.</li>
+</ul>
+<h3 id="android-packageid-build-restored">✅ Android package/id + build restored</h3>
+<ul>
+<li><code>applicationId</code> is <strong><code>app.chief.app</code></strong>.</li>
+<li>Built with JBR 21; Gradle assemble/install fine after JAVA_HOME set to Android Studio <strong>jbr</strong>.</li>
+</ul>
+<h3 id="oauth-restored-and-guarded">✅ OAuth restored and guarded</h3>
+<ul>
+<li>Working baseline tagged <strong><code>v3.9-oauth-restored-2025-11-07</code></strong>.</li>
+<li>Flow is WEB client <code>serverAuthCode</code> → <code>OauthApi.sendAuthCode()</code> → <code>/auth/google/mobile-exchange</code> with <code>x-user-id</code>.</li>
+<li>Sync and narrative brief working on that baseline.</li>
+</ul>
+<h3 id="training-fork-created-safely">✅ Training fork created safely</h3>
+<ul>
+<li>Local clone of backend renamed <code>chief-backend-train</code>; GitHub private repo created: <code>https://github.com/Rybanook/chief-backend-train.git</code>.</li>
+<li>Purpose: <strong>read‑only</strong> training for GPT Builder; does not touch production repos.</li>
+</ul>
+<h3 id="onboarding-greeting-playback-partially-wired">⚠️ Onboarding greeting playback — partially wired</h3>
+<ul>
+<li><code>CloudTtsEngine.playOnboardingGreeting()</code> implemented.</li>
+<li><code>MainActivity</code> calls it once after profile fetch on first resume.</li>
+<li><strong>Observed:</strong> At one point, a <code>NetworkOnMainThreadException</code> was logged when calling the greeting directly on the main thread.</li>
+<li><strong>Fix applied:</strong> We moved the call into a coroutine (<code>activityScope?.launch { … }</code>) so the OkHttp call happens off main.</li>
+<li><strong>Status:</strong> Still not audibly hearing “Take a breath …” on device during onboarding even though server returns valid MP3. Needs a focused verification pass (see §7).</li>
+</ul>
+<hr />
+<h2 id="5-guardrails-oauth-sync-donotbreak">5) Guardrails — OAuth &amp; Sync (Do‑Not‑Break)</h2>
+<p><strong>Non‑negotiables:</strong></p>
+<ul>
+<li>Always use <strong>Google Play Services Sign‑In</strong> to fetch <strong><code>serverAuthCode</code></strong> using the <strong>WEB</strong> client ID.</li>
+<li>Force refresh token: <code>requestServerAuthCode(&lt;WEB_CLIENT_ID&gt;, true)</code>.</li>
+<li>Exchange at <strong><code>POST /auth/google/mobile-exchange</code></strong> with header <strong><code>x-user-id: &lt;deviceId&gt;</code></strong> and body <code>{ "authCode": "..." }</code>.</li>
+<li>
+<p>The <strong>same <code>deviceId</code></strong> (from <code>NetworkConfig.getDeviceId(context)</code>) must be used:</p>
+</li>
+<li>
+<p>when exchanging the auth code, and</p>
+</li>
+<li>for <strong>all</strong> protected calls (Sync, Narrative, Profile, Onboarding, etc.).</li>
+<li>Do <strong>not</strong> switch to raw browser/postmessage OAuth.</li>
+</ul>
+<p><strong>Files to protect:</strong></p>
+<ul>
+<li><code>GoogleAuthHelper.kt</code>, <code>network/OauthApi.kt</code>, <code>network/NetworkConfig.kt</code>, <code>MainActivity.kt</code>, <code>speech/CloudTtsEngine.kt</code>.</li>
+</ul>
+<p><strong>Local dev assumptions:</strong></p>
+<ul>
+<li>Backend on <code>localhost:8080</code>. Android reaches it via <code>adb reverse tcp:8080 tcp:8080</code>.</li>
+<li><code>BASE_URL</code> should be <code>http://127.0.0.1:8080</code>.</li>
+</ul>
+<p><strong>Success cues (logcat):</strong></p>
+<ul>
+<li>After sign‑in: <code>GoogleAuthHelper: codeLen=...</code></li>
+<li>No <code>DEVELOPER_ERROR (10)</code>.</li>
+<li>No <code>mobile-exchange failed ... 127.0.0.1:8080</code> (means reverse is missing).</li>
+<li>Events appear in UI; Pulse reads same content.</li>
+</ul>
+<hr />
+<h2 id="6-features-flow-user-perspective">6) Features &amp; flow (user perspective)</h2>
+<ol>
+<li>
+<p><strong>Launch / Onboarding start</strong></p>
+</li>
+<li>
+<p>App fetches <code>/profile</code> (by <code>x-user-id</code>). If <code>consent_proactive</code> is null → show onboarding.</p>
+</li>
+<li><strong>Greeting</strong>: app requests <code>/onboarding/greet</code> and plays Bill‑style calm audio.</li>
+<li>
+<p><strong>Onboarding decisions</strong></p>
+</li>
+<li>
+<p><strong>Consent</strong> prompt: allow proactive brief or not. Buttons: <strong>Done</strong>, <strong>Skip</strong>.</p>
+</li>
+<li><strong>Quiet Hours</strong>: start/end local time. Buttons: <strong>Save</strong>, <strong>Set for later</strong>.</li>
+<li>(Future) <strong>Voice</strong> pick: optional. Buttons: <strong>Save</strong>, <strong>Skip</strong>.</li>
+<li>Persist outcomes via <code>POST /profile</code> (same as v3.8), no backend schema change required.</li>
+<li>
+<p><strong>Daily brief usage</strong></p>
+</li>
+<li>
+<p>Tap <strong>Pulse</strong> to fetch <code>/brief/narrative</code>; <code>CloudTtsEngine</code> plays TTS; offline MP3 safe‑cached.</p>
+</li>
+<li>Calendar diffs show toast and optional confirm dialog when changes detected.</li>
+<li>
+<p><strong>Confirm plan edits</strong></p>
+</li>
+<li>
+<p><code>IntentApi.confirm()</code> adds event → UI refresh.</p>
+</li>
+</ol>
+<hr />
+<h2 id="7-outstanding-issues-actionable">7) Outstanding issues (actionable)</h2>
+<ol>
+<li>
+<p><strong>Greeting audio not heard in app</strong></p>
+</li>
+<li>
+<p>Server returns valid MP3; <code>curl</code> confirms.</p>
+</li>
+<li>Earlier logs showed <code>NetworkOnMainThreadException</code>. We moved call to a coroutine, but still silent.</li>
+<li>
+<p><strong>Likely causes &amp; checks:</strong></p>
+<ul>
+<li>Ensure <code>playOnboardingGreeting()</code> is <strong>not</strong> blocked by lifecycle (e.g., called before ExoPlayer is prepared or UI stack visible). Add a small delay after first frame, or call in <code>LaunchedEffect(Unit)</code> within onboarding composable via a callback.</li>
+<li>Confirm file write OK and <code>onboarding_greet.mp3</code> exists in <code>cacheDir</code>.</li>
+<li>Verify <code>ExoPlayer</code> instance is on main thread (<code>playFileOnMain</code> already enforces this) and volume/audio focus aren’t muted.</li>
+<li>Logcat filter for <code>CloudTTS: PLAY uri=...</code> immediately before play; if missing, we never reached playback.</li>
+<li>Confirm <code>BASE_URL</code> is <code>127.0.0.1</code> and <code>adb reverse</code> was run <strong>before</strong> launch.</li>
+<li>Replace hardcoded <code>"dev"</code> header with real <code>deviceId</code> (see §8.1) so profile/voice params and persona greet are correctly tailored; some flows may no‑op if profile missing.</li>
+</ul>
+</li>
+<li>
+<p><strong>Header consistency</strong></p>
+</li>
+<li>
+<p>In <code>CloudTtsEngine.ensureProfileLoadedOnce()</code> and <code>playOnboardingGreeting()</code>, the temporary header was <code>x-user-id: dev</code>. Must use the <strong>actual</strong> deviceId.</p>
+</li>
+<li>
+<p><strong>Onboarding skip/return</strong></p>
+</li>
+<li>
+<p>UI currently shows a single‑screen sheet. PM directive requires skip/return logic across sections. Plan in §8.2.</p>
+</li>
+</ol>
+<hr />
+<h2 id="8-next-steps-immediate">8) Next steps (immediate)</h2>
+<h3 id="81-android-deviceid-header-audible-greet">8.1 Android — deviceId header + audible greet</h3>
+<ul>
+<li>
+<p><strong>Replace</strong> hardcoded header in <code>CloudTtsEngine</code> with real deviceId:</p>
+</li>
+<li>
+<p>Add <code>private val userIdProvider: () -&gt; String</code> parameter (or pass <code>deviceId</code> directly where the engine is constructed).</p>
+</li>
+<li>Use it in both <code>/profile</code> and <code>/onboarding/greet</code> requests.</li>
+<li>
+<p><strong>Ensure background call &amp; main‑thread playback</strong> are correct (they are), then add explicit logs:</p>
+</li>
+<li>
+<p>Before saving: <code>Log.i("CloudTTS", "Greeting bytes=" + bytes.size)</code>.</p>
+</li>
+<li>Before playback: <code>Log.i("CloudTTS", "PLAY uri=" + uri)</code>.</li>
+<li><strong>Add a tiny delay</strong> (e.g., 150–300 ms) before <code>player.playWhenReady = true</code> if you see race conditions on first launch.</li>
+<li><strong>Re‑test:</strong> <code>adb reverse</code>, install, launch. Check for <code>OnboardingGreeting: OK</code> and <code>PLAY uri=</code> in logcat.</li>
+</ul>
+<h3 id="82-android-onboarding-flow-screens-tone-decisiveness">8.2 Android — onboarding flow screens (tone + decisiveness)</h3>
+<ul>
+<li>Keep the single‑sheet style but break into steps with <strong>pager</strong> or stacked modals: <strong>Consent → Quiet Hours → (Optional Voice)</strong>.</li>
+<li>Each screen ends decisively: <strong>Done / Save / Skip / Set for later</strong>.</li>
+<li>Persist via existing <code>POST /profile</code> (no schema change).</li>
+</ul>
+<h3 id="83-backend-small-polish">8.3 Backend — small polish</h3>
+<ul>
+<li>Ensure <code>/onboarding/greet</code> uses user profile if present (already does) and supports <code>?debug=1</code> (working).</li>
+<li>Add minimal rate‑limit per user (optional) to prevent rapid replays during dev.</li>
+</ul>
+<hr />
+<h2 id="9-commands-verification">9) Commands &amp; verification</h2>
+<p><strong>Build/Install (Android):</strong></p>
+<pre><code>[ANDROID] ./gradlew assembleDebug
+[ANDROID] ./gradlew installDebug
+</code></pre>
+<p><strong>Reverse port:</strong></p>
+<pre><code>[ANDROID] &quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; reverse tcp:8080 tcp:8080
+</code></pre>
+<p><strong>Launch app and tail logs:</strong></p>
+<pre><code>[ANDROID] &quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; logcat -c &amp;&amp; \
+  &quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; shell am start -S -n app.chief.app/.MainActivity &amp;&amp; \
+  &quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; logcat app\.chief\.app:D CloudTTS:D GoogleAuthHelper:D OAuthFlow:D *:S
+</code></pre>
+<p><strong>Backend start:</strong></p>
+<pre><code>[SERVER] node server.cjs
+</code></pre>
+<p><strong>Greet endpoint checks:</strong></p>
+<pre><code>[SERVER] curl -i -X POST -H &quot;x-user-id: dev&quot; &quot;http://127.0.0.1:8080/onboarding/greet?debug=1&quot;
+[SERVER] curl -i -X POST -H &quot;x-user-id: dev&quot; http://127.0.0.1:8080/onboarding/greet
+</code></pre>
+<p><em>(Replace <code>dev</code> with real deviceId once CloudTtsEngine is updated.)</em></p>
+<p><strong>JAVA_HOME quick‑set (Windows Git Bash):</strong></p>
+<pre><code>[ANDROID] for d in &quot;/c/Program Files/Android/Android Studio/jbr&quot; \
+  &quot;/c/Program Files/Android/Android Studio/jre&quot; /c/Program\ Files/Java/jdk* ; do \
+  if [ -d &quot;$d&quot; ]; then export JAVA_HOME=&quot;$d&quot;; export PATH=&quot;$JAVA_HOME/bin:$PATH&quot;; java -version; break; fi; done
+</code></pre>
+<hr />
+<h2 id="10-code-snippets-ground-truth">10) Code snippets (ground truth)</h2>
+<h3 id="101-backend-onboardinggreet-route-final">10.1 Backend — <code>/onboarding/greet</code> route (final)</h3>
+<pre><code class="language-js">// === ONBOARDING GREETING (Persona-rendered, MP3 stream) ===
+app.post(&quot;/onboarding/greet&quot;, async (req, res) =&gt; {
+  try {
+    const userId = req.header(&quot;x-user-id&quot;);
+    if (!userId) return res.status(400).json({ error: &quot;missing_user_id&quot; });
+
+    const profile = (await getProfile(userId)) || {
+      displayName: &quot;&quot;,
+      timeZone: &quot;America/Vancouver&quot;,
+      voiceRate: 0.92,
+      voicePitch: 2.0,
+    };
+
+    const name = (profile.displayName || &quot;&quot;).toString().trim() || &quot;there&quot;;
+    const textDisplay = `Welcome, ${name}. Take a breath, and we’ll get set up.`;
+
+    const { ssml } = buildOnboardingGreetingPersona(
+      { textDisplay },
+      { voiceRate: profile.voiceRate, voicePitch: profile.voicePitch }
+    );
+
+    const debug = String(req.query?.debug || &quot;0&quot;) === &quot;1&quot;;
+    if (debug) return res.status(200).json({ ok: true, text: textDisplay, ssml });
+
+    const chosenVoice = `eleven:${process.env.ELEVENLABS_VOICE_ID || &quot;pqHfZKP75CvOlQylNhV4&quot;}`;
+
+    const resp = await axios.post(`http://localhost:${PORT}/tts`, {
+      textType: &quot;SSML&quot;,
+      text: ssml,
+      voiceId: chosenVoice,
+      format: &quot;mp3&quot;,
+    }, {
+      headers: { &quot;Content-Type&quot;: &quot;application/json&quot;, Authorization: &quot;Bearer onboarding&quot; },
+      responseType: &quot;arraybuffer&quot;,
+      validateStatus: () =&gt; true,
+    });
+
+    if (resp.status !== 200) {
+      return res.status(resp.status).json({ error: &quot;tts_failed&quot;, detail: Buffer.from(resp.data || &quot;&quot;).toString().slice(0, 200) });
+    }
+
+    res.setHeader(&quot;Content-Type&quot;, &quot;audio/mpeg&quot;);
+    res.setHeader(&quot;Cache-Control&quot;, &quot;no-store&quot;);
+    return res.status(200).send(Buffer.from(resp.data));
+  } catch (e) {
+    console.error(&quot;[onboarding/greet] error:&quot;, e?.message || e);
+    return res.status(500).json({ error: &quot;onboarding_greet_failed&quot;, detail: String(e?.message || e) });
+  }
+});
+</code></pre>
+<h3 id="102-android-cloudttsengineplayonboardinggreeting-added">10.2 Android — <code>CloudTtsEngine.playOnboardingGreeting()</code> (added)</h3>
+<pre><code class="language-kotlin">suspend fun playOnboardingGreeting(): Boolean = withContext(Dispatchers.IO) {
+    try {
+        val url = &quot;$baseUrl/onboarding/greet&quot;
+        Log.i(&quot;CloudTTS&quot;, &quot;OnboardingGreeting: request → $url&quot;)
+
+        val req = Request.Builder()
+            .url(url)
+            .addHeader(&quot;x-user-id&quot;, userIdProvider()) // TODO: ensure deviceId here
+            .post(&quot;&quot;.toRequestBody(null))
+            .build()
+
+        client.newCall(req).execute().use { resp -&gt;
+            if (!resp.isSuccessful) {
+                Log.w(&quot;CloudTTS&quot;, &quot;OnboardingGreeting failed ${resp.code}&quot;)
+                return@withContext false
+            }
+            val bytes = resp.body?.bytes() ?: return@withContext false
+            if (bytes.isEmpty()) return@withContext false
+
+            val tmp = File(context.cacheDir, &quot;onboarding_greet.mp3&quot;)
+            FileOutputStream(tmp).use { it.write(bytes) }
+
+            Log.i(&quot;CloudTTS&quot;, &quot;OnboardingGreeting: OK (${bytes.size} bytes)&quot;)
+            withContext(Dispatchers.Main) {
+                playFileOnMain(Uri.fromFile(tmp))
+            }
+            true
+        }
+    } catch (t: Throwable) {
+        Log.w(&quot;CloudTTS&quot;, &quot;OnboardingGreeting error: ${t.message}&quot;, t)
+        false
+    }
+}
+</code></pre>
+<h3 id="103-android-mainactivity-hook-simplified-excerpt">10.3 Android — <code>MainActivity</code> hook (simplified excerpt)</h3>
+<pre><code class="language-kotlin">LaunchedEffect(profileState) {
+    if (needsOnboarding) {
+        // Play once when onboarding shows
+        launch { tts.playOnboardingGreeting() }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="11-roadmap">11) Roadmap</h2>
+<ul>
+<li><strong>R1 (today):</strong> Fix header → use real <code>deviceId</code>; verify audible greeting end‑to‑end; log success.</li>
+<li><strong>R2:</strong> Implement skip/return onboarding flow and persist to <code>/profile</code> (no schema changes).</li>
+<li><strong>R3:</strong> Small polish (rate limit greet; voice select optional step; better toasts).</li>
+<li><strong>R4:</strong> PM review &amp; merge gates: OAuth smoke test artifacts + logcat + greeting proof.</li>
+</ul>
+<hr />
+<h2 id="12-handoff-checklist-for-next-gpt">12) Handoff checklist (for next GPT)</h2>
+<ul>
+<li>Confirm branch: <code>feat/v3.9-onboarding-consent</code> (Android) and backend branch above.</li>
+<li>Run backend → verify <code>/onboarding/greet</code> (JSON + audio).</li>
+<li><code>adb reverse</code> then install; open app; confirm greet plays and onboarding shows.</li>
+<li>Run OAuth smoke test (sign‑in → <code>/mobile-exchange</code> 200 → <code>/profile</code> loads → brief works).</li>
+<li>Submit PR including logs and the Guardrails doc reference.</li>
+</ul>
+<hr />
+<h2 id="13-risks-mitigations">13) Risks &amp; mitigations</h2>
+<ul>
+<li><strong>Risk:</strong> OAuth regression via client‑ID or header drift.
+  <strong>Mitigation:</strong> Guardrails doc + PR checklist; keep tag <code>v3.9-oauth-restored-2025-11-07</code> as rollback.</li>
+<li><strong>Risk:</strong> Silent audio due to lifecycle timing.
+  <strong>Mitigation:</strong> Log before/after play; ensure main‑thread playback; small delay on first launch if needed.</li>
+</ul>
+<hr />
+<h2 id="14-appendix-quick-links-ids-dev">14) Appendix — Quick links / IDs (dev)</h2>
+<ul>
+<li>Package: <code>app.chief.app</code></li>
+<li>Base URL (dev): <code>http://127.0.0.1:8080</code></li>
+<li>Port reverse: <code>adb reverse tcp:8080 tcp:8080</code></li>
+<li>Tag: <code>v3.9-oauth-restored-2025-11-07</code></li>
+</ul>
+<hr />
+<p><strong>Codename:</strong> Matchstick</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script src="../../js/bootstrap.bundle.min.js"></script>
+        <script>
+            var base_url = "../..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../../js/base.js"></script>
+        <script src="../../search/main.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>From here you can search these documents. Enter your search terms below.</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No results found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
