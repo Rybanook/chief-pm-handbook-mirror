@@ -257,6 +257,14 @@
               <ul class="nav flex-column">
               </ul>
             </li>
+            <li class="nav-item" data-bs-level="2"><a href="#-" class="nav-link">-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#recovery-safety-protocols-chief-project" class="nav-link">🧩 Recovery &amp; Safety Protocols (Chief Project)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
               </ul>
             </li>
         </ul>
@@ -453,6 +461,62 @@ bash scripts/publish.sh
 <li>If something feels off (paths, branches, links), <strong>stop</strong> and state the exact uncertainty.</li>
 <li>Use one precise question to unblock; then continue.</li>
 <li>Never ship partial, unverified steps in a handover.</li>
+</ul>
+<hr />
+<h2 id="-">-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------</h2>
+<h2 id="recovery-safety-protocols-chief-project">🧩 Recovery &amp; Safety Protocols (Chief Project)</h2>
+<p>These rules exist to <strong>prevent catastrophic loss</strong> like the v3.9 OAuth incident. Every GPT must follow them <strong>before</strong> modifying code or syncing between Android and backend.</p>
+<h3 id="core-rules">🔒 Core Rules</h3>
+<ul>
+<li><strong>Tag before you touch</strong> — Always create an annotated tag and bundle <strong>before</strong> editing:</li>
+</ul>
+<p><code>bash
+  git add -A &amp;&amp; git commit -m "checkpoint"
+  git tag -a vX.Y-checkpoint-YYYY-MM-DD -m "checkpoint"
+  git bundle create ~/Desktop/&lt;repo&gt;-vX.Y-checkpoint-YYYY-MM-DD.bundle --all</code>
+* <strong>Never cross-edit</strong> Android and backend in one session. Finish and hand over cleanly before switching.
+* <strong>No blind restores.</strong> Always verify tag existence and repo status with:</p>
+<p><code>bash
+  git tag --list | grep vX.Y
+  git status -b --porcelain</code>
+* <strong>Do not push unverified branches</strong> or rely on remote history — local bundles and tarballs are the truth.</p>
+<h3 id="device-identity-protocol">🧠 Device Identity Protocol</h3>
+<ul>
+<li>The Android app, backend, and database must share <strong>one consistent deviceId</strong>.</li>
+<li>If the Brief audio plays but the UI doesn’t update, confirm that <code>SyncPoller</code> started with the same <code>x-user-id</code> shown in backend logs.</li>
+<li>Never hardcode <code>"dev"</code> userId outside controlled test builds.</li>
+</ul>
+<h3 id="backup-artifacts">🧰 Backup Artifacts</h3>
+<p>Each stable checkpoint must include:</p>
+<ol>
+<li><strong>Android bundle:</strong>
+   <code>chief-android-vX.Y-oauth-stable-YYYY-MM-DD.bundle</code></li>
+<li><strong>Backend bundle:</strong>
+   <code>chief-tts-backend-vX.Y-oauth-stable-YYYY-MM-DD.bundle</code></li>
+<li><strong>Backend data tarball:</strong>
+   <code>chief-tts-backend-data-YYYY-MM-DD.tar.gz</code> containing <code>.env</code> + <code>data/</code></li>
+</ol>
+<p>Keep copies in <code>~/Desktop</code> and your external SSD.</p>
+<h3 id="restore-procedure">🧩 Restore Procedure</h3>
+<ol>
+<li>Extract and re-init project:</li>
+</ol>
+<p><code>bash
+   git clone repo.git Chief &amp;&amp; cd Chief
+   git pull ~/Desktop/chief-android-v3.9-oauth-stable-2025-11-08.bundle</code>
+2. Restore backend environment:</p>
+<p><code>bash
+   tar -xzf ~/Desktop/chief-tts-backend-data-2025-11-08.tar.gz -C chief-tts-backend</code>
+3. Confirm tags exist:</p>
+<p><code>bash
+   git tag | grep stable</code>
+4. Launch Android + backend, confirm <code>/brief/narrative</code> and <code>/sync/calendar</code> respond 200.</p>
+<h3 id="disaster-prevention-warnings">🚨 Disaster Prevention Warnings</h3>
+<ul>
+<li>Never edit <strong>MainActivity.kt</strong>, <strong>BriefScreen.kt</strong>, or <strong>SyncPoller.kt</strong> without tagging first.</li>
+<li>Always test sign-in + narrative + sync after code changes.</li>
+<li>If a GPT session loses context, <strong>do not continue editing</strong>. Stop and restore from last tag.</li>
+<li>Always document which build tag was confirmed working before switching sessions.</li>
 </ul>
 <hr /></div>
             </div>
