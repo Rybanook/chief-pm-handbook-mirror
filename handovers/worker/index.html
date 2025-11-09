@@ -211,9 +211,41 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#chief-v39-worker-handover-debug-reset-onboarding-polish" class="nav-link">Chief v3.9 — Worker Handover (DEBUG-reset + onboarding polish)</a>
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-polish-backend-updatedat-android-dto-cleanup-debug-onboarding-reset" class="nav-link">Worker Handover — v3.9 polish (backend updatedAt, Android DTO cleanup, DEBUG onboarding reset)</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#what-we-shipped-in-this-chat" class="nav-link">What we shipped in this chat</a>
+            <li class="nav-item" data-bs-level="2"><a href="#tldr-state-at-handover" class="nav-link">TL;DR (state at handover)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#repos-branches-prs" class="nav-link">Repos, branches, PRs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-changed-diff-overview" class="nav-link">What changed (diff overview)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#receipts-proof" class="nav-link">Receipts (proof)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#exact-commands-used-for-reproducibility" class="nav-link">Exact commands used (for reproducibility)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#acceptance-checklist" class="nav-link">Acceptance checklist</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#risks-mitigations" class="nav-link">Risks &amp; mitigations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-questions-for-pm" class="nav-link">Open questions for PM</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-steps-worker" class="nav-link">Next steps (worker)</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -404,73 +436,278 @@
                     <div class="col-md-9" role="main">
 
 <hr />
-<h1 id="chief-v39-worker-handover-debug-reset-onboarding-polish">Chief v3.9 — Worker Handover (DEBUG-reset + onboarding polish)</h1>
-<p><strong>Repo/Branches</strong></p>
+<h1 id="worker-handover-v39-polish-backend-updatedat-android-dto-cleanup-debug-onboarding-reset">Worker Handover — v3.9 polish (backend <code>updatedAt</code>, Android DTO cleanup, DEBUG onboarding reset)</h1>
+<p><strong>Date:</strong> 2025-11-09<br />
+<strong>Role:</strong> Worker<br />
+<strong>Scope:</strong> Chief v3.9 (Onboarding &amp; Consent). Android + Backend only. <strong>No OAuth/auth/schema/package/ID changes.</strong><br />
+<strong>Why now:</strong> PM asked for: (1) backend <code>/profile</code> <code>updatedAt</code>; (2) Android DTO null-safety; (3) DEBUG-only onboarding reset to re-trigger greet for QA. Chat is nearing capacity; snapshotting full state + receipts.</p>
+<hr />
+<h2 id="tldr-state-at-handover">TL;DR (state at handover)</h2>
 <ul>
-<li><strong>Android:</strong> <code>~/AndroidStudioProjects/Chief</code> → <code>feat/v3.9-onboarding-polish</code> (pushed; open PR)</li>
-<li><strong>Backend:</strong> <code>~/AndroidStudioProjects/chief-tts-backend</code> → current feature branch <code>feat/v3.9-onboarding-consent-backend</code> (tags below)</li>
-</ul>
-<p><strong>Stability</strong></p>
-<ul>
-<li>App builds and installs clean in debug.</li>
-<li>Onboarding greeting plays once on first run, and never auto-replays unless dev-reset.</li>
-<li>Global audio gate honored by CloudTTS (Silent + Quiet).</li>
+<li><strong>Backend</strong> branch <strong><code>feat/v3.9-profile-updatedAt</code></strong> opened as PR <strong>into</strong> <code>feat/v3.9-onboarding-consent-backend</code>.  </li>
+<li><code>/profile</code> (GET/POST) now includes <code>updatedAt</code> (ISO-8601 UTC) from row last-modified; set on upsert.  </li>
+<li>
+<p>Acceptance met with curl receipts. Server smokes clean.</p>
+</li>
+<li>
+<p><strong>Android</strong> branch <strong><code>feat/v3.9-profile-dto-nullability</code></strong> opened as PR <strong>into</strong> <code>feat/v3.9-onboarding-polish</code>.  </p>
+</li>
+<li><code>ProfileApi.kt</code> nullability cleanup; <code>updatedAt</code> parsed to <code>Instant</code> for logging only.  </li>
+<li>
+<p>Build/install green; warnings reduced; logs show parsed timestamps.</p>
+</li>
+<li>
+<p><strong>Android</strong> polish branch <strong><code>feat/v3.9-onboarding-polish</code></strong> now includes a <strong>DEBUG-only</strong> “Reset Onboarding” button to clear first-run greet + cached audio; logs <strong><code>PM: onboarding reset (DEV)</code></strong>.  </p>
+</li>
+<li>No UI surfacing in release (gated by <code>BuildConfig.DEBUG</code>).  </li>
+<li>Works; ADB receipts below.</li>
 </ul>
 <hr />
-<h2 id="what-we-shipped-in-this-chat">What we shipped in this chat</h2>
-<h3 id="1-debug-only-reset-onboarding">1) DEBUG-only “Reset Onboarding”</h3>
-<p><strong>Why:</strong> PM wants a dev-only way to re-exercise first-run greet without touching auth or release builds.</p>
-<p><strong>Changes (Android):</strong></p>
+<h2 id="repos-branches-prs">Repos, branches, PRs</h2>
+<h3 id="chief-tts-backend">chief-tts-backend</h3>
 <ul>
+<li><strong>HEAD during work:</strong> <code>feat/v3.9-profile-updatedAt</code> (branched from <code>feat/v3.9-onboarding-consent-backend</code>)</li>
+<li><strong>Changed files:</strong>  </li>
+<li><code>routes/profile.cjs</code> — added <code>updatedAt</code> to GET/POST responses (convert ms→ISO with <code>toISOString()</code>).</li>
+<li><strong>No changes</strong> to <code>lib/dbProfile.cjs</code> beyond existing v3.9 columns (createdAt/updatedAt already present).</li>
 <li>
-<p><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code></p>
+<p><strong>No changes</strong> to <code>server.cjs</code> (we reverted a speculative debug tweak).</p>
 </li>
 <li>
-<p>Added <code>Keys.GREETING_SHOWN_AT</code>, helpers:</p>
+<p><strong>PR:</strong> <code>feat/v3.9-profile-updatedAt</code> → base <code>feat/v3.9-onboarding-consent-backend</code>  </p>
+</li>
+<li>URL: <em>see GitHub PR list; created via <code>git push -u origin feat/v3.9-profile-updatedAt</code> then web flow</em>  </li>
+<li>Note inside PR: “no auth changes.”</li>
+</ul>
+<h3 id="chief-android">chief-android</h3>
 <ul>
-<li><code>markGreetingShownNow()</code></li>
-<li><code>hasGreetingEverPlayed()</code></li>
-<li><code>devResetOnboarding()</code> (clear legacy flag + timestamp)</li>
-<li><strong><code>devReset(context)</code></strong>: clears flags + nukes cached MP3s (<code>offline_brief.mp3</code> and <code>tts_*</code>), logs receipt, short Toast.</li>
-<li><code>app/src/main/java/app/chief/app/MainActivity.kt</code></li>
+<li><strong>Polish base branch:</strong> <code>feat/v3.9-onboarding-polish</code></li>
+<li><strong>Feature branch:</strong> <code>feat/v3.9-profile-dto-nullability</code> (into <code>feat/v3.9-onboarding-polish</code>)</li>
+<li><strong>Changed file:</strong> <code>app/src/main/java/app/chief/app/network/ProfileApi.kt</code></li>
+<li>
+<p><strong>PR created via:</strong><br />
+<code>gh pr create --base feat/v3.9-onboarding-polish --head feat/v3.9-profile-dto-nullability --title "v3.9 — Profile DTO null-safety cleanup" --body …</code></p>
+</li>
+<li>
+<p><strong>DEBUG reset (committed on polish base):</strong>  </p>
+</li>
+<li><strong>Changed file:</strong> <code>app/src/main/java/app/chief/app/MainActivity.kt</code>  </li>
+<li>Adds <strong>DEBUG-gated</strong> <code>TextButton</code> “⋮ Dev: Reset Onboarding” that calls <code>SettingsStore.devReset(context)</code>, which:  <ul>
+<li>Clears <code>greeting_shown_at</code>.  </li>
+<li>Deletes any cached onboarding/brief audio under <code>cacheDir</code> (e.g., <code>offline_brief.mp3</code>, <code>tts_*</code>).  </li>
+<li>Shows a short toast and logs <code>PM: onboarding reset (DEV)</code>.</li>
 </ul>
 </li>
-<li>
-<p><strong>Overflow menu item (DEBUG only):</strong> “Reset Onboarding (DEV)” using <code>MenuHost</code> provider.</p>
-</li>
-<li><strong>Dev button (DEBUG only):</strong> “⋮ Dev: Reset Onboarding” at bottom of Brief screen.</li>
-<li>Both call <code>SettingsStore.from(...).devReset(this@MainActivity)</code>.</li>
-<li>
-<p><code>app/src/main/java/app/chief/app/onboarding/OnboardingManager.kt</code></p>
-</li>
-<li>
-<p>First-run flow:</p>
+</ul>
+<hr />
+<h2 id="what-changed-diff-overview">What changed (diff overview)</h2>
+<h3 id="backend-profile">Backend <code>/profile</code></h3>
 <ul>
-<li>Skip if <code>hasGreetingEverPlayed() == true</code>.</li>
-<li>On first handling, immediately <code>markGreetingShownNow()</code> to prevent replay.</li>
-<li><code>playGreetingIfAllowed()</code> routes through CloudTTS which rechecks silent/quiet.</li>
-<li><code>app/src/main/java/app/chief/app/network/OnboardingApi.kt</code></li>
-</ul>
+<li>
+<p><strong>GET /profile</strong> now returns:
+  ```json
+  {
+    "displayName": "...",
+    "timeZone": "America/Vancouver",
+    "voiceRate": 0.92,
+    "voicePitch": 2.0,
+    "consent_proactive": null|0|1,
+    "quiet_hours_start": "22:00"|null,
+    "quiet_hours_end":   "07:00"|null,
+    "preferred_voice_id": null|"eleven:...",
+    "updatedAt": "2025-11-09T19:04:31.570Z"
+  }
+````</p>
 </li>
 <li>
-<p>DTO + simple client for <code>/onboarding/greet</code>.</p>
+<p><strong>POST /profile</strong> returns the same shape inside <code>{ ok:true, profile:{…} }</code> and the <code>profile.updatedAt</code> reflects “now” after upsert.</p>
 </li>
 </ul>
-<p><strong>Proof done:</strong></p>
+<h3 id="android-profileapikt">Android <code>ProfileApi.kt</code></h3>
 <ul>
-<li>Installed debug build.</li>
-<li>
-<p>Observed first-run greeting autoplay once; subsequent launches log:</p>
-</li>
-<li>
-<p><code>OnboardingMgr: Greeting already shown — skip auto-fetch</code></p>
-</li>
-<li>Triggered <strong>Reset Onboarding</strong> via overflow/button.</li>
-<li>Relaunch: greeting autoplays again.</li>
-<li>Confirmed no auto-replay afterward.</li>
+<li>Removed unsafe <code>optString(..., null)</code> patterns. Added <code>optStringOrNull</code>.</li>
+<li>Read <code>updatedAt</code> from <code>profile.updatedAt</code> or top-level (tolerant to both).</li>
+<li>Parse to <code>Instant</code> for logging; <strong>no behavior change</strong> elsewhere.</li>
 </ul>
-<p><strong>Logcat filters used:</strong></p>
-<pre><code class="language-bash">adb logcat -s OnboardingMgr:V Onboarding:V CloudTTS:V
+<h3 id="android-mainactivitykt-debug-only">Android <code>MainActivity.kt</code> (DEBUG-only)</h3>
+<ul>
+<li>Adds a DEV text button (only in debug builds) to call <code>SettingsStore.devReset(context)</code>.</li>
+<li>This allows QA to re-trigger first-run greet to test gates (Silent/Quiet Hours).</li>
+</ul>
+<hr />
+<h2 id="receipts-proof">Receipts (proof)</h2>
+<h3 id="backend-curl-beforeafter">Backend — curl before/after</h3>
+<p><strong>Before</strong> (no <code>updatedAt</code>):</p>
+<pre><code>curl -s -H &quot;x-user-id: dev&quot; http://localhost:8080/profile
+{&quot;displayName&quot;:null,&quot;timeZone&quot;:&quot;America/Vancouver&quot;,&quot;voiceRate&quot;:0.92,&quot;voicePitch&quot;:2,&quot;consent_proactive&quot;:null,&quot;quiet_hours_start&quot;:&quot;22:00&quot;,&quot;quiet_hours_end&quot;:&quot;07:00&quot;,&quot;preferred_voice_id&quot;:null}
+</code></pre>
+<p><strong>After GET</strong> (with <code>updatedAt</code>):</p>
+<pre><code>{&quot;displayName&quot;:null,&quot;timeZone&quot;:&quot;America/Vancouver&quot;,&quot;voiceRate&quot;:0.92,&quot;voicePitch&quot;:2,&quot;consent_proactive&quot;:null,&quot;quiet_hours_start&quot;:&quot;22:00&quot;,&quot;quiet_hours_end&quot;:&quot;07:00&quot;,&quot;preferred_voice_id&quot;:null,&quot;updatedAt&quot;:&quot;2025-11-09T03:41:47.667Z&quot;}
+</code></pre>
+<p><strong>POST updates and returns newer <code>updatedAt</code>:</strong></p>
+<pre><code>curl -s -H &quot;x-user-id: dev&quot; -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;voiceRate&quot;:0.95}' http://localhost:8080/profile
+{&quot;ok&quot;:true,&quot;profile&quot;:{&quot;displayName&quot;:null,&quot;timeZone&quot;:&quot;America/Vancouver&quot;,&quot;voiceRate&quot;:0.95,&quot;voicePitch&quot;:2,&quot;consent_proactive&quot;:null,&quot;quiet_hours_start&quot;:&quot;22:00&quot;,&quot;quiet_hours_end&quot;:&quot;07:00&quot;,&quot;preferred_voice_id&quot;:null,&quot;updatedAt&quot;:&quot;2025-11-09T18:21:01.842Z&quot;}}
+</code></pre>
+<p><strong>Server logs (excerpt):</strong></p>
+<pre><code>[Chief TTS] Listening on http://localhost:8080
+GET /profile 200 ...
+POST /profile 200 ...
+</code></pre>
+<h3 id="android-logs">Android — logs</h3>
+<p>Parsed Instants (proving DTO parsing + no crashes):</p>
+<pre><code>I/ProfileApi: updatedAt.parsed=2025-11-09T18:21:01.842Z
+I/ProfileApi: updatedAt.parsed=2025-11-09T19:21:42.823Z
+</code></pre>
+<p>Onboarding reset (DEBUG), proving dev tool works:</p>
+<pre><code>I/OnboardingMgr: Greeting already shown — skip auto-fetch
+I/OnboardingMgr: PM: onboarding reset (DEV)
+</code></pre>
+<hr />
+<h2 id="exact-commands-used-for-reproducibility">Exact commands used (for reproducibility)</h2>
+<p><strong>Backend</strong></p>
+<pre><code class="language-bash"># start
+cd ~/AndroidStudioProjects/chief-tts-backend &amp;&amp; node server.cjs
+
+# GET/POST receipts
+curl -s -H &quot;x-user-id: dev&quot; http://localhost:8080/profile
+curl -s -H &quot;x-user-id: dev&quot; -H &quot;Content-Type: application/json&quot; \
+  -d '{&quot;voiceRate&quot;:0.95}' http://localhost:8080/profile
+
+# branch + push (already done)
+git checkout -b feat/v3.9-profile-updatedAt
+git add routes/profile.cjs
+git commit -m &quot;feat(profile): include updatedAt on GET/POST /profile (ISO-8601 UTC from row last-modified); no schema/auth changes&quot;
+git push -u origin feat/v3.9-profile-updatedAt
+</code></pre>
+<p><strong>Android</strong></p>
+<pre><code class="language-bash"># build/install
+cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
+
+# ADB reverse (physical device)
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; reverse tcp:8080 tcp:8080
+
+# logs
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time | grep -i &quot;ProfileApi.*updatedAt.parsed&quot;
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time | grep -i -E &quot;OnboardingMgr|PM: onboarding reset|greeting_shown_at&quot;
+
+# branches + push (already done)
+git checkout -b feat/v3.9-profile-dto-nullability
+git add app/src/main/java/app/chief/app/network/ProfileApi.kt
+git commit -m &quot;v3.9: Profile DTO null-safety cleanup; parse updatedAt to Instant; no behavior change&quot;
+git push -u origin feat/v3.9-profile-dto-nullability
+</code></pre>
+<hr />
+<h2 id="acceptance-checklist">Acceptance checklist</h2>
+<ul>
+<li>[x] <strong>Backend</strong> GET/POST <code>/profile</code> includes <code>updatedAt</code> (ISO-8601 UTC).</li>
+<li>[x] POST returns newer <code>updatedAt</code> after a change.</li>
+<li>[x] <strong>Android</strong> parses <code>updatedAt</code> to <code>Instant</code>; logs one parsed value; build/install green; warnings reduced.</li>
+<li>[x] <strong>DEBUG reset</strong> clears greet, logs <code>PM: onboarding reset (DEV)</code>, and allows QA to re-trigger greeting with Silent/Quiet gates enforced.</li>
+<li>[x] No OAuth/auth/package/ID/schema changes.</li>
+</ul>
+<hr />
+<h2 id="risks-mitigations">Risks &amp; mitigations</h2>
+<ul>
+<li>
+<p><strong>Risk:</strong> Android clients expecting <code>updatedAt</code> only at top-level vs nested under <code>profile</code>.
+  <strong>Mitigation:</strong> Client tolerates both; reads nested first, then top-level.</p>
+</li>
+<li>
+<p><strong>Risk:</strong> DEBUG reset accidentally shipped.
+  <strong>Mitigation:</strong> Gated by <code>BuildConfig.DEBUG</code>; no release surfacing. Reviewer to double-check variant guards before merge.</p>
+</li>
+<li>
+<p><strong>Risk:</strong> Localhost connectivity.
+  <strong>Mitigation:</strong> Always run <code>adb reverse tcp:8080 tcp:8080</code> on physical device.</p>
+</li>
+</ul>
+<hr />
+<h2 id="open-questions-for-pm">Open questions for PM</h2>
+<ol>
+<li>Keep the DEBUG reset commit on <strong><code>feat/v3.9-onboarding-polish</code></strong>, or split a small PR for easier review?</li>
+<li>Any additional receipts desired (e.g., short video demonstrating greet replay after reset, with Silent/Quiet gates)?</li>
+<li>OK to merge backend PR first, then Android PR, then finalize polish?</li>
+</ol>
+<hr />
+<h2 id="next-steps-worker">Next steps (worker)</h2>
+<ul>
+<li>After PM sign-off on backend PR, re-smoke Android against merged backend to confirm unchanged behavior.</li>
+<li>Attach a 20–30s screen recording to polish PR showing: first-run greet plays once → tap <strong>Reset Onboarding (DEV)</strong> → relaunch → greet shows again; Silent/Quiet rules respected.</li>
+<li>Tag (per PM): <code>android: v3.9-onboarding-polish-accepted-2025-11-09</code> once accepted.</li>
+</ul>
+<hr />
+<pre><code>
+
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------
+
+
+# Chief v3.9 — Worker Handover (DEBUG-reset + onboarding polish)
+
+**Repo/Branches**
+
+* **Android:** `~/AndroidStudioProjects/Chief` → `feat/v3.9-onboarding-polish` (pushed; open PR)
+* **Backend:** `~/AndroidStudioProjects/chief-tts-backend` → current feature branch `feat/v3.9-onboarding-consent-backend` (tags below)
+
+**Stability**
+
+* App builds and installs clean in debug.
+* Onboarding greeting plays once on first run, and never auto-replays unless dev-reset.
+* Global audio gate honored by CloudTTS (Silent + Quiet).
+
+---
+
+## What we shipped in this chat
+
+### 1) DEBUG-only “Reset Onboarding”
+
+**Why:** PM wants a dev-only way to re-exercise first-run greet without touching auth or release builds.
+
+**Changes (Android):**
+
+* `app/src/main/java/app/chief/app/data/settings/SettingsStore.kt`
+
+  * Added `Keys.GREETING_SHOWN_AT`, helpers:
+
+    * `markGreetingShownNow()`
+    * `hasGreetingEverPlayed()`
+    * `devResetOnboarding()` (clear legacy flag + timestamp)
+    * **`devReset(context)`**: clears flags + nukes cached MP3s (`offline_brief.mp3` and `tts_*`), logs receipt, short Toast.
+* `app/src/main/java/app/chief/app/MainActivity.kt`
+
+  * **Overflow menu item (DEBUG only):** “Reset Onboarding (DEV)” using `MenuHost` provider.
+  * **Dev button (DEBUG only):** “⋮ Dev: Reset Onboarding” at bottom of Brief screen.
+  * Both call `SettingsStore.from(...).devReset(this@MainActivity)`.
+* `app/src/main/java/app/chief/app/onboarding/OnboardingManager.kt`
+
+  * First-run flow:
+
+    * Skip if `hasGreetingEverPlayed() == true`.
+    * On first handling, immediately `markGreetingShownNow()` to prevent replay.
+    * `playGreetingIfAllowed()` routes through CloudTTS which rechecks silent/quiet.
+* `app/src/main/java/app/chief/app/network/OnboardingApi.kt`
+
+  * DTO + simple client for `/onboarding/greet`.
+
+**Proof done:**
+
+* Installed debug build.
+* Observed first-run greeting autoplay once; subsequent launches log:
+
+  * `OnboardingMgr: Greeting already shown — skip auto-fetch`
+* Triggered **Reset Onboarding** via overflow/button.
+* Relaunch: greeting autoplays again.
+* Confirmed no auto-replay afterward.
+
+**Logcat filters used:**
+
+```bash
+adb logcat -s OnboardingMgr:V Onboarding:V CloudTTS:V
 </code></pre>
 <p><strong>Important IDs/Strings:</strong></p>
 <ul>
