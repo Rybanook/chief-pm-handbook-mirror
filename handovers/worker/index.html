@@ -211,6 +211,51 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-chat-entry-quiet-hours-gate" class="nav-link">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#summary" class="nav-link">Summary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#architecture-key-files" class="nav-link">Architecture / Key Files</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#files-changed-why" class="nav-link">Files Changed (why)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#commands-run" class="nav-link">Commands Run</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#verification-key-outputs" class="nav-link">Verification (key outputs)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks" class="nav-link">Open Issues / Risks</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-step-single-action" class="nav-link">Next Step (single action)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#uservisible-impact" class="nav-link">User‑Visible Impact</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#branch-commits" class="nav-link">Branch / Commits</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#references" class="nav-link">References</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-silent-mode-gates-client-only-groundwork-for-quiet-hours" class="nav-link">Worker Handover — v3.9 Silent Mode &amp; Gates (client-only), groundwork for Quiet Hours</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-summary-what-why" class="nav-link">1) Summary (what &amp; why)</a>
@@ -313,6 +358,133 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="worker-handover-v39-chat-entry-quiet-hours-gate">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</h1>
+<p><strong>Date:</strong> 2025‑11‑08
+<strong>Scope:</strong> Android app (UI + settings plumbing). One session. Backend touched only for /profile contract verification and curl checks (no schema changes).</p>
+<hr />
+<h2 id="summary">Summary</h2>
+<p>We added a minimal, production‑clean Chat entry from the Home/Brief screen and finished the foundational audio gating work. The Chat screen is reachable via a top‑right app‑bar action, presents a basic composer (text + mic + send), respects insets so the system nav bar doesn’t cover the composer, and supports Back → returns to Home. We also completed Quiet Hours gating for <strong>both</strong> cloud‑TTS playback and the <strong>offline fallback MP3</strong>, and we wired Quiet Hours mirroring to the backend <strong>/profile POST</strong> (v3.9 contract). We verified device identity continuity end‑to‑end by logging the real device UUID and confirming the backend stores quiet hours for that UUID.</p>
+<hr />
+<h2 id="architecture-key-files">Architecture / Key Files</h2>
+<ul>
+<li>
+<p><strong>Android</strong></p>
+</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code> — added top app‑bar action (chat bubble) and Quiet/Silent chips row; navigates to Chat.</p>
+</li>
+<li><code>app/src/main/java/app/chief/app/ui/chat/ChatScreen.kt</code> — minimal chat UI (thread placeholder, composer with TextField + Send + Mic), bottom insets fix using <code>WindowInsets.ime</code> + <code>WindowInsets.navigationBars</code> and extra padding.</li>
+<li><code>app/src/main/java/app/chief/app/speech/CloudTtsEngine.kt</code> — audio gate at call‑site using <code>SettingsStore.isSilentNow()</code> and <code>isQuietNow()</code>; MP3 integrity check + optional offline cache write.</li>
+<li><code>app/src/main/java/app/chief/app/MainActivity.kt</code> — applies same Silent/Quiet gate to <strong>offline_brief.mp3</strong> before ExoPlayer; logs <code>deviceIdForSession</code> for verification; Quiet Hours sync collector → <code>ProfileApi.upsertQuietHours(...)</code>.</li>
+<li><code>app/src/main/java/app/chief/app/ui/common/QuietHoursChip.kt</code> — simple ON/OFF chip wired to <code>SettingsStore</code> (one‑hour window placeholder).</li>
+<li><code>app/src/main/java/app/chief/app/ui/common/SilentModeChip.kt</code> — global silent toggle chip.</li>
+<li><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code> — exposes <code>quietEnabledFlow</code>, <code>quietHoursFlow</code>, <code>isSilentNow()</code>, <code>isQuietNow()</code>.</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/network/ProfileApi.kt</code> — <code>get(userId)</code> + <code>upsertQuietHours(userId, start, end)</code> (v3.9 contract shape).</p>
+</li>
+<li>
+<p><strong>Backend (verification only)</strong></p>
+</li>
+<li>
+<p><code>server.cjs</code> running locally, confirmed <strong>GET/POST /profile</strong> behaviors with <code>x-user-id</code> device UUID.</p>
+</li>
+</ul>
+<hr />
+<h2 id="files-changed-why">Files Changed (why)</h2>
+<ul>
+<li><code>MainActivity.kt</code> — gate offline brief with Silent+Quiet; deviceId log; Quiet Hours mirror to backend; no OAuth changes.</li>
+<li><code>CloudTtsEngine.kt</code> — enforce Silent+Quiet gate; MP3 header/length guard before caching <code>offline_brief.mp3</code>.</li>
+<li><code>QuietHoursChip.kt</code> — fixed boolean flows &amp; labels; stable toggle.</li>
+<li><code>BriefScreen.kt</code> — added app‑bar action (chat bubble) → opens Chat; header chips row; safe content padding.</li>
+<li><code>ChatScreen.kt</code> — new file; minimal chat thread + composer; insets fix; Back navigates to Home.</li>
+<li><code>ProfileApi.kt</code> — <code>get</code> + <code>upsertQuietHours</code> per v3.9 contract; tolerant JSON reads.</li>
+</ul>
+<hr />
+<h2 id="commands-run">Commands Run</h2>
+<pre><code class="language-bash"># Android — compile, install, logs
+cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:compileDebugKotlin -x lint
+cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
+/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe logcat SilentMode:I *:S
+/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe logcat ProfileSync:I *:S
+/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe logcat DeviceId:I *:S
+
+# Backend — run &amp; verify
+cd ~/AndroidStudioProjects/chief-tts-backend &amp;&amp; node server.cjs
+curl -s http://localhost:8080/profile -H &quot;x-user-id: dev&quot;
+curl -s -X POST http://localhost:8080/profile \
+  -H &quot;Content-Type: application/json&quot; -H &quot;x-user-id: dev&quot; \
+  -d '{&quot;quiet_hours_start&quot;:&quot;22:00&quot;,&quot;quiet_hours_end&quot;:&quot;07:00&quot;}'
+
+# Verify device UUID round‑trip
+aDB logcat DeviceId shows: 08654994-8c7d-4480-bfc1-04bcbfd8880a
+curl -s http://localhost:8080/profile -H &quot;x-user-id: 08654994-8c7d-4480-bfc1-04bcbfd8880a&quot;
+</code></pre>
+<hr />
+<h2 id="verification-key-outputs">Verification (key outputs)</h2>
+<ul>
+<li>
+<p><strong>Silent/Quiet logcat</strong>
+  <code>I SilentMode: set=true</code> / <code>set=false</code> and <code>isSilentNow=false</code> as expected.
+  Offline brief gate log: <code>I SilentMode: offlineBrief gate silentOrQuiet=true|false</code>.</p>
+</li>
+<li>
+<p><strong>Profile sync</strong>
+  Before reverse: <code>W ProfileSync: Quiet sync failed: null</code> (expected when backend not reachable).
+  After <code>/sync</code>: <code>I ProfileSync: Quiet hours synced updatedAt=null</code> (backend 200 with shape lacking updatedAt field, handled gracefully).</p>
+</li>
+<li>
+<p><strong>Backend contract checks</strong>
+  <code>curl -s http://localhost:8080/profile -H "x-user-id: dev"</code> → JSON profile.
+  <code>curl -s -X POST ...</code> with quiet hours pair → 200 and echoed fields.
+  With real device UUID: backend reflects hours, e.g. start <code>20:06</code>, end <code>21:06</code>.</p>
+</li>
+<li>
+<p><strong>Device identity</strong>
+  <code>I DeviceId: deviceIdForSession=08654994-8c7d-4480-bfc1-04bcbfd8880a</code> then backend GET for same UUID returns matching profile doc.</p>
+</li>
+<li>
+<p><strong>Chat entry &amp; UI</strong>
+  Tap chat bubble in Home/Brief top‑right → navigates to Chat screen.
+  Composer no longer overlapped by system nav (added bottom insets).
+  Back from Chat returns to Home/Brief.</p>
+</li>
+</ul>
+<hr />
+<h2 id="open-issues-risks">Open Issues / Risks</h2>
+<ul>
+<li><strong>updatedAt</strong> missing in backend 200 (logs show <code>updatedAt=null</code>). Contract sample includes it; server response currently omits it. Not blocking.</li>
+<li><strong>Mic behavior</strong> currently stubbed; respects gates but not yet wired to STT pipeline (out‑of‑scope here).</li>
+<li><strong>Thread storage</strong> minimal; Room schema placeholder exists but not fully exercised.</li>
+<li><strong>Quiet Hours</strong> UI uses a one‑hour window placeholder; v3.9 requires only toggle + mirroring; full picker deferred.</li>
+</ul>
+<hr />
+<h2 id="next-step-single-action">Next Step (single action)</h2>
+<p><strong>Add Chat header chips:</strong> show Silent chip (toggle) and a read‑only Moon when Quiet Hours active, per PM spec. Keep it local to ChatScreen; no Activity churn.</p>
+<hr />
+<h2 id="uservisible-impact">User‑Visible Impact</h2>
+<ul>
+<li>Silent Mode or Quiet Hours ON → <strong>no audio anywhere</strong> (cloud or offline), play icons suppressed.</li>
+<li>Chat accessible quickly from Home; messages can be typed even when audio is gated.</li>
+</ul>
+<hr />
+<h2 id="branch-commits">Branch / Commits</h2>
+<ul>
+<li>Branch: <code>feat/v3.9-onboarding-consent</code></li>
+<li>
+<p>Commits in this session include:</p>
+</li>
+<li>
+<p><code>feat(v3.9): Quiet Hours foundation + chip (1h window), silent/quiet gate for offline brief</code></p>
+</li>
+<li><code>feat(v3.9): reflect Quiet Hours to backend via /profile POST; deviceId logged for verification</code></li>
+</ul>
+<hr />
+<h2 id="references">References</h2>
+<ul>
+<li>Worker Training &amp; Handover Manual — upload protocol (top‑insert into <code>docs/handovers/worker/index.md</code> then <code>bash scripts/publish.sh</code>).</li>
+<li>Backend Contract — Profile API (v3.9) — GET/POST <code>/profile</code> with <code>x-user-id</code> device UUID.</li>
+</ul>
 <hr />
 <h1 id="worker-handover-v39-silent-mode-gates-client-only-groundwork-for-quiet-hours">Worker Handover — v3.9 Silent Mode &amp; Gates (client-only), groundwork for Quiet Hours</h1>
 <p><strong>Date:</strong> 2025-11-08 (America/Vancouver)
