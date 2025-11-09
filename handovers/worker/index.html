@@ -211,6 +211,51 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#chief-v39-worker-handover-debug-reset-onboarding-polish" class="nav-link">Chief v3.9 — Worker Handover (DEBUG-reset + onboarding polish)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#what-we-shipped-in-this-chat" class="nav-link">What we shipped in this chat</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-status-diffs" class="nav-link">Current status / diffs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#known-constraints-guardrails" class="nav-link">Known constraints / guardrails</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#repro-verification-pm-qa" class="nav-link">Repro &amp; verification (PM QA)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#screen-recording-for-pr-2030s" class="nav-link">Screen recording for PR (20–30s)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-steps-queue-for-the-next-worker" class="nav-link">Next steps (queue for the next Worker)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rollback-plan" class="nav-link">Rollback plan</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#notes-on-the-earlier-gradle-cache-issue-windows" class="nav-link">Notes on the earlier Gradle cache issue (Windows)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#pr-titles-to-use" class="nav-link">PR titles to use</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#one-concrete-continue-from-here" class="nav-link">One concrete “continue from here”</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-chat-entry-quiet-hours-gate" class="nav-link">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#summary" class="nav-link">Summary</a>
@@ -358,6 +403,244 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="chief-v39-worker-handover-debug-reset-onboarding-polish">Chief v3.9 — Worker Handover (DEBUG-reset + onboarding polish)</h1>
+<p><strong>Repo/Branches</strong></p>
+<ul>
+<li><strong>Android:</strong> <code>~/AndroidStudioProjects/Chief</code> → <code>feat/v3.9-onboarding-polish</code> (pushed; open PR)</li>
+<li><strong>Backend:</strong> <code>~/AndroidStudioProjects/chief-tts-backend</code> → current feature branch <code>feat/v3.9-onboarding-consent-backend</code> (tags below)</li>
+</ul>
+<p><strong>Stability</strong></p>
+<ul>
+<li>App builds and installs clean in debug.</li>
+<li>Onboarding greeting plays once on first run, and never auto-replays unless dev-reset.</li>
+<li>Global audio gate honored by CloudTTS (Silent + Quiet).</li>
+</ul>
+<hr />
+<h2 id="what-we-shipped-in-this-chat">What we shipped in this chat</h2>
+<h3 id="1-debug-only-reset-onboarding">1) DEBUG-only “Reset Onboarding”</h3>
+<p><strong>Why:</strong> PM wants a dev-only way to re-exercise first-run greet without touching auth or release builds.</p>
+<p><strong>Changes (Android):</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code></p>
+</li>
+<li>
+<p>Added <code>Keys.GREETING_SHOWN_AT</code>, helpers:</p>
+<ul>
+<li><code>markGreetingShownNow()</code></li>
+<li><code>hasGreetingEverPlayed()</code></li>
+<li><code>devResetOnboarding()</code> (clear legacy flag + timestamp)</li>
+<li><strong><code>devReset(context)</code></strong>: clears flags + nukes cached MP3s (<code>offline_brief.mp3</code> and <code>tts_*</code>), logs receipt, short Toast.</li>
+<li><code>app/src/main/java/app/chief/app/MainActivity.kt</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Overflow menu item (DEBUG only):</strong> “Reset Onboarding (DEV)” using <code>MenuHost</code> provider.</p>
+</li>
+<li><strong>Dev button (DEBUG only):</strong> “⋮ Dev: Reset Onboarding” at bottom of Brief screen.</li>
+<li>Both call <code>SettingsStore.from(...).devReset(this@MainActivity)</code>.</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/onboarding/OnboardingManager.kt</code></p>
+</li>
+<li>
+<p>First-run flow:</p>
+<ul>
+<li>Skip if <code>hasGreetingEverPlayed() == true</code>.</li>
+<li>On first handling, immediately <code>markGreetingShownNow()</code> to prevent replay.</li>
+<li><code>playGreetingIfAllowed()</code> routes through CloudTTS which rechecks silent/quiet.</li>
+<li><code>app/src/main/java/app/chief/app/network/OnboardingApi.kt</code></li>
+</ul>
+</li>
+<li>
+<p>DTO + simple client for <code>/onboarding/greet</code>.</p>
+</li>
+</ul>
+<p><strong>Proof done:</strong></p>
+<ul>
+<li>Installed debug build.</li>
+<li>
+<p>Observed first-run greeting autoplay once; subsequent launches log:</p>
+</li>
+<li>
+<p><code>OnboardingMgr: Greeting already shown — skip auto-fetch</code></p>
+</li>
+<li>Triggered <strong>Reset Onboarding</strong> via overflow/button.</li>
+<li>Relaunch: greeting autoplays again.</li>
+<li>Confirmed no auto-replay afterward.</li>
+</ul>
+<p><strong>Logcat filters used:</strong></p>
+<pre><code class="language-bash">adb logcat -s OnboardingMgr:V Onboarding:V CloudTTS:V
+</code></pre>
+<p><strong>Important IDs/Strings:</strong></p>
+<ul>
+<li>Overflow menu item ID: <code>0xD3F0</code></li>
+<li>Toast receipt: “Onboarding reset (DEV)”</li>
+<li>PM log receipt: <code>PM: onboarding reset (DEV)</code></li>
+</ul>
+<hr />
+<h3 id="2-backend-greet-route-already-accepted-in-this-session">2) Backend greet route (already accepted in this session)</h3>
+<ul>
+<li><strong>Route:</strong> <code>POST /onboarding/greet</code></li>
+<li>Persona SSML via <code>buildOnboardingGreetingPersona(...)</code></li>
+<li>Accepts <code>x-user-id</code>, returns MP3 (or JSON with <code>?debug=1</code>)</li>
+</ul>
+<p><strong>curl sanity (text only):</strong></p>
+<pre><code class="language-bash">curl -sS -H &quot;x-user-id: &lt;device-uuid&gt;&quot; -X POST &quot;http://127.0.0.1:8080/onboarding/greet?debug=1&quot;
+</code></pre>
+<hr />
+<h3 id="tags-created-earlier-today">Tags created earlier today</h3>
+<ul>
+<li><strong>Android:</strong> <code>v3.9-onboarding-greet-accepted-2025-11-09</code></li>
+<li><strong>Backend:</strong> <code>v3.9-onboarding-greet-accepted-backend-2025-11-09</code></li>
+</ul>
+<hr />
+<h2 id="current-status-diffs">Current status / diffs</h2>
+<pre><code>feat/v3.9-onboarding-polish
+  M MainActivity.kt
+  M data/settings/SettingsStore.kt
+  M network/ProfileApi.kt
+  M ui/brief/BriefScreen.kt
+  A network/OnboardingApi.kt
+  A onboarding/OnboardingManager.kt
+  A ui/chat/ChatScreen.kt (minimal local echo view; not wired to nav)
+  A ui/common/QuietHoursChip.kt
+  A ui/common/SilentModeChip.kt
+</code></pre>
+<hr />
+<h2 id="known-constraints-guardrails">Known constraints / guardrails</h2>
+<ul>
+<li>No OAuth/auth changes in this polish.</li>
+<li>DEBUG-only tooling; excluded from release builds.</li>
+<li>Minimal diffs; avoid touching IDs, packages, or Gradle plugins.</li>
+</ul>
+<hr />
+<h2 id="repro-verification-pm-qa">Repro &amp; verification (PM QA)</h2>
+<p><strong>Build + install (using a clean cache dir if Windows Gradle cache gets cranky):</strong></p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief
+./gradlew -g &quot;/c/Users/User/.gradle-clean&quot; :app:installDebug
+</code></pre>
+<p><strong>First-run greet should:</strong></p>
+<ul>
+<li>Show the dialog with greeting text.</li>
+<li>Autoplay once if not silenced.</li>
+<li>On relaunch, <strong>not</strong> auto-fetch; see log <code>Greeting already shown — skip auto-fetch</code>.</li>
+</ul>
+<p><strong>Reset path (two options, both DEBUG-only):</strong></p>
+<ul>
+<li>Overflow menu: “Reset Onboarding (DEV)”</li>
+<li>Brief screen button: “⋮ Dev: Reset Onboarding”</li>
+<li>After either, Toast shows and logs: <code>PM: onboarding reset (DEV)</code>.</li>
+<li>Relaunch app → greet autoplays again exactly once.</li>
+</ul>
+<p><strong>Audio gating receipts:</strong></p>
+<ul>
+<li>Silent/Quiet enforced in <code>CloudTtsEngine.speakNow(...)</code>.</li>
+<li>If blocked, you’ll see the gate log and no playback.</li>
+</ul>
+<hr />
+<h2 id="screen-recording-for-pr-2030s">Screen recording for PR (20–30s)</h2>
+<ol>
+<li>Start recording on device:</li>
+</ol>
+<pre><code class="language-bash">adb shell screenrecord --time-limit 30 /sdcard/onboarding-reset-demo.mp4
+</code></pre>
+<ol>
+<li>Perform: first-run greet plays → use Reset → relaunch greet → stop after it settles.</li>
+<li>Pull file:</li>
+</ol>
+<pre><code class="language-bash">adb pull /sdcard/onboarding-reset-demo.mp4 ~/Desktop/
+</code></pre>
+<ol>
+<li>
+<p>Attach to PR <strong>feat/v3.9-onboarding-polish</strong> with 2 bullets:</p>
+</li>
+<li>
+<p>“Auto-plays once on first run; no auto-replay.”</p>
+</li>
+<li>“DEBUG reset restores first-run behavior; still honors Silent/Quiet.”</li>
+</ol>
+<hr />
+<h2 id="next-steps-queue-for-the-next-worker">Next steps (queue for the next Worker)</h2>
+<h3 id="task-2-backend-include-updatedat-on-profile-responses">Task 2 — <strong>Backend:</strong> include <code>updatedAt</code> on <code>/profile</code> responses</h3>
+<p><strong>Branch:</strong> <code>feat/v3.9-profile-updatedAt</code>
+<strong>Change:</strong> In profile GET/POST handlers, include stable <code>updatedAt</code> ISO string from DB row (or set to now on mutation).
+<strong>Proof:</strong></p>
+<pre><code class="language-bash"># BEFORE (current)
+curl -sS -H &quot;x-user-id: &lt;uuid&gt;&quot; http://127.0.0.1:8080/profile | jq
+
+# AFTER (expected field)
+{
+  &quot;displayName&quot;: &quot;...&quot;,
+  &quot;timeZone&quot;: &quot;...&quot;,
+  &quot;voiceRate&quot;: 0.92,
+  &quot;voicePitch&quot;: 2.0,
+  &quot;consentProactive&quot;: true,
+  &quot;quietStart&quot;: &quot;22:00&quot;,
+  &quot;quietEnd&quot;: &quot;07:00&quot;,
+  &quot;preferredVoiceId&quot;: &quot;eleven:pqHfZK...&quot;,
+  &quot;updatedAt&quot;: &quot;2025-11-09T07:12:34.567Z&quot;   &lt;-- NEW
+}
+</code></pre>
+<p><strong>Android receipt:</strong> On app launch, log the non-null timestamp when fetching profile.</p>
+<p><strong>Acceptance:</strong> No schema breaks; field added, not renamed.</p>
+<hr />
+<h3 id="task-3-android-clean-up-dto-nullability-warnings-cosmetic">Task 3 — <strong>Android:</strong> clean up DTO nullability warnings (cosmetic)</h3>
+<p><strong>Files:</strong> <code>network/ProfileApi.kt</code>, <code>.../BriefApi.kt</code>, <code>IntentApi.kt</code>, <code>SyncApi.kt</code>, <code>PendingReplay.kt</code>, etc.
+<strong>What:</strong> Replace <code>String?</code> → <code>String</code> where server guarantees non-null; add safe unwraps where needed.
+<strong>Proof:</strong> Fewer/missing Kotlin “Nothing? vs String” warnings; no behavior changes; build green.</p>
+<hr />
+<h3 id="task-4-docs-pm-handover-qa-notes">Task 4 — <strong>Docs:</strong> PM handover QA notes</h3>
+<p><strong>Add page section:</strong> “Onboarding QA (v3.9)”</p>
+<ul>
+<li>How to trigger DEBUG reset (overflow + button).</li>
+<li>Expected outcomes (first-run once, no auto-replay, respects Silent/Quiet).</li>
+<li>Logcat filters.
+  <strong>Proof:</strong> Publish + paste link in ship notes.</li>
+</ul>
+<hr />
+<h2 id="rollback-plan">Rollback plan</h2>
+<ul>
+<li><strong>Android:</strong> <code>git checkout v3.9-onboarding-greet-accepted-2025-11-09</code> then rebuild.</li>
+<li><strong>Backend:</strong> <code>git checkout v3.9-onboarding-greet-accepted-backend-2025-11-09</code> then <code>node server.cjs</code>.</li>
+</ul>
+<hr />
+<h2 id="notes-on-the-earlier-gradle-cache-issue-windows">Notes on the earlier Gradle cache issue (Windows)</h2>
+<ul>
+<li>
+<p>Failure to read <code>%USERPROFILE%\.gradle\caches\8.13\.../metadata.bin</code> was fixed by:</p>
+</li>
+<li>
+<p>Killing Studio/Java:</p>
+<p><code>bash
+cmd.exe /c taskkill /F /IM studio64.exe /T
+cmd.exe /c taskkill /F /IM java.exe /T</code>
+  * Rebuilding with an alternate cache dir:</p>
+<p><code>bash
+./gradlew -g "/c/Users/User/.gradle-clean" :app:installDebug</code>
+* Keep this workaround in the handbook for future Windows cache corruption.</p>
+</li>
+</ul>
+<hr />
+<h2 id="pr-titles-to-use">PR titles to use</h2>
+<ul>
+<li><strong>Android:</strong> <code>v3.9 — Dev reset for onboarding (DEBUG only)</code></li>
+<li><strong>Backend:</strong> <code>v3.9 — /profile includes updatedAt</code></li>
+<li><strong>Docs:</strong> <code>v3.9 — Onboarding QA notes</code></li>
+</ul>
+<p><strong>Tags to apply after acceptance:</strong></p>
+<ul>
+<li>Android: <code>v3.9-onboarding-polish-accepted-2025-11-09</code></li>
+<li>Backend: <code>v3.9-profile-updatedAt-accepted-2025-11-09</code></li>
+</ul>
+<hr />
+<h2 id="one-concrete-continue-from-here">One concrete “continue from here”</h2>
+<ol>
+<li>Record &amp; attach <code>onboarding-reset-demo.mp4</code> to the Android PR.</li>
+<li>Spin backend branch <code>feat/v3.9-profile-updatedAt</code>; add the field; prove with <code>curl</code>; commit + push; open PR.</li>
+<li>Do the Android DTO null sweep; prove with a warning count drop; push; PR.</li>
+<li>Add QA notes to the handbook; publish; paste link in ship notes.</li>
+</ol>
 <hr />
 <h1 id="worker-handover-v39-chat-entry-quiet-hours-gate">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</h1>
 <p><strong>Date:</strong> 2025‑11‑08
