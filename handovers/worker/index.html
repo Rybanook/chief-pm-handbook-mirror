@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails) - Chief Handbook</title>
+        <title>Index - Chief Handbook</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../css/brands.min.css" rel="stylesheet">
@@ -84,7 +84,7 @@
     <ul class="dropdown-menu">
             
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
 </li>
     </ul>
   </li>
@@ -211,6 +211,43 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-silent-mode-gates-client-only-groundwork-for-quiet-hours" class="nav-link">Worker Handover — v3.9 Silent Mode &amp; Gates (client-only), groundwork for Quiet Hours</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-summary-what-why" class="nav-link">1) Summary (what &amp; why)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-user-visible-behavior" class="nav-link">2) User-visible behavior</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-files-changed-paths-purpose" class="nav-link">3) Files changed (paths &amp; purpose)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-verification-what-we-ran-saw" class="nav-link">4) Verification (what we ran &amp; saw)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-risks-constraints-guardrails" class="nav-link">5) Risks, constraints, guardrails</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-acceptance-vs-pm-checklist-current-status" class="nav-link">6) Acceptance vs PM checklist (current status)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-next-steps-in-order" class="nav-link">7) Next steps (in order)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-commands-to-continue-single-step-to-resume" class="nav-link">8) Commands to continue (single step to resume)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#chief-handover-v39-onboarding-ui-oauth-guardrails" class="nav-link">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-project-overview" class="nav-link">1) Project overview</a>
@@ -276,6 +313,211 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="worker-handover-v39-silent-mode-gates-client-only-groundwork-for-quiet-hours">Worker Handover — v3.9 Silent Mode &amp; Gates (client-only), groundwork for Quiet Hours</h1>
+<p><strong>Date:</strong> 2025-11-08 (America/Vancouver)
+<strong>Branch:</strong> <code>feat/v3.9-onboarding-consent</code> (Android)
+<strong>Scope:</strong> Finish PM task “Silent Mode (pref + global TTS gate)” without touching OAuth or adding endpoints. Lay the hook for Quiet Hours.</p>
+<hr />
+<h2 id="1-summary-what-why">1) Summary (what &amp; why)</h2>
+<ul>
+<li>Added a <strong>global Silent Mode</strong> that, when ON, blocks all audio anywhere in the app. This makes Chief coffee-shop safe and aligns with PM v3.9 directives.</li>
+<li>Patched the <strong>offline brief playback</strong> path (which previously bypassed our TTS gate). Now it also respects the global gate.</li>
+<li>Introduced a <strong>Quiet Hours boolean scaffold</strong> and small chip so we can flip it for acceptance tests. Real time-window logic comes later.</li>
+<li>No OAuth changes, no new endpoints, no background jobs. Diffs are tight and reversible.</li>
+</ul>
+<hr />
+<h2 id="2-user-visible-behavior">2) User-visible behavior</h2>
+<ul>
+<li>New <strong>Silent</strong> chip (AssistChip) in the Brief header. Toggles instantly and persists across relaunch.</li>
+<li>Optional <strong>Quiet</strong> chip (boolean only for now). When ON, audio is also gated.</li>
+<li>When audio is gated, Chief still renders the text brief; nothing plays.</li>
+</ul>
+<hr />
+<h2 id="3-files-changed-paths-purpose">3) Files changed (paths &amp; purpose)</h2>
+<p><strong>Preferences &amp; Gates</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code></p>
+</li>
+<li>
+<p>Added keys: <code>SILENT_MODE</code>, <code>QUIET_HOURS_ENABLED</code>.</p>
+</li>
+<li>Streams: <code>silentModeFlow</code>, <code>quietHoursFlow</code>.</li>
+<li>Setters: <code>setSilentMode()</code>, <code>setQuietHoursEnabled()</code>.</li>
+<li>Snapshots: <code>isSilentNow()</code>, <code>isQuietNow()</code> for gating.</li>
+<li>Added <code>Log.i</code> breadcrumbs for “SilentMode” and “QuietHours”.</li>
+</ul>
+<p><strong>TTS engine gate</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/speech/CloudTtsEngine.kt</code></p>
+</li>
+<li>
+<p>In <code>speakNow(...)</code> added <strong>early return</strong> if <code>isSilentNow() || isQuietNow()</code> is true.</p>
+</li>
+<li>Logging: <code>"Audio gated (silent/quiet) → skip audio, render text only"</code>.</li>
+<li>No OAuth header changes; still sends <code>Authorization</code> and <code>x-user-id</code> exactly as before.</li>
+</ul>
+<p><strong>Offline brief playback guard (the bug)</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/MainActivity.kt</code></p>
+</li>
+<li>
+<p>In the block that plays <code>cacheDir/offline_brief.mp3</code>, now gate with:
+    <code>isSilentNow() || isQuietNow()</code>.</p>
+</li>
+<li>Logs: <code>"offlineBrief gated=&lt;bool&gt;"</code> and <code>"skip offline brief (silent/quiet ON)"</code>.</li>
+</ul>
+<p><strong>UI chips</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/common/SilentModeChip.kt</code></p>
+</li>
+<li>
+<p>AssistChip bound to <code>silentModeFlow</code> with <code>setSilentMode()</code>.</p>
+</li>
+<li>
+<p>Lives in header; instant flip &amp; persist.</p>
+</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/common/QuietHoursChip.kt</code></p>
+</li>
+<li>
+<p>Temporary boolean AssistChip bound to <code>quietHoursFlow</code> with <code>setQuietHoursEnabled()</code>.</p>
+</li>
+<li>Pure scaffold for acceptance; real time window comes later.</li>
+</ul>
+<p><strong>Brief header integration</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code></p>
+</li>
+<li>
+<p>Header row now renders <code>QuietHoursChip()</code> and <code>SilentModeChip()</code> aligned right.</p>
+</li>
+<li>No changes to OAuth or sign-in controls.</li>
+</ul>
+<p><strong>Visual panel cleanup</strong></p>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/brief/BriefVisualPanel.kt</code></p>
+</li>
+<li>
+<p>Removed duplicate <code>SilentModeChip()</code> that caused two chips on screen.</p>
+</li>
+<li>Fixed stray markdown fences that had broken compile.</li>
+</ul>
+<hr />
+<h2 id="4-verification-what-we-ran-saw">4) Verification (what we ran &amp; saw)</h2>
+<p><strong>Build &amp; install</strong></p>
+<pre><code class="language-bash">./gradlew :app:assembleDebug
+./gradlew :app:installDebug
+</code></pre>
+<p><strong>Reverse (for live /tts)</strong></p>
+<pre><code class="language-bash">&quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; reverse tcp:8080 tcp:8080
+</code></pre>
+<p><strong>Focused logs during tests</strong></p>
+<pre><code class="language-bash">&quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; logcat -c &amp;&amp; \
+&quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time --pid &quot;$( &quot;/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe&quot; shell pidof app.chief.app )&quot; | \
+grep -E &quot;SilentMode|QuietHours|CloudTTS|PulseFlow|PLAY&quot;
+</code></pre>
+<p><strong>Observed when Silent=ON (and when Quiet=ON):</strong></p>
+<ul>
+<li><code>CloudTTS: Audio gated (silent/quiet) → skip audio, render text only</code></li>
+<li>No <code>PLAY uri=...</code> lines.</li>
+<li>With Silent=OFF and Quiet=OFF: <code>/tts</code> request succeeds and we see <code>PLAY uri=...</code>.</li>
+<li>
+<p><strong>Critical fix confirmed:</strong> with reverse off (forcing offline path), the offline brief <strong>also</strong> obeys the gate:</p>
+</li>
+<li>
+<p><code>SilentMode: offlineBrief gated=true → skip offline brief (silent/quiet ON)</code></p>
+</li>
+</ul>
+<p>No crashes; normal interaction flow intact. OAuth untouched.</p>
+<hr />
+<h2 id="5-risks-constraints-guardrails">5) Risks, constraints, guardrails</h2>
+<ul>
+<li>
+<p><strong>Guardrails respected:</strong></p>
+</li>
+<li>
+<p>No OAuth edits (no client IDs, no headers changed), no new endpoints, no background jobs.</p>
+</li>
+<li>Diffs local to settings, TTS gating, offline player callsite, and small UI.</li>
+<li><strong>Risk:</strong> Quiet Hours is a boolean scaffold; until we add a time window, users can only toggle it on/off.</li>
+<li><strong>Mitigation:</strong> Gate code already uses <code>isQuietNow()</code> so adding the real schedule is low-risk and localized.</li>
+</ul>
+<hr />
+<h2 id="6-acceptance-vs-pm-checklist-current-status">6) Acceptance vs PM checklist (current status)</h2>
+<ul>
+<li>✅ Silent Mode toggle persists and globally gates all audio (TTS + offline).</li>
+<li>✅ With Silent ON, greeting/brief never plays; text still renders.</li>
+<li>✅ Turning Silent OFF immediately allows playback.</li>
+<li>✅ No auth/refresh regressions; app stable.</li>
+<li>⏳ Quiet Hours: <strong>boolean only</strong>; time window logic not implemented yet.</li>
+<li>⏳ Onboarding: greet plays once; Consent + Quiet Hours persisted + mirrored in backend.</li>
+<li>⏳ Text Chat (single thread, reuse existing endpoints, show Chief replies as text).</li>
+<li>⏳ Display name policy (“You” everywhere user-facing; name read-only in Settings → Account).</li>
+<li>⏳ Final acceptance sweep (no duplicate calendar alerts, etc.).</li>
+</ul>
+<hr />
+<h2 id="7-next-steps-in-order">7) Next steps (in order)</h2>
+<ol>
+<li>
+<p><strong>Quiet Hours — time window</strong></p>
+</li>
+<li>
+<p>Add <code>quiet_start</code> / <code>quiet_end</code> (local time) to <code>SettingsStore</code>.</p>
+</li>
+<li><code>isQuietNow()</code> computes window (handles overnight windows, e.g., 22:00–07:00).</li>
+<li>
+<p>Tiny time picker UI (reads/writes the window); keep boolean as master enable.</p>
+</li>
+<li>
+<p><strong>Onboarding contract</strong></p>
+</li>
+<li>
+<p>First-run greeting shown once; use backend <code>/onboarding/greet</code> payload.</p>
+</li>
+<li>Persist <strong>Consent</strong> + <strong>Quiet Hours</strong> and reflect true state to backend (no new endpoints).</li>
+<li>
+<p>Ensure <strong>Silent</strong> and <strong>Quiet</strong> both gate any onboarding audio (text-only fallback).</p>
+</li>
+<li>
+<p><strong>Text Chat (Compose)</strong></p>
+</li>
+<li>
+<p>Minimal screen: thread list + one-line composer + Send/Mic.</p>
+</li>
+<li>Reuse existing intent/brief pipeline; show Chief replies as <strong>text</strong> always in v3.9.</li>
+<li>
+<p>Room entity <code>Message{id, role:user|chief, text, ts, speak}</code>; no migrations beyond that.</p>
+</li>
+<li>
+<p><strong>Display name policy</strong></p>
+</li>
+<li>
+<p>“You” everywhere user-facing in v3.9.</p>
+</li>
+<li>
+<p>Settings → Account shows Google display name <strong>read-only</strong>.</p>
+</li>
+<li>
+<p><strong>Acceptance sweep</strong></p>
+</li>
+<li>
+<p>Double-check no duplicate calendar notifications.</p>
+</li>
+<li>Crash-free smoke across install/kill/relaunch.</li>
+</ol>
+<hr />
+<h2 id="8-commands-to-continue-single-step-to-resume">8) Commands to continue (single step to resume)</h2>
+<pre><code class="language-bash">git add -A &amp;&amp; git commit -m &quot;feat(v3.9): global audio gate (Silent+Quiet); offline brief guarded; chips; settings scaffold&quot;
+</code></pre>
+<p><em>(Next worker picks up with Quiet Hours time window — minimal DataStore keys + <code>isQuietNow()</code> logic + tiny UI picker, then onboarding first-run state.)</em></p>
+<hr />
 <h1 id="chief-handover-v39-onboarding-ui-oauth-guardrails">Chief — Handover (v3.9 Onboarding UI + OAuth Guardrails)</h1>
 <p><strong>Date:</strong> 2025‑11‑07
 <strong>Scope:</strong> This chat only. Facts only. No guesses.
