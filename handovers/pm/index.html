@@ -211,6 +211,67 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover-extended-exhaustive" class="nav-link">Chief — Project Manager Handover (Extended &amp; Exhaustive)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-project-overview" class="nav-link">1) Project Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-state-of-development" class="nav-link">2) State of Development</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-workflow-collaboration-protocol" class="nav-link">3) Workflow &amp; Collaboration Protocol</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-communication-style-tone" class="nav-link">4) Communication Style &amp; Tone</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-architecture-system-overview" class="nav-link">5) Architecture &amp; System Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-recent-changes-reasoning-with-currentlegacy-tags" class="nav-link">6) Recent Changes &amp; Reasoning (with CURRENT/LEGACY tags)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-the-conversation-system-life-graph-full-plan-for-future-phases" class="nav-link">7) The Conversation System &amp; Life Graph — Full Plan (for future phases)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-open-tasks-priorities-v39-only" class="nav-link">8) Open Tasks &amp; Priorities (v3.9 only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-risks-warnings" class="nav-link">9) Risks &amp; Warnings</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-continuity-protocol-exact-resume-steps" class="nav-link">10) Continuity Protocol (Exact Resume Steps)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-contracts-specs-copy-ready" class="nav-link">11) Contracts &amp; Specs (copy-ready)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#12-quick-reference-commands-checks" class="nav-link">12) Quick Reference (commands &amp; checks)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#13-roles-responsibilities-for-next-pm" class="nav-link">13) Roles &amp; Responsibilities (for next PM)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#14-final-truths-pin-these" class="nav-link">14) Final Truths (pin these)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover-permanent-record-edition" class="nav-link">Chief — Project Manager Handover (Permanent Record Edition)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#i-purpose-vision" class="nav-link">I. Purpose &amp; Vision</a>
@@ -276,6 +337,315 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="chief-project-manager-handover-extended-exhaustive">Chief — Project Manager Handover (Extended &amp; Exhaustive)</h1>
+<blockquote>
+<p>This is the full memory. If this were the only surviving doc, a new PM GPT could take over instantly and run Chief exactly as I do—same priorities, tone, guardrails, and next steps. Every idea is marked <strong>CURRENT</strong> or <strong>LEGACY</strong> so nothing old gets mistaken for truth.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1) Project Overview</h2>
+<p><strong>What Chief is</strong>
+A calm, truthful chief-of-staff that reads your real calendar, speaks or types concise briefs, and keeps life on track with minimal interruptions.</p>
+<p><strong>Why it exists</strong>
+Modern “assistants” nag or ramble. Chief offers one composed conversation style and a few high-leverage behaviors: simple onboarding, a brief/check-in when appropriate, and (later) smart follow-through.</p>
+<p><strong>Personality &amp; tone (non-negotiable)</strong>
+Calm, grounded, efficient; short replies; truth &gt; momentum; include a brief “Because …” when trust matters; celebrate small wins with “Boom.”</p>
+<p><strong>Scope right now</strong>
+<strong>v3.9 (private/internal)</strong>: Onboarding + Consent + Quiet Hours; <strong>Silent Mode</strong>; <strong>Chat shell with text parity</strong>; then <strong>Onboarding Greeting (first-run, gated)</strong>.</p>
+<p><strong>CURRENT vs LEGACY</strong></p>
+<ul>
+<li><strong>CURRENT:</strong> Text parity; Silent Mode; Quiet Hours gate; Auto-Speak OFF by default; dedupe with Calendar; one active Worker brief at a time; tiny, reversible diffs.</li>
+<li><strong>LEGACY (retired):</strong> Always-on listening; heavy Life Graph inside v3.9; duplicating Google Calendar alerts; name personalization in v3.9; multi-task worker asks; scope changes without explicit labels.</li>
+</ul>
+<hr />
+<h2 id="2-state-of-development">2) State of Development</h2>
+<p><strong>Built / Verified</strong></p>
+<ul>
+<li>OAuth truthful brief (prior phase).</li>
+<li>Backend <strong>/profile</strong>: <code>GET</code>, <code>POST</code> (partial upsert). <code>x-user-id</code> = device UUID.</li>
+<li>Android <strong>Quiet Hours foundation</strong>: helpers <code>isQuietNow()/inWindow()</code>, global audio gate.</li>
+<li><strong>Silent Mode</strong> pref + <strong>global TTS gate</strong>: if Silent or Quiet, no audio anywhere; text still renders.</li>
+<li><strong>Chat entry + shell</strong>: top-right chat bubble on Home → full-screen Chat; Back returns Home. Composer respects IME/nav insets.</li>
+<li><strong>/profile</strong> sync round-trip verified; device UUID logged.</li>
+</ul>
+<p><strong>In progress (single active task)</strong></p>
+<ul>
+<li><strong>Onboarding Greeting (first-run, gated)</strong>: fetch <code>/onboarding/greet</code>; play once if allowed; persist <code>greeting_shown_at</code>; otherwise text-only.</li>
+</ul>
+<p><strong>Next within v3.9 (after greet)</strong></p>
+<ul>
+<li>Quiet Hours <strong>time-picker UI</strong> (edit window; paired validation).</li>
+<li>Chat polish: moon icon when quiet now; play icon only when audio allowed; offline banner.</li>
+<li>Acceptance sweep (crash-free, no dup calendar alerts, auth untouched).</li>
+</ul>
+<p><strong>Planned after v3.9 (still private)</strong></p>
+<ul>
+<li>v4.0 Morning Conversation + Items ledger (not Life Graph yet).</li>
+<li>v4.1 Reflection; v4.2 Share &amp; Handoff; v4.3 Organizer Kernel/Reminders; v5.0 public bundle.</li>
+</ul>
+<hr />
+<h2 id="3-workflow-collaboration-protocol">3) Workflow &amp; Collaboration Protocol</h2>
+<p><strong>Roles</strong></p>
+<ul>
+<li><strong>PM (you, this doc):</strong> set scope, guardrails, acceptance; issue <strong>one</strong> Worker brief; audit updates; keep order.</li>
+<li><strong>Worker GPT:</strong> executes the brief; returns commits/logs/evidence; asks for contracts if unclear.</li>
+<li><strong>Planner/Oversight (as needed):</strong> architecture or audits; currently idle.</li>
+</ul>
+<p><strong>How we run</strong></p>
+<ul>
+<li><strong>One active Worker brief</strong> at any time. Updates are either <strong>Addendum</strong> (small change) or <strong>Replacement</strong> (supersedes).</li>
+<li>Ask Ryley <strong>one question max</strong> when needed. Keep messages short. Push back on scope creep.</li>
+<li>Verify with small, deterministic checks (build, headers, gates) before expanding.</li>
+</ul>
+<p><strong>Testing rhythm</strong></p>
+<ul>
+<li>Build → install → smoke → verify <code>x-user-id</code> header + <code>/profile</code> reflection → verify audio gates (Silent + Quiet) → log acceptance evidence in Worker update.</li>
+</ul>
+<hr />
+<h2 id="4-communication-style-tone">4) Communication Style &amp; Tone</h2>
+<ul>
+<li>Confident and surgical; human, not stiff.</li>
+<li>Short, high-signal replies; avoid ramble.</li>
+<li>Explain <em>why</em> on decisions (one line).</li>
+<li>Push back clearly; keep trust high.</li>
+<li>Celebrate progress briefly: “Boom.”</li>
+</ul>
+<hr />
+<h2 id="5-architecture-system-overview">5) Architecture &amp; System Overview</h2>
+<p><strong>Components</strong></p>
+<ul>
+<li><strong>Android</strong> (Kotlin, Compose, Room/DataStore).</li>
+<li><strong>Backend</strong> (Node/Express/SQLite): OAuth storage; <code>/profile</code>; <code>/onboarding/greet</code>; TTS orchestration (ElevenLabs primary, GCP fallback).</li>
+<li><strong>Identity</strong>: per-install device UUID → <code>x-user-id</code>.</li>
+<li><strong>Dev Bridge</strong>: <code>adb reverse tcp:8080 tcp:8080</code>.</li>
+<li><strong>Audio Gate</strong>: <em>all</em> audio respects <strong>Silent Mode + Quiet Hours</strong>.</li>
+</ul>
+<p><strong>Patterns</strong></p>
+<ul>
+<li>Single pipeline for text/voice; <code>speak</code> is a presentation decision.</li>
+<li>Small, reversible diffs; no endpoint sprawl.</li>
+<li>Don’t duplicate Calendar alerts by default.</li>
+</ul>
+<p><strong>Obsolete (LEGACY)</strong></p>
+<ul>
+<li>Always-on listening; graph persistence inside v3.9; profile name in chat/TTS during v3.9.</li>
+</ul>
+<hr />
+<h2 id="6-recent-changes-reasoning-with-currentlegacy-tags">6) Recent Changes &amp; Reasoning (with CURRENT/LEGACY tags)</h2>
+<ul>
+<li><strong>Silent Mode first (CURRENT):</strong> Coffee-shop reality; enables greet logic (text-only if muted) without backend churn.</li>
+<li><strong>Chat shell now (CURRENT):</strong> Private text cockpit; no new endpoints; parity only.</li>
+<li><strong>Name usage (CURRENT):</strong> Show <strong>“You”</strong> everywhere; Google displayName stored, shown read-only in Settings → Account.</li>
+<li><strong>/profile contract (CURRENT):</strong> strict partial upsert + validation → deterministic state.</li>
+<li><strong>Dedupe with Calendar (CURRENT):</strong> Don’t create duplicate alerts; single optional prep ping comes later, not now.</li>
+<li><strong>Life Graph inside v3.9 (LEGACY → moved to lab/v4.x):</strong> too heavy; replaced by Items ledger plan (below).</li>
+</ul>
+<hr />
+<h2 id="7-the-conversation-system-life-graph-full-plan-for-future-phases">7) The Conversation System &amp; Life Graph — Full Plan (for future phases)</h2>
+<blockquote>
+<p>You asked to carry <em>everything</em> forward. This section preserves the vision, clearly marked as <strong>not in v3.9</strong>.</p>
+</blockquote>
+<h3 id="71-glossary">7.1 Glossary</h3>
+<ul>
+<li><strong>Items ledger (CURRENT in v4.0 plan):</strong> a simple, graph-compatible table that stores commitments, facts, appointments references, and links—append-only history with reasons.</li>
+<li><strong>Life Graph (FUTURE v4.x):</strong> typed nodes + relations (Situation, Task, Appointment, Fact, Actor; links like <code>depends_on</code>, <code>impacts</code>), built by lifting the Items ledger once it proves value.</li>
+<li><strong>SystemCards:</strong> UI cards in chat for Review/Decision/Advisor prompts with 2–3 clear actions.</li>
+<li><strong>Advisor Sandbox:</strong> safe “thinking lane” that returns text advice + receipts, no mutations (ADR-001).</li>
+</ul>
+<h3 id="72-items-ledger-schema-graph-compatible-not-in-v39">7.2 Items Ledger Schema (graph-compatible; <strong>not in v3.9</strong>)</h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;uuid&quot;,
+  &quot;type&quot;: &quot;task|fact|appointment_ref|situation&quot;,
+  &quot;title&quot;: &quot;string&quot;,
+  &quot;when_due&quot;: &quot;ISO|date|null&quot;,
+  &quot;status&quot;: &quot;todo|doing|done|blocked|missed&quot;,
+  &quot;priority&quot;: &quot;low|med|high&quot;,
+  &quot;links&quot;: [&quot;id&quot;, &quot;...&quot;],
+  &quot;history&quot;: [{&quot;ts&quot;:&quot;ISO&quot;,&quot;change&quot;:&quot;string&quot;,&quot;because&quot;:&quot;string&quot;,&quot;source&quot;:&quot;user|system&quot;}],
+  &quot;commitment&quot;: true
+}
+</code></pre>
+<ul>
+<li><strong>Why:</strong> deterministic, lift-able to a graph; append-only history supports “Because …”.</li>
+</ul>
+<h3 id="73-life-graph-vision-not-in-v39">7.3 Life Graph (vision; <strong>not in v3.9</strong>)</h3>
+<ul>
+<li><strong>Nodes:</strong> Situation, Task, Appointment, Fact, Actor.</li>
+<li><strong>Edges:</strong> <code>depends_on</code>, <code>impacts</code>, <code>owned_by</code>, <code>affects_department</code>.</li>
+<li><strong>Departments:</strong> use <strong>tags</strong> first; promote to slices later (prevents bloat).</li>
+</ul>
+<h3 id="74-morning-conversation-v40-target-not-in-v39">7.4 Morning Conversation (v4.0 target; <strong>not in v3.9</strong>)</h3>
+<ul>
+<li><strong>Flow:</strong> Yesterday sweep (free-form) → parse to Items → Queue review (last 24h / next 12h) → short day preview → commit.</li>
+<li><strong>UX:</strong> keyboard-first; voice optional; Silent Mode default respected.</li>
+<li><strong>Acceptance KPI:</strong> morning completion &lt; 2 min; missed-item rate ↓ ≥30%.</li>
+</ul>
+<h3 id="75-reminders-policy-v43-target-not-in-v39">7.5 Reminders Policy (v4.3 target; <strong>not in v3.9</strong>)</h3>
+<ul>
+<li>
+<p><strong>Three lanes:</strong></p>
+</li>
+<li>
+<p><strong>Appointments / hard-time commitments:</strong> safety-net T-10, T+0 (start), T+5 (late), T+15 mark Missed + reschedule dialog; <em>hard-time ignores daily cap</em>.</p>
+</li>
+<li><strong>Soft-time (due today):</strong> morning nudge → optional midday → end-of-day last call; then carry with priority bump.</li>
+<li><strong>Caps &amp; bundling:</strong> max 5/day for non-critical; bundle overflow into a digest.</li>
+<li><strong>Quiet Hours &amp; Silent Mode:</strong> always respected.</li>
+<li><strong>Calendar dedupe:</strong> only add prep/late nets when event has no alerts.</li>
+</ul>
+<h3 id="76-advisor-sandbox-adr-001-lab-only-not-in-app-now">7.6 Advisor Sandbox (ADR-001; <strong>lab only, not in app now</strong>)</h3>
+<ul>
+<li><strong>Route:</strong> <code>POST /_internal/advisor/run</code> (admin-guarded).</li>
+<li><strong>Provider:</strong> default <code>stub</code>; OpenAI/Ollama only if creds present; timeout &amp; caps enforced.</li>
+<li><strong>Data:</strong> append-only <code>advisor_runs</code> + <code>advisor_audits</code>; logs/receipts rotated; secrets redacted.</li>
+<li><strong>Exit to v4.2+:</strong> ≥0.80 precision / 0.75 recall on fixtures; deterministic; full audit trail.</li>
+</ul>
+<h3 id="77-release-cadence-private">7.7 Release cadence (private)</h3>
+<ul>
+<li><strong>v3.9 → dogfood</strong> (crash-free ≥99.5%, no dup alerts).</li>
+<li><strong>v4.0–v4.3</strong> behind flags; still private.</li>
+<li><strong>v5.0</strong> public when KPIs are green.</li>
+</ul>
+<hr />
+<h2 id="8-open-tasks-priorities-v39-only">8) Open Tasks &amp; Priorities (v3.9 only)</h2>
+<ol>
+<li>
+<p><strong>Onboarding Greeting (first-run, gated)</strong> — <em>Active</em></p>
+</li>
+<li>
+<p>Fetch <code>/onboarding/greet</code>; play once if Silent=OFF and not Quiet; render text always; persist <code>greeting_shown_at</code>; never auto-replay.</p>
+</li>
+<li>
+<p><strong>Quiet Hours time-picker UI</strong> — <em>Next</em></p>
+</li>
+<li>
+<p>Edit start/end in HH:MM; paired validation (both set or both null); overnight allowed.</p>
+</li>
+<li>
+<p><strong>Chat polish</strong> — <em>Then</em></p>
+</li>
+<li>
+<p>Moon icon (read-only) when <code>isQuietNow()</code> true.</p>
+</li>
+<li>Play icon on Chief replies only when audio allowed.</li>
+<li>
+<p>Offline banner.</p>
+</li>
+<li>
+<p><strong>Acceptance sweep</strong> — <em>Gate to dogfood</em></p>
+</li>
+<li>
+<p>Crash-free ≥99.5% over 24h.</p>
+</li>
+<li>No duplicate Calendar alerts.</li>
+<li>Auth untouched; <code>/profile</code> reflects truth; device UUID header present.</li>
+</ol>
+<p><strong>Awaiting Ryley:</strong> none for v3.9 (defaults locked: Auto-Speak OFF; show “You”).
+<strong>Deferred:</strong> everything in §7 (v4.x vision).</p>
+<hr />
+<h2 id="9-risks-warnings">9) Risks &amp; Warnings</h2>
+<ul>
+<li><strong>Auth/OAuth:</strong> do <strong>not</strong> touch client IDs, token headers, or refresh flow.</li>
+<li><strong>Audio regressions:</strong> all playback must check <strong>Silent + Quiet</strong> gates first.</li>
+<li><strong>Endpoint sprawl:</strong> chat uses existing intent/brief pipeline only (no new routes).</li>
+<li><strong>Calendar duplication:</strong> adding alerts will double-notify; skip until v4.x.</li>
+<li><strong>Settings sprawl:</strong> one Silent toggle; Quiet Hours; nothing else in v3.9.</li>
+</ul>
+<hr />
+<h2 id="10-continuity-protocol-exact-resume-steps">10) Continuity Protocol (Exact Resume Steps)</h2>
+<ol>
+<li><strong>Anchor</strong>: We are in <strong>v3.9 private</strong>; next work is the <strong>Onboarding Greeting (first-run, gated)</strong>.</li>
+<li><strong>Repos/Branches</strong>: Android <code>feat/v3.9-onboarding-consent</code> (or current v3.9); Backend <code>feat/v3.9-onboarding-consent-backend</code>.</li>
+<li>
+<p><strong>Smoke</strong>:</p>
+</li>
+<li>
+<p><strong>[BACKEND]</strong> <code>node server.cjs</code> → “Listening on <a href="http://localhost:8080”">http://localhost:8080”</a>.</p>
+</li>
+<li><strong>[ANDROID]</strong> <code>adb reverse tcp:8080 tcp:8080</code> → <code>./gradlew installDebug</code>.</li>
+<li>
+<p><strong>Verify</strong>:</p>
+</li>
+<li>
+<p>Toggle Silent ON → ensure <code>/tts</code> and greet don’t play.</p>
+</li>
+<li>Set a temporary quiet window → <code>isQuietNow()</code> true → no audio.</li>
+<li><code>GET/POST /profile</code> shows quiet window, voice params, consent.</li>
+<li><strong>Issue Worker brief</strong> (one): <strong>Onboarding Greeting (first-run, gated)</strong> (spec above).</li>
+<li><strong>Sign-off</strong>: accept on evidence (logs/commits); then assign time-picker UI.</li>
+</ol>
+<hr />
+<h2 id="11-contracts-specs-copy-ready">11) Contracts &amp; Specs (copy-ready)</h2>
+<h3 id="111-profile-api-v39">11.1 <strong>Profile API (v3.9)</strong></h3>
+<ul>
+<li><strong>GET /profile</strong> (<code>x-user-id</code> required) →
+  Returns <code>{ ok:true, profile:{…}, updatedAt: ISO }</code>.</li>
+<li><strong>POST /profile</strong> (<code>x-user-id</code> required) → partial upsert on fields you provide.
+  <strong>Validation</strong></li>
+<li><code>timeZone</code>: IANA (400 <code>invalid_timeZone</code>).</li>
+<li><code>quiet_hours_start/end</code>: <code>"HH:MM"|null</code>; if one present, both required; overnight allowed; regex <code>^([01]\\d|2[0-3]):[0-5]\\d$</code> (400 <code>quiet_hours_pair_required</code>).</li>
+<li><code>consent_proactive</code>: true/1/"1"→1; false/0/"0"→0; null→null; else 400 <code>invalid_consent_proactive</code>.</li>
+<li><code>voiceRate/voicePitch</code>: numeric or 400 <code>invalid_voice_param</code>.</li>
+<li><code>preferred_voice_id</code>: string|null; no validation in v3.9.</li>
+<li>Missing <code>x-user-id</code>: 400 <code>missing_user_id</code> (dev fallback <code>"dev"</code> allowed only when <code>NODE_ENV!=="production"</code>).</li>
+</ul>
+<h3 id="112-onboarding-greet-payload-used-now">11.2 <strong>Onboarding Greet (payload used now)</strong></h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;greet_v3_9_en&quot;,
+  &quot;version&quot;: &quot;2025-11-08&quot;,
+  &quot;persona&quot;: &quot;bill_v1&quot;,
+  &quot;autoplay&quot;: false,
+  &quot;text&quot;: &quot;Morning — I’m Chief. I’ll keep this quick. With your consent I’ll read your schedule and keep you on track. We can stay silent by default. Want to set consent and Quiet Hours now?&quot;,
+  &quot;ssml&quot;: &quot;&lt;speak&gt;&lt;prosody rate=\&quot;0.95\&quot;&gt;Morning — I’m Chief. I’ll keep this quick. With your consent, I’ll read your schedule and keep you on track. We can stay silent by default. &lt;break time=\&quot;300ms\&quot;/&gt; Want to set consent and Quiet Hours now?&lt;/prosody&gt;&lt;/speak&gt;&quot;,
+  &quot;next_action&quot;: &quot;open_onboarding_consent&quot;
+}
+</code></pre>
+<p><strong>Client rule:</strong> play once if allowed; always render <code>text</code>; persist <code>greeting_shown_at</code>; no auto-replay.</p>
+<h3 id="113-chat-ux-v39">11.3 <strong>Chat UX (v3.9)</strong></h3>
+<ul>
+<li><strong>Entry</strong>: top-right chat bubble on Home (BriefScreen TopAppBar).</li>
+<li><strong>Header</strong>: title “Chief”; right-side chips: <strong>Silent</strong> (toggle), <strong>Moon</strong> (read-only when quiet).</li>
+<li><strong>Thread</strong>: calm bubbles; Chief left, You right; Play icon only when audio allowed.</li>
+<li><strong>Composer</strong>: “Type to Chief…”, Send, Mic (Mic respects gates).</li>
+<li><strong>Storage</strong>: short local history (Room <code>Message{id,role,text,ts,speak}</code>).</li>
+</ul>
+<h3 id="114-display-name-policy-v39">11.4 <strong>Display Name Policy (v3.9)</strong></h3>
+<ul>
+<li>Show <strong>“You”</strong> everywhere user-facing.</li>
+<li>DisplayName appears read-only in <strong>Settings → Account</strong> only.</li>
+<li>No personalization in greet.</li>
+</ul>
+<hr />
+<h2 id="12-quick-reference-commands-checks">12) Quick Reference (commands &amp; checks)</h2>
+<p><strong>[BACKEND]</strong></p>
+<pre><code class="language-bash">node server.cjs   # expect: Listening on http://localhost:8080
+</code></pre>
+<p><strong>[ANDROID]</strong></p>
+<pre><code class="language-bash">adb reverse tcp:8080 tcp:8080
+./gradlew installDebug
+</code></pre>
+<p><strong>Profile sanity</strong></p>
+<pre><code class="language-bash">curl -s -H &quot;x-user-id:&lt;UUID&gt;&quot; http://localhost:8080/profile | jq
+curl -s -X POST http://localhost:8080/profile \
+  -H &quot;Content-Type: application/json&quot; -H &quot;x-user-id:&lt;UUID&gt;&quot; \
+  -d '{&quot;quiet_hours_start&quot;:&quot;22:00&quot;,&quot;quiet_hours_end&quot;:&quot;07:00&quot;}' | jq
+</code></pre>
+<hr />
+<h2 id="13-roles-responsibilities-for-next-pm">13) Roles &amp; Responsibilities (for next PM)</h2>
+<ul>
+<li><strong>PM GPT:</strong> enforce scope; one active Worker brief; label changes (Addendum/Replacement); verify evidence; prep handovers when chat nears 80%.</li>
+<li><strong>Worker GPT:</strong> implement current brief only; report commits/logs/acceptance; request missing contracts.</li>
+<li><strong>Planner/Oversight:</strong> dormant unless needed for architecture/audits.</li>
+</ul>
+<hr />
+<h2 id="14-final-truths-pin-these">14) Final Truths (pin these)</h2>
+<ul>
+<li><strong>We are in v3.9 private.</strong> Next work is <strong>Onboarding Greeting (first-run, gated)</strong>.</li>
+<li><strong>Defaults:</strong> Auto-Speak OFF; show “You”; no new endpoints; dedupe with Calendar; tiny diffs.</li>
+<li><strong>Gates:</strong> All audio respects <strong>Silent Mode + Quiet Hours</strong>.</li>
+<li><strong>Discipline:</strong> One active Worker brief; clearly labeled updates; dogfood before v4.x; graph later, not now.</li>
+</ul>
+<p>Boom.</p>
 <hr />
 <h1 id="chief-project-manager-handover-permanent-record-edition"><strong>Chief — Project Manager Handover (Permanent Record Edition)</strong></h1>
 <p><em>Version: Full Continuity Record</em></p>
