@@ -641,6 +641,13 @@ cmd.exe /c taskkill /F /IM java.exe /T</code>
 <li>Do the Android DTO null sweep; prove with a warning count drop; push; PR.</li>
 <li>Add QA notes to the handbook; publish; paste link in ship notes.</li>
 </ol>
+<p>-----------------------------ADENDUM-----------------------------------------------------------------------------------------------------------------
+- <strong>DEBUG-only Reset Onboarding</strong> — branch <code>feat/v3.9-onboarding-polish</code>, commit <code>bd30df4</code>.
+  - Adds overflow menu item + dev TextButton to reset first-run gate.
+  - <code>SettingsStore.devReset()</code> clears <code>onboarding_shown</code> + <code>greeting_shown_at</code> and deletes cached <code>offline_brief.mp3</code> / <code>tts_*</code>.
+  - Shows toast “Onboarding reset (DEV)” and logs <code>PM: onboarding reset</code>.
+  - Verified: build/install green; first-run greet plays once → reset → relaunch re-shows greet; Silent/Quiet still gate audio.
+  - No OAuth/auth/package/ID changes. No new endpoints.</p>
 <hr />
 <h1 id="worker-handover-v39-chat-entry-quiet-hours-gate">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</h1>
 <p><strong>Date:</strong> 2025‑11‑08
