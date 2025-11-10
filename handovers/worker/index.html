@@ -211,6 +211,43 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a1-whisper-ndk-skeleton-jni-only" class="nav-link">Worker Handover — v4.0a.1 Whisper NDK skeleton (JNI only)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#summary" class="nav-link">Summary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#files-changed" class="nav-link">Files Changed</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#commands-run" class="nav-link">Commands Run</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#verification" class="nav-link">Verification</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks" class="nav-link">Open Issues / Risks</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#next-step-single-action" class="nav-link">Next Step (single action)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#architecture-key-files-for-whisper-drop-in-next" class="nav-link">Architecture / Key Files (for Whisper drop-in next)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#why-this-approach" class="nav-link">Why this approach</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#chief-v39-stabilization-fix-log-guardrails-20251110" class="nav-link">Chief v3.9 – Stabilization Fix Log &amp; Guardrails (2025‑11‑10)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#quick-snapshot-now-stable" class="nav-link">Quick Snapshot (now stable)</a>
@@ -376,7 +413,7 @@
             
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-chat-entry-quiet-hours-gate" class="nav-link">Worker Handover — v3.9 Chat Entry + Quiet Hours Gate</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#summary" class="nav-link">Summary</a>
+            <li class="nav-item" data-bs-level="2"><a href="#summary_1" class="nav-link">Summary</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -388,7 +425,7 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#commands-run" class="nav-link">Commands Run</a>
+            <li class="nav-item" data-bs-level="2"><a href="#commands-run_1" class="nav-link">Commands Run</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -396,11 +433,11 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks" class="nav-link">Open Issues / Risks</a>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks_1" class="nav-link">Open Issues / Risks</a>
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#next-step-single-action" class="nav-link">Next Step (single action)</a>
+            <li class="nav-item" data-bs-level="2"><a href="#next-step-single-action_1" class="nav-link">Next Step (single action)</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -521,6 +558,110 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="worker-handover-v40a1-whisper-ndk-skeleton-jni-only">Worker Handover — v4.0a.1 Whisper NDK skeleton (JNI only)</h1>
+<p><strong>Date:</strong> 2025-11-10 (America/Vancouver)
+<strong>Scope:</strong> Safe NDK/JNI skeleton for Whisper (no UI or behavior change). Isolated in a separate worktree and spike branch to guarantee zero regression, with receipts and PR.</p>
+<h2 id="summary">Summary</h2>
+<p>We stood up a minimal native layer and JNI shim so Whisper can drop in next. This work was done in a clean <strong>worktree</strong> branched from the known-good tag/branch to avoid risk to your main workspace. The app still boots, briefs still speak, and system ASR remains unchanged. JNI logs prove the library loads and returns a version string, and the APK contains the <code>.so</code> for <code>arm64-v8a</code> and <code>x86_64</code>.</p>
+<p>We deviated from the PM’s “head branch” name on purpose for safety: used <code>spike/whisper-ndk-skel-safe</code> in a separate directory, then opened a PR against <code>feat/v4.0-mic-transcribe</code>. This lets us throw away the spike branch at any time without touching your restored good branch or workspace.</p>
+<h2 id="files-changed">Files Changed</h2>
+<ul>
+<li><code>app/src/main/cpp/CMakeLists.txt</code> — minimal CMake target for <code>whisper_jni</code> (shared lib).</li>
+<li><code>app/src/main/cpp/whisper_jni.cpp</code> — <code>nativeInit()</code> logs load; <code>nativeVersion()</code> returns <code>"whisper-skel v0"</code>.</li>
+<li><code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code> — tiny wrapper: <code>System.loadLibrary("whisper_jni")</code>, <code>logVersion()</code>.</li>
+<li>
+<p><code>app/build.gradle.kts</code> — <strong>minimal</strong> inside <code>android { }</code>:</p>
+</li>
+<li>
+<p><code>externalNativeBuild.cmake { path = file("src/main/cpp/CMakeLists.txt") }</code></p>
+</li>
+<li><code>defaultConfig.ndk.abiFilters("arm64-v8a", "x86_64")</code></li>
+<li>
+<p><code>app/src/main/java/app/chief/app/MainActivity.kt</code> — one-line init/log call:</p>
+</li>
+<li>
+<p><code>Log.i("WhisperEngine","init"); WhisperEngine.logVersion()</code></p>
+</li>
+</ul>
+<h2 id="commands-run">Commands Run</h2>
+<pre><code># Safety tag on the good branch (already pushed)
+git tag -a safety/restore-good-2025-11-09-20251110-115021 -m &quot;safety: known-good before Whisper NDK work&quot;
+git push origin --tags
+
+# Safe worktree from known-good
+git worktree add -b spike/whisper-ndk-skel-safe ../Chief-ndk-safe restore/good-2025-11-09
+cd ../Chief-ndk-safe &amp;&amp; cp ../Chief/local.properties ./local.properties
+
+# Add JNI files
+mkdir -p app/src/main/cpp
+notepad app/src/main/cpp/CMakeLists.txt
+notepad app/src/main/cpp/whisper_jni.cpp
+
+# Kotlin &amp; Gradle minimal wiring
+notepad app/src/main/java/app/chief/app/speech/WhisperEngine.kt
+notepad app/build.gradle.kts
+notepad app/src/main/java/app/chief/app/MainActivity.kt
+
+# Build/Install/Verify
+./gradlew :app:assembleDebug
+./gradlew :app:installDebug
+zipinfo -1 app/build/outputs/apk/debug/app-debug.apk | grep libwhisper_jni.so
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -c
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time WhisperJNI:I WhisperEngine:I *:S | tee proof/whisper-jni-init.txt
+</code></pre>
+<h2 id="verification">Verification</h2>
+<p><strong>Build:</strong> <code>BUILD SUCCESSFUL</code> (assemble/install).
+<strong>APK libs present:</strong></p>
+<pre><code>lib/arm64-v8a/libwhisper_jni.so
+lib/x86_64/libwhisper_jni.so
+</code></pre>
+<p><strong>Logcat (device SM-S918W / Android 15):</strong></p>
+<pre><code>I/WhisperEngine: init
+I/WhisperJNI: Whisper JNI loaded
+I/WhisperEngine: version=whisper-skel v0
+</code></pre>
+<p><strong>Receipts saved:</strong></p>
+<ul>
+<li><code>proof/build-receipt.txt</code> (assemble output)</li>
+<li><code>proof/apk-libs.txt</code> (zipinfo)</li>
+<li><code>proof/whisper-jni-init.txt</code> (logcat)</li>
+<li><code>proof/pr-body-v4.0a1.md</code> (PR body)</li>
+</ul>
+<p><strong>Runtime sanity:</strong> Onboarding greeting works after ensuring device not muted; system ASR path unchanged.</p>
+<h2 id="open-issues-risks">Open Issues / Risks</h2>
+<ul>
+<li>None created by this PR. It is JNI-only, no behavior change.</li>
+<li>
+<p>Known backlog from PM directive:</p>
+</li>
+<li>
+<p>Restore <strong>Chat</strong> button entry on Brief screen.</p>
+</li>
+<li>Investigate greet-after-reset flakiness.
+    <em>(Tracked for the next PR as P2 items.)</em></li>
+</ul>
+<h2 id="next-step-single-action">Next Step (single action)</h2>
+<p>Review and merge the draft PR into <code>feat/v4.0-mic-transcribe</code> once PM signs off on receipts and “no behavior change” claim.</p>
+<p><strong>Branch/Tag Context</strong></p>
+<ul>
+<li>Safety tag: <code>safety/restore-good-2025-11-09-20251110-115021</code></li>
+<li>Spike branch: <code>spike/whisper-ndk-skel-safe</code> → <strong>PR #5</strong> with base <code>feat/v4.0-mic-transcribe</code></li>
+<li>Original directive head name (<code>feat/v4.0a1-whisper-ndk-skeleton</code>) intentionally not used to keep safety boundary obvious; can rename after merge if PM wants.</li>
+</ul>
+<h2 id="architecture-key-files-for-whisper-drop-in-next">Architecture / Key Files (for Whisper drop-in next)</h2>
+<ul>
+<li><strong>Native:</strong> <code>app/src/main/cpp/*</code> (CMake target <code>whisper_jni</code>)</li>
+<li><strong>JNI surface:</strong> <code>WhisperEngine.nativeInit()</code>, <code>nativeVersion()</code></li>
+<li><strong>Call site:</strong> <code>MainActivity.onCreate()</code> one-time <code>WhisperEngine.logVersion()</code></li>
+<li><strong>Gradle:</strong> <code>android.externalNativeBuild.cmake</code> + <code>defaultConfig.ndk.abiFilters(...)</code></li>
+</ul>
+<h2 id="why-this-approach">Why this approach</h2>
+<ul>
+<li>You demanded zero regression. We isolated all change in a separate worktree/branch from a tagged known-good. The main workspace remains untouched and runnable.</li>
+<li>JNI proof is minimal: load → log → version string. It’s enough to validate toolchain/ABIs before introducing whisper.cpp.</li>
+</ul>
+<hr />
 <hr />
 <h1 id="chief-v39-stabilization-fix-log-guardrails-20251110">Chief v3.9 – Stabilization Fix Log &amp; Guardrails (2025‑11‑10)</h1>
 <p><strong>Owner:</strong> Ryley
@@ -1361,7 +1502,7 @@ cmd.exe /c taskkill /F /IM java.exe /T</code>
 <p><strong>Date:</strong> 2025‑11‑08
 <strong>Scope:</strong> Android app (UI + settings plumbing). One session. Backend touched only for /profile contract verification and curl checks (no schema changes).</p>
 <hr />
-<h2 id="summary">Summary</h2>
+<h2 id="summary_1">Summary</h2>
 <p>We added a minimal, production‑clean Chat entry from the Home/Brief screen and finished the foundational audio gating work. The Chat screen is reachable via a top‑right app‑bar action, presents a basic composer (text + mic + send), respects insets so the system nav bar doesn’t cover the composer, and supports Back → returns to Home. We also completed Quiet Hours gating for <strong>both</strong> cloud‑TTS playback and the <strong>offline fallback MP3</strong>, and we wired Quiet Hours mirroring to the backend <strong>/profile POST</strong> (v3.9 contract). We verified device identity continuity end‑to‑end by logging the real device UUID and confirming the backend stores quiet hours for that UUID.</p>
 <hr />
 <h2 id="architecture-key-files">Architecture / Key Files</h2>
@@ -1399,7 +1540,7 @@ cmd.exe /c taskkill /F /IM java.exe /T</code>
 <li><code>ProfileApi.kt</code> — <code>get</code> + <code>upsertQuietHours</code> per v3.9 contract; tolerant JSON reads.</li>
 </ul>
 <hr />
-<h2 id="commands-run">Commands Run</h2>
+<h2 id="commands-run_1">Commands Run</h2>
 <pre><code class="language-bash"># Android — compile, install, logs
 cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:compileDebugKotlin -x lint
 cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
@@ -1449,7 +1590,7 @@ curl -s http://localhost:8080/profile -H &quot;x-user-id: 08654994-8c7d-4480-bfc
 </li>
 </ul>
 <hr />
-<h2 id="open-issues-risks">Open Issues / Risks</h2>
+<h2 id="open-issues-risks_1">Open Issues / Risks</h2>
 <ul>
 <li><strong>updatedAt</strong> missing in backend 200 (logs show <code>updatedAt=null</code>). Contract sample includes it; server response currently omits it. Not blocking.</li>
 <li><strong>Mic behavior</strong> currently stubbed; respects gates but not yet wired to STT pipeline (out‑of‑scope here).</li>
@@ -1457,7 +1598,7 @@ curl -s http://localhost:8080/profile -H &quot;x-user-id: 08654994-8c7d-4480-bfc
 <li><strong>Quiet Hours</strong> UI uses a one‑hour window placeholder; v3.9 requires only toggle + mirroring; full picker deferred.</li>
 </ul>
 <hr />
-<h2 id="next-step-single-action">Next Step (single action)</h2>
+<h2 id="next-step-single-action_1">Next Step (single action)</h2>
 <p><strong>Add Chat header chips:</strong> show Silent chip (toggle) and a read‑only Moon when Quiet Hours active, per PM spec. Keep it local to ChatScreen; no Activity churn.</p>
 <hr />
 <h2 id="uservisible-impact">User‑Visible Impact</h2>
