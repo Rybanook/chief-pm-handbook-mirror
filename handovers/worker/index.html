@@ -211,6 +211,55 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-accepted-v40a0-mic-transcribe-system-asr-dev" class="nav-link">Worker Handover — v3.9 accepted → v4.0a.0 Mic &amp; Transcribe (system ASR, DEV)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-branches-prs-tags-current-truth" class="nav-link">1) Branches, PRs, Tags (current truth)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-what-changed-this-session-high-level" class="nav-link">2) What changed this session (high-level)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-receipts-proof" class="nav-link">3) Receipts (proof)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-files-touched-salient" class="nav-link">4) Files touched (salient)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-current-behavior-checkpoints" class="nav-link">5) Current behavior checkpoints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-known-issues-follow-ups" class="nav-link">6) Known issues &amp; follow-ups</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-how-to-test-deterministic" class="nav-link">7) How to test (deterministic)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-next-steps-what-the-next-worker-should-do" class="nav-link">8) Next steps (what the next Worker should do)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-guardrails-observed" class="nav-link">9) Guardrails observed</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-useful-commands-reference" class="nav-link">10) Useful commands (reference)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-appendix-file-map-salient" class="nav-link">11) Appendix — File map (salient)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-polish-backend-updatedat-android-dto-cleanup-debug-onboarding-reset" class="nav-link">Worker Handover — v3.9 polish (backend updatedAt, Android DTO cleanup, DEBUG onboarding reset)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#tldr-state-at-handover" class="nav-link">TL;DR (state at handover)</a>
@@ -435,6 +484,207 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="worker-handover-v39-accepted-v40a0-mic-transcribe-system-asr-dev">Worker Handover — v3.9 accepted → v4.0a.0 Mic &amp; Transcribe (system ASR, DEV)</h1>
+<p><strong>Date:</strong> 2025-11-09 (America/Vancouver)
+<strong>Repo:</strong> <code>Rybanook/chief-android</code>
+<strong>Scope this session:</strong> finish v3.9 receipts + tags; cut v4.0 base; deliver v4.0a.0 “Mic &amp; Transcribe (system ASR, DEV)” with tiny, reversible diff; keep OAuth/IDs/Gradle untouched.</p>
+<h2 id="1-branches-prs-tags-current-truth">1) Branches, PRs, Tags (current truth)</h2>
+<p><strong>Android branches</strong></p>
+<ul>
+<li><code>feat/v3.9-onboarding-consent</code> — v3.9 base (HEAD tagged after acceptance).</li>
+<li><code>feat/v3.9-onboarding-polish</code> — DEBUG reset work → merged via PR and accepted.</li>
+<li><code>feat/v4.0-mic-transcribe</code> — <strong>new 4.0 integration base</strong>, cut from the head of <code>feat/v3.9-onboarding-consent</code> after tagging.</li>
+<li><code>feat/v4.0a-mic-transcribe</code> — feature branch for v4.0a.0.</li>
+</ul>
+<p><strong>Android PRs</strong></p>
+<ul>
+<li><strong>#2</strong> <code>feat/v3.9-onboarding-polish → feat/v3.9-onboarding-consent</code> — Receipts posted; accepted.</li>
+<li><strong>#3</strong> <code>feat/v4.0a-mic-transcribe → feat/v4.0-mic-transcribe</code> — System-ASR mic; receipts posted.</li>
+</ul>
+<p><strong>Android tags</strong></p>
+<ul>
+<li><code>v3.9-onboarding-polish-accepted-2025-11-09</code> (tagged on <strong>base branch</strong> <code>feat/v3.9-onboarding-consent</code> after merge).</li>
+</ul>
+<p><strong>Backend branches/tags (reference)</strong></p>
+<ul>
+<li>Branch: <code>feat/v3.9-onboarding-consent-backend</code></li>
+<li>Tag: <code>v3.9-profile-updatedAt-accepted-2025-11-09</code></li>
+</ul>
+<h2 id="2-what-changed-this-session-high-level">2) What changed this session (high-level)</h2>
+<ul>
+<li><strong>v3.9 polish</strong>: Added DEBUG-only “Restore Onboarding (DEV)” reset; PM accepted via text receipts.</li>
+<li><strong>v4.0a.0 mic</strong>: Introduced a <strong>clean ASR interface</strong> with a <strong>system <code>SpeechRecognizer</code> impl</strong>, a small in-memory transcript preview, simple VAD-ish stop (silence/timeout), and <strong>structured logs</strong> <code>ASR{...}</code>.</li>
+<li><strong>UI</strong>: Restored top-row chips (Silent / Quiet Hours). Silent toggle confirmed functional; Quiet Hours toggles present and persisted (see “Known/Follow-ups”).</li>
+<li><strong>No OAuth/ID/Gradle changes.</strong> Manifest already had <code>RECORD_AUDIO</code>.</li>
+</ul>
+<h2 id="3-receipts-proof">3) Receipts (proof)</h2>
+<p><strong>ADB log snippet (system ASR)</strong></p>
+<pre><code>11-09 15:28:19.416 I/ASR     (10111): MicStart durCap=30s fmt=system
+11-09 15:28:24.706 I/ASR     (10111): ASR{text=&quot;this is going to be an incredible app&quot;, conf=0.9687269}
+11-09 15:28:24.716 I/ASR     (10111): MicStop
+</code></pre>
+<p>Saved as: <code>proof/asr-dev-run.txt</code> (captured with filtered <code>logcat</code>).</p>
+<p><strong>v3.9 onboarding reset acceptance (manual)</strong></p>
+<ul>
+<li>First-run greet plays once; no auto-replay subsequently.</li>
+<li>Tapping <strong>Restore Onboarding (DEV)</strong> shows toast and clears the flag; reopening shows onboarding text/audio when not gated.</li>
+<li>Quiet/Silent gates respected for offline brief; greet auto-play is <strong>gated</strong> (see “Known/Follow-ups”).</li>
+</ul>
+<p><strong>Risk notes</strong></p>
+<ul>
+<li>v3.9: DEBUG-only; no runtime impact in release.</li>
+<li>v4.0a.0: DEV-only mic; no backend calls; no calendar writes; no Gradle/package/ID changes.</li>
+</ul>
+<h2 id="4-files-touched-salient">4) Files touched (salient)</h2>
+<ul>
+<li>
+<p><code>app/src/main/java/app/chief/app/MainActivity.kt</code></p>
+</li>
+<li>
+<p>Added DEV mic chip hook and in-memory transcript preview.</p>
+</li>
+<li>Ensured chips for Silent/Quiet Hours are visible again.</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code></p>
+</li>
+<li>
+<p>Restored header chips (SilentModeChip / QuietHoursChip) wiring.</p>
+</li>
+<li>
+<p><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code></p>
+</li>
+<li>
+<p>Quiet Hours + Silent toggles confirmed; helper flows intact.</p>
+</li>
+<li><strong>No changes to</strong> Gradle, package IDs, OAuth config, or <code>build.gradle</code>.</li>
+</ul>
+<h2 id="5-current-behavior-checkpoints">5) Current behavior checkpoints</h2>
+<ul>
+<li><strong>Mic (DEV)</strong>: Tap → permission prompt first run → talk → toast shows recognized text; transcript panel updates; <code>ASR{...}</code> logs emitted.</li>
+<li><strong>Silent</strong>: Toggle blocks audio paths (confirmed).</li>
+<li><strong>Quiet Hours</strong>: Toggle stores enabled flag and window; gate used by offline brief; UI time pickers not yet exposed (see follow-ups).</li>
+<li><strong>Onboarding (DEV) reset</strong>: Button shows toast and clears flag; however, <strong>auto greeting on app relaunch is not guaranteed</strong> unless gates permit and greet flow runs (see follow-ups).</li>
+</ul>
+<h2 id="6-known-issues-follow-ups">6) Known issues &amp; follow-ups</h2>
+<ol>
+<li>
+<p><strong>Onboarding greet auto-play</strong></p>
+</li>
+<li>
+<p>Symptom: After “Restore Onboarding (DEV)”, relaunch doesn’t always auto-play greeting.</p>
+</li>
+<li>Likely cause: first-run mark/gating order + greet trigger path. Greet audio is deliberately gated by <strong>Silent</strong> and <strong>Quiet Hours</strong> and may require an explicit <strong>onCreate/onStart hook</strong> to fetch <code>/onboarding/greet</code> and play when allowed.</li>
+<li>
+<p>Action: Audit the onboarding block timing in <code>MainActivity.onCreate</code> and ensure:</p>
+<ul>
+<li>We <strong>fetch greet DTO</strong> once when <code>onboardingShown=false</code>,</li>
+<li>We <strong>respect gates</strong>, and</li>
+<li>On allow, call TTS <code>speakNow()</code> or enqueue local playback.</li>
+<li>Receipt to capture later: log line <code>Onboarding{autoplay=true, silentOrQuiet=false}</code> then <code>Onboarding: played</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Quiet Hours UI</strong></p>
+</li>
+<li>
+<p>Chips are back; <strong>time pickers</strong> for start/end are not yet exposed.</p>
+</li>
+<li>
+<p>Action: Add a tiny DEV dialog to set <code>quietStart/quietEnd</code> quickly for testing. Receipt: log <code>QuietHours{enabled=true, start=HH:MM, end=HH:MM}</code> and show gate effect on offline brief/greet.</p>
+</li>
+<li>
+<p><strong>Transcript panel</strong></p>
+</li>
+<li>
+<p>Currently minimal (toast + tiny panel).</p>
+</li>
+<li>
+<p>Action (later in 4.0a.x): promote to a dedicated preview card with last N utterances (in-memory), with a DEV toggle to persist 24h for debugging.</p>
+</li>
+<li>
+<p><strong>Whisper integration (next PM step)</strong></p>
+</li>
+<li>
+<p>Will require <strong>Gradle edits</strong> and native/NDK or remote streaming; <strong>blocked</strong> behind explicit file review per guardrails.</p>
+</li>
+<li>Workflow: paste <code>app/build.gradle[.kts]</code> first; confirm it matches last working; one-sentence change; then apply.</li>
+</ol>
+<h2 id="7-how-to-test-deterministic">7) How to test (deterministic)</h2>
+<p><strong>Mic receipts (system ASR)</strong></p>
+<ul>
+<li>Reverse + backend up if needed for other features; mic itself is offline to backend.</li>
+<li>Capture filtered logs:</li>
+</ul>
+<p><code>cd ~/AndroidStudioProjects/Chief
+  "/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe" logcat -c &amp;&amp; \
+  "/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe" logcat -v time ASR:D *:S | tee proof/asr-dev-run.txt</code>
+* Tap <strong>Mic (DEV)</strong>, say one sentence, stop → expect toast + <code>ASR{...}</code> lines → Ctrl+C.</p>
+<p><strong>Onboarding reset sanity</strong></p>
+<ul>
+<li>Tap <strong>Restore Onboarding (DEV)</strong> → toast “Onboarding reset (DEV)”.</li>
+<li>Relaunch app; if inside gate (Silent ON or within Quiet window) expect <strong>no auto-audio</strong>.</li>
+<li>For a clean run: Silent OFF and Quiet disabled/outside window → expect greet to run once when trigger logic is in place.</li>
+</ul>
+<h2 id="8-next-steps-what-the-next-worker-should-do">8) Next steps (what the next Worker should do)</h2>
+<ol>
+<li>
+<p><strong>Onboarding greet trigger fix</strong></p>
+</li>
+<li>
+<p>Add a <strong>single-shot</strong> greet trigger after <code>activityScope</code> is ready in <code>onCreate</code>:</p>
+<ul>
+<li>If <code>onboardingShown=false</code> → fetch DTO (<code>/onboarding/greet</code>, <code>x-user-id</code> header) → compute <code>silentOrQuiet</code> via <code>SettingsStore.isSilentNow() || isQuietNow()</code> → if false, call <code>tts.speakNow(dto.text)</code> and set <code>onboardingShown=true</code>.</li>
+<li>Log: <code>Onboarding{autoplay=..., silentOrQuiet=..., shownBefore=...}</code>.</li>
+</ul>
+</li>
+<li>
+<p><strong>Quiet Hours DEV dialog</strong></p>
+</li>
+<li>
+<p>Add DEV-only dialog to set start/end (HH:MM) quickly.</p>
+</li>
+<li>
+<p>Persist via <code>SettingsStore.setQuietHours()</code>; show visual receipt + log <code>QuietHours{enabled,start,end}</code>.</p>
+</li>
+<li>
+<p><strong>v4.0a.1 Whisper skeleton (await PM)</strong></p>
+</li>
+<li>
+<p>Before <strong>any</strong> Gradle edit: paste <code>app/build.gradle[.kts]</code> here for validation; we’ll apply a one-sentence change and proceed.</p>
+</li>
+<li>Add interface branch <code>feat/v4.0a1-whisper-skel</code> off <code>feat/v4.0-mic-transcribe</code>.</li>
+</ol>
+<h2 id="9-guardrails-observed">9) Guardrails observed</h2>
+<ul>
+<li>No OAuth/auth/package/ID changes.</li>
+<li>No Gradle edits.</li>
+<li>One command at a time during execution; verified success between steps.</li>
+<li>Large edits were done via Notepad to avoid truncation.</li>
+<li>We did not touch any auth/OAuth files.</li>
+</ul>
+<h2 id="10-useful-commands-reference">10) Useful commands (reference)</h2>
+<ul>
+<li><strong>Build/install</strong></li>
+</ul>
+<p><code>cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug</code>
+* <strong>Backend reverse &amp; run</strong> (if needed for other features)</p>
+<p><code>"/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe" reverse tcp:8080 tcp:8080
+  cd ~/AndroidStudioProjects/chief-tts-backend &amp;&amp; node server.cjs</code>
+* <strong>ASR filtered logs</strong></p>
+<p><code>"/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe" logcat -c &amp;&amp; \
+  "/c/Users/User/AppData/Local/Android/Sdk/platform-tools/adb.exe" logcat -v time ASR:D *:S | tee proof/asr-dev-run.txt</code></p>
+<h2 id="11-appendix-file-map-salient">11) Appendix — File map (salient)</h2>
+<ul>
+<li><code>app/src/main/java/app/chief/app/MainActivity.kt</code> — mic chip, onboarding hooks, brief playback.</li>
+<li><code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code> — chips row, header, visual panel.</li>
+<li><code>app/src/main/java/app/chief/app/data/settings/SettingsStore.kt</code> — Silent/Quiet/Onboarding persistence.</li>
+<li><code>AndroidManifest.xml</code> — <code>RECORD_AUDIO</code> present.</li>
+<li><code>proof/</code> — <code>asr-dev-run.txt</code> log.</li>
+</ul>
+<hr />
+<p><strong>Status:</strong> v3.9 accepted; v4.0 integration branch in place; v4.0a.0 delivered with receipts.
+<strong>Hand-off:</strong> next worker should start at “Next steps” §8 with onboarding trigger + Quiet Hours dialog, then await PM’s Whisper skeleton directive.</p>
 <hr />
 <h1 id="worker-handover-v39-polish-backend-updatedat-android-dto-cleanup-debug-onboarding-reset">Worker Handover — v3.9 polish (backend <code>updatedAt</code>, Android DTO cleanup, DEBUG onboarding reset)</h1>
 <p><strong>Date:</strong> 2025-11-09<br />
