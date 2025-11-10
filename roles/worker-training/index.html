@@ -267,6 +267,55 @@
             </li>
               </ul>
             </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#worker-training-anticowboy-protocol-chief" class="nav-link">Worker Training — Anti‑Cowboy Protocol (Chief)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0-prime-directives-memorize" class="nav-link">0) Prime Directives (memorize)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1-standard-backup-pattern-windows-git-bash" class="nav-link">1) Standard Backup Pattern (Windows Git Bash)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-safeedit-protocol" class="nav-link">2) Safe‑Edit Protocol</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-git-discipline" class="nav-link">3) Git Discipline</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-subsystem-guardrails" class="nav-link">4) Subsystem Guardrails</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-verification-gates-passfail" class="nav-link">5) Verification Gates (pass/fail)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-pr-receipts-must-include" class="nav-link">6) PR Receipts (must include)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-disaster-drill-revert-fast" class="nav-link">7) Disaster Drill (revert fast)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-what-not-to-do-hard-nos" class="nav-link">8) What Not To Do (hard NOs)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-handy-oneliners" class="nav-link">9) Handy One‑liners</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-tldr" class="nav-link">10) TL;DR</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
         </ul>
     </div>
 </div></div>
@@ -518,7 +567,189 @@ bash scripts/publish.sh
 <li>If a GPT session loses context, <strong>do not continue editing</strong>. Stop and restore from last tag.</li>
 <li>Always document which build tag was confirmed working before switching sessions.</li>
 </ul>
-<hr /></div>
+<hr />
+<h1 id="worker-training-anticowboy-protocol-chief">Worker Training — Anti‑Cowboy Protocol (Chief)</h1>
+<p><strong>Purpose:</strong> Prevent regressions. Protect OAuth. Make every change safely reversible. This is the rulebook all Workers must follow.</p>
+<hr />
+<h2 id="0-prime-directives-memorize">0) Prime Directives (memorize)</h2>
+<ul>
+<li><strong>Do not guess.</strong> If you haven’t seen the file, <strong>ask for it</strong> with a single Notepad/Git Bash command.</li>
+<li><strong>One change at a time.</strong> Make a <em>single</em>, minimal edit; then build/test. Repeat.</li>
+<li><strong>Back up before you touch.</strong> Every file you edit gets a timestamped copy in <code>proof/</code> first.</li>
+<li><strong>OAuth is sacred.</strong> Never alter client IDs, scopes, Gradle, or auth flows without explicit, written approval and the file shown.</li>
+<li><strong>Stop if impact is unclear.</strong> Don’t “improve” architecture or reformat large files mid‑fix.</li>
+</ul>
+<hr />
+<h2 id="1-standard-backup-pattern-windows-git-bash">1) Standard Backup Pattern (Windows Git Bash)</h2>
+<p><strong>File backup:</strong></p>
+<pre><code class="language-bash"># Create proof folder once
+mkdir -p &quot;$HOME/AndroidStudioProjects/Chief/proof&quot;
+
+# Back up target file before editing
+cp -p &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/&lt;PACKAGE&gt;/&lt;PATH&gt;/&lt;File&gt;.kt&quot; \
+      &quot;$HOME/AndroidStudioProjects/Chief/proof/&lt;File&gt;.kt.backup-$(date +%Y-%m-%dT%H%M%S)&quot;
+</code></pre>
+<p><strong>Folder backup (RoboCopy):</strong></p>
+<pre><code class="language-powershell"># Run in Windows PowerShell if taking a snapshot of the app module
+robocopy &quot;$env:USERPROFILE\AndroidStudioProjects\Chief\app\src\main\java&quot; \
+         &quot;E:\chief-backups\java-$(Get-Date -f yyyy-MM-dd_HH-mm-ss)&quot; /E /R:1 /W:1
+</code></pre>
+<hr />
+<h2 id="2-safeedit-protocol">2) Safe‑Edit Protocol</h2>
+<p><strong>Goal:</strong> Move fast <em>safely</em> by shipping one <strong>scoped fix</strong> per step (not one line).</p>
+<p><strong>Scoped fix definition</strong></p>
+<ul>
+<li>A coherent change that resolves <strong>one bug or one micro‑feature</strong> end‑to‑end.</li>
+<li>Can touch multiple lines/files <strong>if and only if</strong> they’re required for that single fix.</li>
+<li>Stop the moment you’d need to refactor unrelated code or touch OAuth/Gradle—new scope.</li>
+</ul>
+<p><strong>Change budget (guardrail)</strong></p>
+<ul>
+<li>Target ≤ <strong>3 files</strong> or <strong>~50 LOC</strong> per step before compile/test.</li>
+<li>If you need more, split into the next scoped step.</li>
+</ul>
+<p><strong>Procedure</strong></p>
+<ol>
+<li><strong>Open the exact file(s)</strong> you will change:</li>
+</ol>
+<p><code>bash
+   notepad.exe "$HOME/AndroidStudioProjects/Chief/app/src/main/java/&lt;PACKAGE&gt;/&lt;PATH&gt;/&lt;File&gt;.kt"</code>
+2. <strong>Make all edits required for the scoped fix</strong> (no more, no less). Avoid drive‑by cleanups.
+3. <strong>Build when crossing a risk boundary</strong> (new imports, signature/wiring changes, or compile‑risk):</p>
+<p><code>bash
+   cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:compileDebugKotlin</code>
+4. <strong>Install &amp; smoke test</strong> just the surface you touched:</p>
+<p><code>bash
+   ./gradlew :app:installDebug
+   "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -c &amp;&amp; \
+   "$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe" logcat -v time Onboarding:I PulseFlow:I SyncPoller:I OauthApi:I *:S</code>
+5. <strong>Acceptance checks (must pass before moving on)</strong></p>
+<ul>
+<li>Onboarding: dialog shows on first‑run after reset → confirm marks shown.</li>
+<li>Pulse offline: rapid taps do <strong>not</strong> overlap; only latest plays.</li>
+<li>OAuth: Google button opens consent and returns <code>serverAuthCode</code>; toast "Signed in".</li>
+<li>Mic: button visible, above system bar; ASR start/stop works.</li>
+<li><strong>Commit the scoped fix</strong> (Conventional Commit) and proceed to the next scope.</li>
+</ul>
+<p><strong>Hard stops</strong></p>
+<ul>
+<li>If you feel compelled to reformat, rename packages, change Gradle, or adjust OAuth—<strong>stop and ask</strong>. That is a different scope.</li>
+</ul>
+<hr />
+<h2 id="3-git-discipline">3) Git Discipline</h2>
+<ul>
+<li><strong>Never bundle speculative changes.</strong> Each commit = one logical fix.</li>
+<li><strong>Branch naming:</strong> <code>fix/&lt;short-scope&gt;</code> or <code>feat/&lt;version-scope&gt;</code>.</li>
+<li><strong>Conventional commit:</strong> <code>fix(onboarding): remove auto-mark; show dialog on first-run</code>.</li>
+<li><strong>Pull Requests must include receipts (see §6).</strong></li>
+</ul>
+<p>Create a hotfix branch quickly:</p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief
+git checkout -b fix/onboarding-dialog
+# edit…
+git add app/src/main/java/app/chief/app/MainActivity.kt
+git commit -m &quot;fix(onboarding): show dialog; stop auto-mark in onCreate()&quot;
+</code></pre>
+<hr />
+<h2 id="4-subsystem-guardrails">4) Subsystem Guardrails</h2>
+<p><strong>OAuth</strong></p>
+<ul>
+<li>Do not touch <code>GoogleAuthHelper.kt</code>, client IDs, scopes, or Gradle auth deps without explicit approval.</li>
+<li>WEB client ID must be used for <code>requestServerAuthCode</code>.</li>
+</ul>
+<p><strong>Onboarding</strong></p>
+<ul>
+<li>Never auto‑mark onboarding as shown outside the dialog confirm.</li>
+<li>Dialog must show even offline (fallback text).</li>
+</ul>
+<p><strong>Audio</strong></p>
+<ul>
+<li>Offline playback uses <strong>one</strong> ExoPlayer instance; always stop/release before new play.</li>
+</ul>
+<p><strong>BriefScreen/UI</strong></p>
+<ul>
+<li>Back up before layout changes; chips (<code>SilentModeChip</code>, <code>QuietHoursChip</code>) are <strong>no‑arg</strong>.</li>
+<li>Avoid style/formatting churn in large files; keep diffs surgical.</li>
+</ul>
+<p><strong>Sync/Room</strong></p>
+<ul>
+<li>Replace derived lists immutably; no in‑place mutation.</li>
+<li>Use stable keys (event instance id or <code>startIso|summary|location</code>).</li>
+</ul>
+<hr />
+<h2 id="5-verification-gates-passfail">5) Verification Gates (pass/fail)</h2>
+<ul>
+<li><strong>Build green:</strong> <code>:app:compileDebugKotlin</code> and <code>:app:installDebug</code>.</li>
+<li>
+<p><strong>Onboarding:</strong></p>
+</li>
+<li>
+<p>Log: <code>Onboarding: first-run → showing dialog</code> on first‑run after reset.</p>
+</li>
+<li>Log: <code>Onboarding: marked shown</code> after confirm.</li>
+<li><strong>Pulse offline:</strong> Rapid taps do <strong>not</strong> overlap; only latest plays.</li>
+<li><strong>OAuth:</strong> Google button opens consent and returns <code>serverAuthCode</code>; “Signed in” toast.</li>
+<li><strong>Mic:</strong> Button visible, not overlapping system bar; starts/stops ASR.</li>
+</ul>
+<hr />
+<h2 id="6-pr-receipts-must-include">6) PR Receipts (must include)</h2>
+<ul>
+<li>
+<p><strong>ADB logs</strong> for the exact flows you touched (copy‑paste text):</p>
+</li>
+<li>
+<p>Onboarding reset → dialog shown → marked shown.</p>
+</li>
+<li>Offline pulse spam → no overlap.</li>
+<li>OAuth sign‑in → code forwarded.</li>
+<li><strong>Exact files changed</strong> with line counts (small diff).</li>
+<li><strong>Rollback instructions</strong> (the proof backup filename + copy command).</li>
+<li><strong>Scope statement</strong>: What you did <strong>not</strong> change.</li>
+</ul>
+<hr />
+<h2 id="7-disaster-drill-revert-fast">7) Disaster Drill (revert fast)</h2>
+<p>If anything looks off:</p>
+<pre><code class="language-bash"># Example: revert MainActivity from proof
+cp -p &quot;$HOME/AndroidStudioProjects/Chief/proof/MainActivity.kt.backup-YYYY-MM-DDTHHMMSS&quot; \
+      &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/MainActivity.kt&quot;
+./gradlew :app:installDebug
+</code></pre>
+<p>Then re‑open a smaller PR.</p>
+<hr />
+<h2 id="8-what-not-to-do-hard-nos">8) What Not To Do (hard NOs)</h2>
+<ul>
+<li>Don’t “clean up” unrelated code while fixing a bug.</li>
+<li>Don’t reformat whole files mid‑investigation.</li>
+<li>Don’t touch Gradle, package names, or IDs without explicit approval.</li>
+<li>Don’t ship multiple fixes in one commit.</li>
+<li>Don’t proceed without a backup.</li>
+</ul>
+<hr />
+<h2 id="9-handy-oneliners">9) Handy One‑liners</h2>
+<ul>
+<li><strong>Open file:</strong></li>
+</ul>
+<pre><code class="language-bash">notepad.exe &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/MainActivity.kt&quot;
+</code></pre>
+<ul>
+<li><strong>Build+Install:</strong></li>
+</ul>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
+</code></pre>
+<ul>
+<li><strong>Start backend reverse:</strong></li>
+</ul>
+<pre><code class="language-bash">&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; reverse tcp:8080 tcp:8080
+</code></pre>
+<ul>
+<li><strong>Filter logs:</strong></li>
+</ul>
+<pre><code class="language-bash">&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time Onboarding:I PulseFlow:I SyncPoller:I *:S
+</code></pre>
+<hr />
+<h2 id="10-tldr">10) TL;DR</h2>
+<p>Back up → minimal edit → build → install → verify logs → commit small → PR with receipts.
+When in doubt: stop and ask for the file. Do. Not. Cowboy.</p></div>
             </div>
         </div>
 
