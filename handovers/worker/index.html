@@ -211,6 +211,43 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#chief-v39-stabilization-fix-log-guardrails-20251110" class="nav-link">Chief v3.9 – Stabilization Fix Log &amp; Guardrails (2025‑11‑10)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#quick-snapshot-now-stable" class="nav-link">Quick Snapshot (now stable)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#files-touched-intent" class="nav-link">Files Touched &amp; Intent</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#backups-restore-points" class="nav-link">Backups &amp; Restore Points</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#smoke-tests-fast" class="nav-link">Smoke Tests (fast)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#guardrails-for-future-gpts" class="nav-link">Guardrails for Future GPTs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issue-today-duplicates-tracking" class="nav-link">Open Issue: Today duplicates (tracking)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#handy-commands" class="nav-link">Handy Commands</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#tldr-for-future-gpts" class="nav-link">TL;DR for Future GPTs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v39-accepted-v40a0-mic-transcribe-system-asr-dev" class="nav-link">Worker Handover — v3.9 accepted → v4.0a.0 Mic &amp; Transcribe (system ASR, DEV)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-branches-prs-tags-current-truth" class="nav-link">1) Branches, PRs, Tags (current truth)</a>
@@ -484,6 +521,190 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="chief-v39-stabilization-fix-log-guardrails-20251110">Chief v3.9 – Stabilization Fix Log &amp; Guardrails (2025‑11‑10)</h1>
+<p><strong>Owner:</strong> Ryley
+<strong>Scope:</strong> Android app (Compose) + local backend; surgical fixes only
+<strong>Why this doc:</strong> So future GPTs don’t relearn fixes. Use this as the canonical reference when these symptoms reappear.</p>
+<hr />
+<h2 id="quick-snapshot-now-stable">Quick Snapshot (now stable)</h2>
+<ul>
+<li><strong>Build:</strong> <code>:app:installDebug</code> ✅</li>
+<li><strong>OAuth:</strong> Google sign‑in button launches and returns <code>serverAuthCode</code> → backend exchange ✅</li>
+<li><strong>Mic (DEV):</strong> Button visible, positioned above nav bar, starts/stops System ASR ✅</li>
+<li><strong>Onboarding:</strong> Greeting dialog shows on first‑run and after <strong>Reset Onboarding (DEV)</strong>; no auto‑marking ✅</li>
+<li><strong>Pulse (offline):</strong> No audio overlap; latest tap wins ✅</li>
+<li><strong>UI:</strong> Brief screen layout restored to known‑good (backup) ✅</li>
+<li><strong>Known open:</strong> “Today” panel can show duplicates; Remainder is correct ⚠️</li>
+</ul>
+<hr />
+<h2 id="files-touched-intent">Files Touched &amp; Intent</h2>
+<h3 id="1-appsrcmainjavaappchiefappmainactivitykt">1) <code>app/src/main/java/app/chief/app/MainActivity.kt</code></h3>
+<p><strong>Intent:</strong></p>
+<ul>
+<li>Preserve OAuth flow.</li>
+<li>Add onboarding dialog logic without auto‑marking in <code>onCreate()</code>.</li>
+<li>Eliminate offline audio overlap with a single ExoPlayer instance.</li>
+<li>Place Mic chip overlay with safe bottom padding.</li>
+</ul>
+<p><strong>Key changes (stable):</strong></p>
+<ul>
+<li><strong>Onboarding – remove auto‑mark:</strong></li>
+</ul>
+<p><code>kotlin
+  // Old (bad): store.setOnboardingShown(true)
+  Log.i("Onboarding", "skipping auto-mark in onCreate()") // leave commented</code>
+* <strong>Onboarding dialog (Compose, first‑run only):</strong></p>
+<ul>
+<li><code>OnboardingUi</code> state; show <code>AlertDialog</code> when <code>!store.onboardingShown()</code>.</li>
+<li>Mark shown <strong>only</strong> on confirm button.</li>
+<li>Gate <strong>auto‑play</strong> by Silent/Quiet; dialog itself always shows.</li>
+<li><strong>Offline audio overlap fix (singleton player):</strong></li>
+</ul>
+<p>```kotlin
+  @Volatile private var offlinePlayer: ExoPlayer? = null</p>
+<p>private fun stopOfflinePlayer() {
+      try { offlinePlayer?.stop(); offlinePlayer?.release() } catch (_: Throwable) {}
+      offlinePlayer = null
+  }</p>
+<p>private fun playOfflineUri(uri: Uri) {
+      stopOfflinePlayer()
+      val p = ExoPlayer.Builder(this@MainActivity).build()
+      offlinePlayer = p
+      p.setMediaItem(MediaItem.fromUri(uri))
+      p.prepare()
+      p.playWhenReady = true
+  }
+  ```</p>
+<p><strong>Wiring:</strong> in the offline brief branch, replace raw <code>ExoPlayer</code> creation with <code>playOfflineUri(uri)</code>.
+* <strong>Mic button overlay (bottom‑right, padded):</strong></p>
+<p><code>kotlin
+  Box(modifier = Modifier.fillMaxSize()) {
+      // ... BriefScreen(...)
+      Box(
+          modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp, bottom = 56.dp)
+      ) { DevMicChip() }
+  }</code>
+* <strong>Google sign‑in button:</strong> keep using <code>googleAuthHelper.buildSignInIntent(BuildConfig.GOOGLE_SERVER_CLIENT_ID)</code> with <strong>WEB Client ID</strong>.</p>
+<p><strong>Verification cues:</strong></p>
+<ul>
+<li>Logcat: <code>Onboarding: first-run → showing dialog (canAuto=...)</code> on first run.</li>
+<li>After confirm: <code>Onboarding: marked shown</code>.</li>
+<li>Rapid offline Pulse taps: <strong>no</strong> overlapping audio.</li>
+<li>OAuth: “Signed in” toast and backend receives code.</li>
+</ul>
+<hr />
+<h3 id="2-appsrcmainjavaappchiefappgoogleauthhelperkt">2) <code>app/src/main/java/app/chief/app/GoogleAuthHelper.kt</code></h3>
+<p><strong>Intent:</strong> Use WEB client ID; extract <code>serverAuthCode</code> reliably.</p>
+<ul>
+<li>Builder requests <code>requestServerAuthCode(serverClientId, true)</code> and Calendar scopes.</li>
+<li>Helper stays unchanged apart from logs; no API surface changes needed by MainActivity.</li>
+</ul>
+<p><strong>Guardrail:</strong> Do <strong>not</strong> switch to Android client ID; that yields <code>DEVELOPER_ERROR (10)</code>.</p>
+<hr />
+<h3 id="3-brief-screen">3) <code>Brief screen</code></h3>
+<p><strong>Current state:</strong> Restored from backup to known‑good UI.</p>
+<ul>
+<li>Path: <code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code></li>
+<li>Chips (<code>QuietHoursChip</code>, <code>SilentModeChip</code>) are <strong>no‑arg</strong> composables.</li>
+<li>Swipe/visual panel OK.</li>
+</ul>
+<p><strong>Known open:</strong> Occasional duplicate items in <strong>Today</strong>. Remainder view and spoken narrative are correct.</p>
+<hr />
+<h2 id="backups-restore-points">Backups &amp; Restore Points</h2>
+<ul>
+<li><code>proof/MainActivity.kt.backup-2025-11-10T1</code> (pre‑onboarding &amp; overlap work)</li>
+<li><code>proof/MainActivity.kt.backup-2025-11-10T3</code> (post‑onboarding + overlap + mic/OAuth working) ← <strong>current golden</strong></li>
+<li><code>proof/BriefScreen.kt.backup-2025-11-10T1</code> (known‑good layout) ← <strong>restored</strong></li>
+</ul>
+<p><strong>Copy command used:</strong></p>
+<pre><code class="language-bash">cp -p &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/MainActivity.kt&quot; &quot;$HOME/AndroidStudioProjects/Chief/proof/MainActivity.kt.backup-2025-11-10T3&quot;
+cp -p &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt&quot; &quot;$HOME/AndroidStudioProjects/Chief/proof/BriefScreen.kt.backup-2025-11-10T1&quot;
+</code></pre>
+<p><strong>Restore (example):</strong></p>
+<pre><code class="language-bash">cp -p &quot;$HOME/AndroidStudioProjects/Chief/proof/BriefScreen.kt.backup-2025-11-10T1&quot; &quot;$HOME/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt&quot;
+</code></pre>
+<hr />
+<h2 id="smoke-tests-fast">Smoke Tests (fast)</h2>
+<ol>
+<li><strong>Build/Install:</strong></li>
+</ol>
+<p><code>bash
+   cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug</code>
+2. <strong>Onboarding:</strong> Reset via chip → relaunch → dialog appears; optional play; confirm → dialog no longer shows.
+3. <strong>OAuth:</strong> Tap <strong>Sign in with Google</strong> → consent → code sent to backend; no crashes.
+4. <strong>Mic:</strong> Tap <strong>Mic (DEV)</strong> → toast/logs show ASR output; tap again → stops.
+5. <strong>Pulse:</strong> Disconnect backend (or airplane mode) → tap Pulse rapidly → <strong>no overlap</strong>; reconnect → online brief plays once.</p>
+<hr />
+<h2 id="guardrails-for-future-gpts">Guardrails for Future GPTs</h2>
+<ul>
+<li>
+<p><strong>Zero Cowboy Policy:</strong></p>
+</li>
+<li>
+<p>Ask for the exact file before edits. Provide a single Notepad/Git Bash command to open it.</p>
+</li>
+<li>Back up target file in <code>proof/…</code> <strong>before</strong> any change.</li>
+<li>One contained change per step; verify with build/logs; then proceed.</li>
+<li>
+<p><strong>OAuth is sacrosanct:</strong></p>
+</li>
+<li>
+<p>Don’t touch client IDs, Gradle, or auth scopes without explicit approval &amp; the file shown.</p>
+</li>
+<li>Keep using <strong>WEB client id</strong> in <code>GoogleAuthHelper</code>.</li>
+<li>
+<p><strong>Onboarding rule:</strong></p>
+</li>
+<li>
+<p>Never auto‑mark onboarding as shown outside the dialog confirm.</p>
+</li>
+<li>Dialog visibility must not depend on network; always have a fallback text.</li>
+<li>
+<p><strong>Audio rule:</strong></p>
+</li>
+<li>
+<p>Single ExoPlayer instance for offline audio; <code>stop()</code> before new play.</p>
+</li>
+<li>
+<p><strong>UI rule:</strong></p>
+</li>
+<li>
+<p>Don’t redesign BriefScreen without a backup; chips are <strong>no‑arg</strong>.</p>
+</li>
+</ul>
+<hr />
+<h2 id="open-issue-today-duplicates-tracking">Open Issue: Today duplicates (tracking)</h2>
+<p><strong>Symptom:</strong> Two copies of the same 9:00 event in <strong>Today</strong>; <strong>Remainder</strong> is correct; narrative (audio) is correct.</p>
+<p><strong>Likely:</strong> De‑dupe needed on the derived UI list (e.g., by <code>startIso|summary|location</code>) or distinct instance keys; Room snapshot may include duplicates from diff merge.</p>
+<p><strong>Non‑disruptive next step (when ready):</strong> Add <strong>logs only</strong> to trace keys on recompute; do not change layout.</p>
+<p>Example probe (paste under recompute block):</p>
+<pre><code class="language-kotlin">Log.i(&quot;BriefPanel&quot;, &quot;today raw=${lastEvents.size} filtered=${items.size}&quot;)
+items.forEach { ev -&gt; Log.d(&quot;BriefPanelKey&quot;, &quot;${ev.timeLabel}|${ev.title}|${ev.location ?: &quot;&quot;}&quot;) }
+</code></pre>
+<p>Rollback = remove those two log lines.</p>
+<hr />
+<h2 id="handy-commands">Handy Commands</h2>
+<pre><code class="language-bash"># Build + install
+cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
+
+# Onboarding logs only
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -c &amp;&amp; \
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time Onboarding:I *:S
+
+# Pulse/Sync quick watch
+&quot;$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe&quot; logcat -v time PulseFlow:I SyncPoller:I BriefPanel*:I *:S
+</code></pre>
+<hr />
+<h2 id="tldr-for-future-gpts">TL;DR for Future GPTs</h2>
+<ul>
+<li>Don’t touch OAuth.</li>
+<li>Onboarding dialog shows on first‑run; mark <strong>after</strong> confirm; never auto‑mark.</li>
+<li>Offline Pulse uses <strong>one</strong> ExoPlayer; stop before new play.</li>
+<li>Mic button is an overlay with padding; don’t move it to the nav bar edge.</li>
+<li>BriefScreen is restored from backup; if you change it, back it up first.</li>
+<li>Duplicate <strong>Today</strong> events are a known issue; start with <strong>logs only</strong>.</li>
+</ul>
 <hr />
 <h1 id="worker-handover-v39-accepted-v40a0-mic-transcribe-system-asr-dev">Worker Handover — v3.9 accepted → v4.0a.0 Mic &amp; Transcribe (system ASR, DEV)</h1>
 <p><strong>Date:</strong> 2025-11-09 (America/Vancouver)
