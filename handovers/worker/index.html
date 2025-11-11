@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>Index - Chief Handbook</title>
+        <title>Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app) - Chief Handbook</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../css/brands.min.css" rel="stylesheet">
@@ -84,7 +84,7 @@
     <ul class="dropdown-menu">
             
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app)</a>
 </li>
     </ul>
   </li>
@@ -210,6 +210,59 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp" class="nav-link">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#tldr" class="nav-link">TL;DR</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#situation-what-went-wrong" class="nav-link">Situation (what went wrong)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-state-11-10-1535-pt" class="nav-link">Current state (11-10, ~15:35 PT)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#whats-built-in-chief-a2-to-be-ported" class="nav-link">What’s built in Chief-a2 (to be ported)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#receipts-what-we-saw" class="nav-link">Receipts (what we saw)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#port-plan-minimal-safe" class="nav-link">Port plan (minimal, safe)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#dev-flag-files-app-logic-depends-on-this-path" class="nav-link">DEV flag &amp; files (app logic depends on this path)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#proof-the-next-worker-should-capture-for-pr" class="nav-link">Proof the next worker should capture (for PR)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#risks-guardrails-carry-forward" class="nav-link">Risks &amp; guardrails (carry-forward)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#exact-file-map-source-destination" class="nav-link">Exact file map (source → destination)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#one-next-step-for-the-next-worker" class="nav-link">One next step (for the next worker)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#acceptance-for-the-port-pr" class="nav-link">Acceptance (for the port PR)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
             
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a1-whisper-ndk-skeleton-jni-only" class="nav-link">Worker Handover — v4.0a.1 Whisper NDK skeleton (JNI only)</a>
               <ul class="nav flex-column">
@@ -558,6 +611,200 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<h1 id="worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto <strong>app.chief.app</strong>)</h1>
+<h2 id="tldr">TL;DR</h2>
+<ul>
+<li>The only package we ship and care about is <strong><code>app.chief.app</code></strong>.</li>
+<li>The device is now clean of the legacy <strong><code>app.chief.android</code></strong>.</li>
+<li>The <strong>Whisper a2</strong> work was done in a <strong>separate worktree/repo</strong> (“Chief-a2”) and must be <strong>ported into the proper repo/branch</strong> for <code>app.chief.app</code>.</li>
+<li>Code compiles in the a2 branch; device has a tiny.en model staged; DEV flag flow is proven.</li>
+<li>Next worker’s <strong>single next step</strong> is to create a safe worktree branch off the known-good <strong>Chief</strong> repo and port the minimal files called out below.</li>
+</ul>
+<hr />
+<h2 id="situation-what-went-wrong">Situation (what went wrong)</h2>
+<ul>
+<li>We temporarily installed the <strong>legacy</strong> package (<code>app.chief.android</code>) while testing the Whisper flow. That created confusion about “which app is on device.”</li>
+<li>Ryley’s project truth: <strong><code>app.chief.app</code> is the product</strong>. <code>app.chief.android</code> is <strong>legacy/garbage</strong>.</li>
+<li>We corrected the device: uninstalled the legacy package and reinstalled from the <strong>proper Chief repo</strong>.</li>
+<li>The Whisper a2 work (JNI skeleton, mic UX DEV flag, RawMicCapture, WhisperEngine stub) currently lives in <strong><code>~/AndroidStudioProjects/Chief-a2</code></strong> on branch <strong><code>feat/v4.0a2-whisper-core</code></strong>, not in the main Chief repo. It must be ported.</li>
+</ul>
+<hr />
+<h2 id="current-state-11-10-1535-pt">Current state (11-10, ~15:35 PT)</h2>
+<p><strong>Device packages</strong></p>
+<ul>
+<li><code>package:app.chief.app</code> → <strong>installed</strong> (correct)</li>
+<li><code>package:app.chief.android</code> → <strong>uninstalled</strong></li>
+</ul>
+<p><strong>Repos &amp; branches</strong></p>
+<ul>
+<li>
+<p><strong>Chief (proper)</strong>: <code>~/AndroidStudioProjects/Chief</code> on <code>restore/good-2025-11-09</code> (last known-good for v3.9 OAuth &amp; Brief).</p>
+</li>
+<li>
+<p>Safety tag pushed: <strong><code>safety/restore-good-2025-11-10-a2-port</code></strong>.</p>
+</li>
+<li>
+<p><strong>Chief-a2 (sandbox)</strong>: <code>~/AndroidStudioProjects/Chief-a2</code> on <strong><code>feat/v4.0a2-whisper-core</code></strong> (tracking <code>origin/feat/v4.0-mic-transcribe</code>).</p>
+</li>
+<li>
+<p>This branch <strong>builds</strong> (<code>BUILD SUCCESSFUL</code>) and contains the DEV-flag mic UX and Whisper scaffolding.</p>
+</li>
+</ul>
+<p><strong>Whisper artifacts on device (for both packages when needed)</strong></p>
+<ul>
+<li>DEV flag file path used by app code: <code>files/whisper/USE_WHISPER_DEV</code></li>
+<li>Model present (verified in tests): <code>files/whisper/ggml-tiny.en-q5_1.bin</code> (~31 MB)</li>
+</ul>
+<hr />
+<h2 id="whats-built-in-chief-a2-to-be-ported">What’s built in <strong>Chief-a2</strong> (to be ported)</h2>
+<p><strong>Files added/modified (Android app)</strong></p>
+<ul>
+<li>
+<p><strong>Mic capture (new):</strong>
+  <code>app/src/main/java/app/chief/app/audio/RawMicCapture.kt</code></p>
+</li>
+<li>
+<p>PCM16 mono, 16 kHz, WAV header patch on stop, 30s max cap, silence auto-stop hook point.</p>
+</li>
+<li>
+<p><strong>Whisper engine (new, stub for JNI later):</strong>
+  <code>app/src/main/java/app/chief/app/asr/WhisperEngine.kt</code></p>
+</li>
+<li>
+<p><code>transcribe(pcm16, sampleRate)</code> + <code>transcribeWav(context, wavFile)</code>; logs <code>ASR{engine=whisper,…}</code>.</p>
+</li>
+<li>
+<p><strong>Brief UI panel (modified):</strong>
+  <code>app/src/main/java/app/chief/app/ui/brief/BriefVisualPanel.kt</code></p>
+</li>
+<li>
+<p>Clean visual list/cards; active glow; no behavior changes required for port. (Keeps UI modern.)</p>
+</li>
+<li>
+<p><strong>Brief screen (modified, DEV flag UX only):</strong>
+  <code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code></p>
+</li>
+<li>
+<p><strong>Flag OFF:</strong> tap = Play Brief (unchanged), long-press = no-op.</p>
+</li>
+<li>
+<p><strong>Flag ON:</strong> long-press → start raw mic capture; tap while recording → stop + Whisper transcribe; idle tap still plays Brief. Logs:</p>
+<ul>
+<li><code>Mic{state=START, engine=whisper, sr=16000}</code></li>
+<li><code>Mic{state=STOP}</code></li>
+<li><code>ASR{engine=whisper, text="...", ms=...}</code></li>
+<li><strong>Pulse control (no UI redesign, handler only):</strong>
+  <code>app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code></li>
+</ul>
+</li>
+<li>
+<p>No visual label; supports tap + long-press events the screen consumes.</p>
+</li>
+</ul>
+<p><strong>No changes to high-risk infra</strong></p>
+<ul>
+<li><strong>No</strong> OAuth, IDs, or <code>applicationId</code> edits in the a2 sandbox that must be copied.</li>
+<li>Gradle remains standard; NDK wiring is isolated to skeleton work (JNI later, not required for this DEV flow).</li>
+</ul>
+<hr />
+<h2 id="receipts-what-we-saw">Receipts (what we saw)</h2>
+<ul>
+<li><strong>Build:</strong> <code>:app:assembleDebug</code> → <code>BUILD SUCCESSFUL</code>.</li>
+<li><strong>Warnings:</strong> benign Kotlin “Nothing?” type warnings in some network helpers (unchanged behavior).</li>
+<li><strong>Device model file:</strong> verified 31 MB in <code>files/whisper/ggml-tiny.en-q5_1.bin</code> under both packages during tests.</li>
+<li><strong>DEV flag:</strong> <code>files/whisper/USE_WHISPER_DEV</code> toggled via <code>run-as</code>.</li>
+</ul>
+<hr />
+<h2 id="port-plan-minimal-safe">Port plan (minimal, safe)</h2>
+<p><strong>Only move what matters</strong> (surgical diff) from <strong>Chief-a2</strong> → <strong>Chief</strong>:</p>
+<ol>
+<li><code>audio/RawMicCapture.kt</code> (new)</li>
+<li><code>asr/WhisperEngine.kt</code> (new)</li>
+<li><code>ui/brief/BriefScreen.kt</code> (tiny handler changes for DEV flag branching; keep existing behaviors)</li>
+<li><code>ui/brief/BriefVisualPanel.kt</code> (pure visual; optional if identical—prefer the a2 version if newer/cleaner)</li>
+<li><code>ui/common/PulseButton.kt</code> (if the a2 version has the tap/long-press surface needed; otherwise only update handler site in <code>BriefScreen.kt</code>)</li>
+</ol>
+<p><strong>Do NOT touch</strong></p>
+<ul>
+<li>OAuth, IDs, <code>applicationId</code>, or Gradle “hot files” (per Do-Not-Touch list).</li>
+<li>Any backend/OAuth routes.</li>
+<li>Any unrelated UI.</li>
+</ul>
+<hr />
+<h2 id="dev-flag-files-app-logic-depends-on-this-path">DEV flag &amp; files (app logic depends on this path)</h2>
+<ul>
+<li><strong>Flag ON</strong>: file <strong>must exist</strong> at <code>files/whisper/USE_WHISPER_DEV</code>.</li>
+<li><strong>Model</strong>: <code>files/whisper/ggml-tiny.en-q5_1.bin</code> (or any ggml tiny.en variant).</li>
+<li>Code path only engages Whisper when this flag is present. Flag-off behavior remains current prod.</li>
+</ul>
+<hr />
+<h2 id="proof-the-next-worker-should-capture-for-pr">Proof the next worker should capture (for PR)</h2>
+<ul>
+<li><strong>Flag OFF run (one block):</strong> Tap pulse → brief plays; <strong>no</strong> <code>Mic{…}</code> logs.</li>
+<li>
+<p><strong>Flag ON run (one block):</strong></p>
+</li>
+<li>
+<p><code>Mic{state=START, engine=whisper, sr=16000}</code></p>
+</li>
+<li><code>Mic{state=STOP}</code></li>
+<li><code>ASR{engine=whisper, text="…", ms=&lt;latency&gt;}</code></li>
+<li>Then tap idle → normal brief still works.</li>
+<li>Save logs under <code>proof/</code> with timestamp (see Worker Training “Proof Artifacts”). ([Rybanook][1])</li>
+</ul>
+<hr />
+<h2 id="risks-guardrails-carry-forward">Risks &amp; guardrails (carry-forward)</h2>
+<ul>
+<li><strong>High-risk files</strong>: tag before touching <code>MainActivity.kt</code>, <code>BriefScreen.kt</code>, <code>SyncPoller.kt</code>. ([Rybanook][1])</li>
+<li><strong>No OAuth/IDs/Gradle edits</strong> during this port.</li>
+<li><strong>Branch from known-good</strong> tag, keep the diff small, PR against the <strong>current phase feature branch</strong> (not <code>main</code>).</li>
+<li>If anything feels off: <strong>stop, tag, re-branch</strong> from last good (Worker Training §15). ([Rybanook][1])</li>
+</ul>
+<hr />
+<h2 id="exact-file-map-source-destination">Exact file map (source → destination)</h2>
+<ul>
+<li>
+<p>From: <code>~/AndroidStudioProjects/Chief-a2/app/src/main/java/app/chief/app/audio/RawMicCapture.kt</code>
+  To:   <code>~/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/audio/RawMicCapture.kt</code></p>
+</li>
+<li>
+<p>From: <code>~/AndroidStudioProjects/Chief-a2/app/src/main/java/app/chief/app/asr/WhisperEngine.kt</code>
+  To:   <code>~/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/asr/WhisperEngine.kt</code></p>
+</li>
+<li>
+<p>From: <code>~/AndroidStudioProjects/Chief-a2/app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code>
+  To:   <code>~/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code></p>
+</li>
+<li>
+<p>From: <code>~/AndroidStudioProjects/Chief-a2/app/src/main/java/app/chief/app/ui/brief/BriefVisualPanel.kt</code>
+  To:   <code>~/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/ui/brief/BriefVisualPanel.kt</code></p>
+</li>
+<li>
+<p>From: <code>~/AndroidStudioProjects/Chief-a2/app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code>
+  To:   <code>~/AndroidStudioProjects/Chief/app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code>
+  <em>(Only if needed; otherwise keep Chief’s and adjust handler in BriefScreen.)</em></p>
+</li>
+</ul>
+<hr />
+<h2 id="one-next-step-for-the-next-worker">One next step (for the next worker)</h2>
+<p><strong>Create a safe worktree branch in the proper Chief repo to port a2 diffs.</strong></p>
+<p>[ANDROID]</p>
+<pre><code class="language-bash">cd &quot;$HOME/AndroidStudioProjects/Chief&quot; \
+&amp;&amp; git fetch --all --prune \
+&amp;&amp; git tag -a safety/restore-good-2025-11-10-a2-port-verify -m &quot;Pre-port checkpoint&quot; \
+&amp;&amp; git push origin safety/restore-good-2025-11-10-a2-port-verify \
+&amp;&amp; git worktree add ../Chief-port -b feat/v4.0a2-whisper-core-port restore/good-2025-11-09
+</code></pre>
+<p><em>(After this single step, the worker will copy the 3–5 files listed above from <code>Chief-a2</code> into <code>Chief-port</code>, build, install, and capture the two proof logs.)</em></p>
+<hr />
+<h2 id="acceptance-for-the-port-pr">Acceptance (for the port PR)</h2>
+<ul>
+<li><code>BUILD SUCCESSFUL</code>; installs over <strong><code>app.chief.app</code></strong> only.</li>
+<li><strong>Flag OFF</strong>: tap = brief; long-press no special mic; no <code>Mic{…}</code> logs.</li>
+<li><strong>Flag ON</strong>: long-press starts capture; tap during capture stops + Whisper transcribes; idle tap still plays brief; 30s cap + ~2s silence auto-stop.</li>
+<li>Diff is <strong>small</strong>, scoped to files listed above; no OAuth/Gradle risk edits.</li>
+</ul>
+<hr />
 <hr />
 <h1 id="worker-handover-v40a1-whisper-ndk-skeleton-jni-only">Worker Handover — v4.0a.1 Whisper NDK skeleton (JNI only)</h1>
 <p><strong>Date:</strong> 2025-11-10 (America/Vancouver)
