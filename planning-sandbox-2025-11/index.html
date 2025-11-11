@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Index - Chief Handbook</title>
+        <title>Chief — Full Build Plan (from here to “real Chief”) - Chief Handbook</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/fontawesome.min.css" rel="stylesheet">
         <link href="../css/brands.min.css" rel="stylesheet">
@@ -154,7 +154,7 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Chief — Full Build Plan (from here to “real Chief”)</a>
 </li>
                                 </ul>
                             </li>
@@ -211,6 +211,51 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#chief-full-build-plan-from-here-to-real-chief" class="nav-link">Chief — Full Build Plan (from here to “real Chief”)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#north-star" class="nav-link">North Star</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#capability-map-what-full-chief-includes" class="nav-link">Capability Map (what “Full Chief” includes)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#architecture-high-level" class="nav-link">Architecture (high level)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#roadmap-by-phases-with-hard-exit-criteria" class="nav-link">Roadmap by Phases (with hard exit criteria)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#tool-contracts-so-the-brain-can-act-safely" class="nav-link">Tool Contracts (so the brain can act safely)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#reasoning-memory" class="nav-link">Reasoning &amp; Memory</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#security-privacy-non-negotiable" class="nav-link">Security &amp; Privacy (non-negotiable)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#risks-mitigations" class="nav-link">Risks &amp; Mitigations</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#whats-current-vs-legacy" class="nav-link">What’s CURRENT vs LEGACY</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#immediate-next-step-single" class="nav-link">Immediate Next Step (single)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#adr-001-reasoning-core-v0-advisor-sandbox-for-chief" class="nav-link">ADR-001 — Reasoning Core v0 (“Advisor Sandbox”) for Chief</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#decision" class="nav-link">Decision</a>
@@ -256,6 +301,270 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<h1 id="chief-full-build-plan-from-here-to-real-chief">Chief — Full Build Plan (from here to “real Chief”)</h1>
+<p>This is the end-to-end plan to turn Chief from “utility” into a <strong>calm, capable personal chief-of-staff</strong>. It keeps our guardrails (truth first, confirm before write, tiny diffs) and adds the brain, memory, and tools you asked for: <strong>LifeGraph</strong>, <strong>intelligent reasoning</strong>, <strong>email/SMS</strong>, <strong>reminders</strong>, <strong>rescheduling</strong>, and <strong>proactive help</strong>—without ever getting creepy.</p>
+<hr />
+<h2 id="north-star">North Star</h2>
+<ul>
+<li><strong>Contract:</strong> <em>Utterance → Intent → Draft → Confirm → Execute → Receipt.</em></li>
+<li><strong>Tone:</strong> calm, concise, competent. Truth &gt; momentum.</li>
+<li><strong>Safety:</strong> no silent writes, explicit consent, America/Vancouver TZ, reversible diffs.</li>
+<li><strong>Privacy:</strong> local-first; cloud only with flags + receipts; hard caps.</li>
+</ul>
+<hr />
+<h2 id="capability-map-what-full-chief-includes">Capability Map (what “Full Chief” includes)</h2>
+<p><strong>Calendar (CURRENT &amp; expanding)</strong></p>
+<ul>
+<li>Create/move/cancel; de-dupe; explicit confirm; truthful replies.</li>
+</ul>
+<p><strong>Email (NEW)</strong></p>
+<ul>
+<li>Retrieve important mail; summarize; <strong>compose → confirm → send</strong> via Gmail API.</li>
+<li>Smart prompts (“Want me to reply ‘running 5 mins late’?”) with confirm.</li>
+</ul>
+<p><strong>SMS/Texts (NEW, Android)</strong></p>
+<ul>
+<li>Read recent threads (permissions); <strong>compose → confirm → send</strong> via Intent/SmsManager.</li>
+<li>Offer to text attendees on reschedule.</li>
+</ul>
+<p><strong>Reminders/Tasks (NEW)</strong></p>
+<ul>
+<li>Quick capture (“remind me 7am protein”), confirm prompts, reliable fire-time.</li>
+</ul>
+<p><strong>LifeGraph (NEW)</strong></p>
+<ul>
+<li>A local graph of <strong>People, Events, Projects, Places, Todos, Messages</strong>.</li>
+<li>Ingests Calendar/Email/SMS; normalizes names/places; tracks follow-ups and commitments.</li>
+</ul>
+<p><strong>Reasoning (NEW)</strong></p>
+<ul>
+<li>Rules-first extractors + a <strong>constrained LLM</strong> behind a flag.</li>
+<li>Planner picks tools; always yields a <strong>typed Draft</strong>; never acts without confirm.</li>
+</ul>
+<p><strong>Proactive (LATER)</strong></p>
+<ul>
+<li>With consent: gentle nudges (“leave now for training?”), <strong>never</strong> surprise writes.</li>
+</ul>
+<hr />
+<h2 id="architecture-high-level">Architecture (high level)</h2>
+<p><strong>Android app (Compose)</strong></p>
+<ul>
+<li>Audio Gate (Silent/Quiet), Mic pipeline (System ASR → Whisper), Onboarding, Brief, Chat, Confirm dialogs.</li>
+<li><strong>ASR Interface</strong> with flag: <code>engine=system|whisper</code>.</li>
+<li><strong>Intent Engine</strong> (rules-first), <strong>Draft UI</strong>, <strong>Tool Clients</strong> (Calendar/Email/SMS).</li>
+</ul>
+<p><strong>Backend (Node/Express)</strong></p>
+<ul>
+<li><code>/profile</code>, <code>/onboarding/greet</code>, TTS; planned <code>/calendar/*</code>, <code>/email/*</code>.</li>
+<li><strong>Idempotency</strong> &amp; <strong>de-dup</strong>; per-user store; receipts logging.</li>
+</ul>
+<p><strong>Data</strong></p>
+<ul>
+<li>
+<p><strong>LifeGraph</strong> (on-device primary; mirrored to backend):</p>
+</li>
+<li>
+<p>Nodes: <code>Person, Event, Project, Place, Message, Task</code>.</p>
+</li>
+<li>Edges: <code>attends, relates_to, located_at, mentions, assigned_to, followup_for</code>.</li>
+<li>Each item has <code>source, confidence, seenAt, updatedAt, idempotencyKey</code>.</li>
+</ul>
+<p><strong>Security/OAuth</strong></p>
+<ul>
+<li>Per-user <strong>3-legged OAuth</strong> for Google (Gmail/Calendar) with refresh tokens—added only after file review, one-line change summary, and scoped consent UI.</li>
+</ul>
+<hr />
+<h2 id="roadmap-by-phases-with-hard-exit-criteria">Roadmap by Phases (with hard exit criteria)</h2>
+<h3 id="v40-casual-talk-calendar">v4.0 — <strong>Casual Talk → Calendar</strong></h3>
+<ul>
+<li><strong>a.0</strong> System ASR prototype ✅</li>
+<li><strong>a.1</strong> Whisper NDK skeleton ✅</li>
+<li>
+<p><strong>a.2</strong> Whisper core (offline transcript, DEV flag) <strong>→ ACTIVE</strong></p>
+</li>
+<li>
+<p><em>Exit:</em> <code>ASR{engine=whisper, text, ms}</code> logs; preview shows; system ASR still works when flag off.</p>
+</li>
+<li>
+<p><strong>b.0</strong> Parser (rules-first) → <strong>EventDraft</strong></p>
+</li>
+<li>
+<p>Relative dates (“this Fri”), ranges (“1–2pm”), places; confidence score; missing fields list.</p>
+</li>
+<li><em>Exit:</em> 10 utterances produce correct drafts.</li>
+<li>
+<p><strong>c.0</strong> Calendar write (safe)</p>
+</li>
+<li>
+<p><strong>Pre-gate:</strong> review OAuth files; one-sentence change; limited scopes; idempotency.</p>
+</li>
+<li><em>Exit:</em> 10 varied creates/moves succeed; duplicates prevented; event IDs logged.</li>
+<li>
+<p><strong>d.0</strong> Replies (template-first)</p>
+</li>
+<li>
+<p>Text + SSML reply that mirrors <strong>actual</strong> result; blocks speech under gate.</p>
+</li>
+<li><em>Exit:</em> 5 scenarios (create/move/cancel/dup/invalid) produce correct replies.</li>
+</ul>
+<h3 id="v41-polish-reliability">v4.1 — <strong>Polish &amp; Reliability</strong></h3>
+<ul>
+<li>Error taxonomy + user-facing fixes (“couldn’t parse time—try ‘at 7pm’”).</li>
+<li>Offline handling, retry, and “save draft” if backend absent.</li>
+<li><em>Exit:</em> Crash-free; receipts show clean flows.</li>
+</ul>
+<h3 id="v42-email-retrieve-compose">v4.2 — <strong>Email (retrieve + compose)</strong></h3>
+<ul>
+<li><strong>Read:</strong> list threads; summarize important; “Open in Gmail”.</li>
+<li><strong>Compose:</strong> Draft → Confirm → Send (Gmail API).</li>
+<li><em>Exit:</em> 10 samples (short confirmations, scheduling replies) succeed; sent message ID logged.</li>
+<li><strong>Note:</strong> OAuth scope review required right before enable.</li>
+</ul>
+<h3 id="v43-sms-retrieve-compose-android">v4.3 — <strong>SMS (retrieve + compose)</strong> <em>(Android)</em></h3>
+<ul>
+<li><strong>Read:</strong> last N messages for a contact (permission-gated).</li>
+<li><strong>Compose:</strong> Intent/SmsManager → Confirm → Send; delivered status where available.</li>
+<li><em>Exit:</em> 10 samples pass; no background sending without confirm.</li>
+</ul>
+<h3 id="v44-reminderstasks">v4.4 — <strong>Reminders/Tasks</strong></h3>
+<ul>
+<li>Quick capture; confirm; local alarm + optional Calendar task/list.</li>
+<li><em>Exit:</em> 10 reminders fire on time; snooze &amp; done receipts logged.</li>
+</ul>
+<h3 id="v50-lifegraph-foundation">v5.0 — <strong>LifeGraph Foundation</strong></h3>
+<ul>
+<li>Ingest Calendar/Email/SMS → <strong>People/Projects/Events/Messages</strong> nodes + edges.</li>
+<li>Canonicalization (merge “Sam” = same person), provenance, confidence.</li>
+<li>Surfaces: <strong>Daily Brief</strong> adds “loose ends” (“2 unreplied emails from Sam,” “Project Rocking Chair: 1 open task”).</li>
+<li><em>Exit:</em> Graph contains expected nodes/edges after a day of normal use; queries stable.</li>
+</ul>
+<h3 id="v51-follow-ups-commitments">v5.1 — <strong>Follow-ups &amp; Commitments</strong></h3>
+<ul>
+<li>Detect commitments (“I’ll send that tonight”).</li>
+<li>Offer reminder/task; track until done.</li>
+<li><em>Exit:</em> 10 commitment cases create correct follow-ups; reminders surface in Brief.</li>
+</ul>
+<h3 id="v52-proactive-nudges-consentful">v5.2 — <strong>Proactive Nudges (consentful)</strong></h3>
+<ul>
+<li>With explicit opt-in: leave-now (traffic aware later), gentle follow-ups, “do you want me to…?” prompts.</li>
+<li><em>Exit:</em> No writes without confirm; nudges limited and logged.</li>
+</ul>
+<h3 id="v53-reasoning-assist-dev-flag">v5.3 — <strong>Reasoning Assist (DEV flag)</strong></h3>
+<ul>
+<li>Constrained LLM to fill missing fields into strict JSON; thresholded confidence; safe fallbacks.</li>
+<li><em>Exit:</em> Improves parse coverage on tricky phrasing; never bypasses confirm.</li>
+</ul>
+<h3 id="v60-chief-of-life-cohesion">v6.0 — <strong>“Chief of Life” Cohesion</strong></h3>
+<ul>
+<li>Project views (e.g., <strong>Rocking Chair</strong>): events, tasks, emails, notes in one place.</li>
+<li>Weekly plan generator; recovery summaries (“what slipped last week?”).</li>
+<li><em>Exit:</em> Weekly Plan and Project rollups reliable and helpful via receipts.</li>
+</ul>
+<hr />
+<h2 id="tool-contracts-so-the-brain-can-act-safely">Tool Contracts (so the brain can act safely)</h2>
+<p><strong>Calendar</strong>
+<code>POST /calendar/create {title,start,end,tz,location,attendees,notes,idempotencyKey}</code></p>
+<ul>
+<li>Returns <code>{eventId}</code>; 409 on dup; idempotent on retry.</li>
+</ul>
+<p><strong>Email</strong></p>
+<ul>
+<li><strong>List:</strong> <code>/email/important?since=…</code> → <code>{threads:[{id,subject,from,age}]}</code></li>
+<li><strong>Draft:</strong> <code>/email/draft</code> with <code>{to,subject,body,cc?,bcc?}</code> → <code>{draftId}</code></li>
+<li><strong>Send:</strong> <code>/email/send {draftId}</code> → <code>{messageId}</code></li>
+</ul>
+<p><strong>SMS (Android)</strong></p>
+<ul>
+<li>Read via permissioned content resolver; send via Intent/SmsManager with explicit confirm.</li>
+</ul>
+<p><strong>Reminders</strong></p>
+<ul>
+<li>Local store; optional Calendar tasks; alarm manager with receipt.</li>
+</ul>
+<p><strong>Replies (NLG)</strong></p>
+<ul>
+<li>Template slots only; SSML via existing TTS; obey gate.</li>
+</ul>
+<p><strong>LifeGraph</strong></p>
+<ul>
+<li>Append-only ledger; each node/edge has <code>source, confidence, timestamp, hash</code>.</li>
+<li>Deterministic IDs where possible; merges logged.</li>
+</ul>
+<hr />
+<h2 id="reasoning-memory">Reasoning &amp; Memory</h2>
+<p><strong>Pipeline</strong></p>
+<ul>
+<li>Parse rules → fill <strong>EventDraft/EmailDraft/SmsDraft/TaskDraft</strong>.</li>
+<li>If low confidence &amp; DEV flag on → LLM fill into strict schema.</li>
+<li>Always confirm; show diffs for moves; execute; emit <strong>Receipt</strong>.</li>
+<li>Memory writes both to <strong>LifeGraph</strong> and a small <strong>Facts/Decisions/Ops</strong> ledger.</li>
+</ul>
+<p><strong>Truth checks</strong></p>
+<ul>
+<li>TZ normalization; de-dup; idempotency; compare requested vs actual; reply mirrors actual.</li>
+</ul>
+<hr />
+<h2 id="security-privacy-non-negotiable">Security &amp; Privacy (non-negotiable)</h2>
+<ul>
+<li><strong>No silent writes</strong>; confirm every side-effect.</li>
+<li><strong>OAuth scope gates</strong>: review files, state change in one sentence, then and only then merge.</li>
+<li><strong>Local-first</strong> for ASR and LifeGraph; LLM calls behind DEV flag with caps.</li>
+<li><strong>Logs</strong> redact emails/phone numbers except last 2 chars for receipts.</li>
+</ul>
+<hr />
+<h2 id="risks-mitigations">Risks &amp; Mitigations</h2>
+<ul>
+<li><strong>Auth scope creep</strong> → Gate with file review + tiny PRs; integration tests per scope.</li>
+<li><strong>ASR latency</strong> → Whisper tiny/en quantized; stream later; keep system ASR fallback.</li>
+<li><strong>Time parsing edge cases</strong> → Rules first, LLM assist flagged; require confirm on low confidence.</li>
+<li><strong>Graph bloat/dup</strong> → Canonicalization; hash-based idempotency; periodic merge jobs.</li>
+</ul>
+<hr />
+<h2 id="whats-current-vs-legacy">What’s CURRENT vs LEGACY</h2>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>CURRENT</th>
+<th>LEGACY (do not do)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Proof</td>
+<td>Text receipts (logs)</td>
+<td>Video required</td>
+</tr>
+<tr>
+<td>Writes</td>
+<td>Confirm → Execute → Receipt</td>
+<td>Silent writes</td>
+</tr>
+<tr>
+<td>ASR</td>
+<td>Whisper offline (flag while landing)</td>
+<td>System ASR as final</td>
+</tr>
+<tr>
+<td>Reasoning</td>
+<td>Rules-first + constrained LLM</td>
+<td>Freeform LLM</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>File review + one-line change</td>
+<td>“Quick tweaks” mid-phase</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="immediate-next-step-single">Immediate Next Step (single)</h2>
+<p>Proceed with <strong>v4.0a.2 — Whisper core (offline transcript, DEV flag)</strong> exactly as specced. When receipts are in (model loaded + <code>ASR{engine=whisper,…}</code> + system fallback proof), I’ll stamp and tag, then we start <strong>v4.0b — Parse → EventDraft</strong>.</p>
+<p>If you want me to spin paste-ready Worker directives for v4.0a.2 right now, say the word and I’ll drop them in one block. Boom.</p>
+<hr />
+<pre><code>                                                                     LIFE GRAPH PLANNING BELOW
+</code></pre>
+<hr />
 <p>the following is suggested by the gpt pm.</p>
 <p>Got you. Here’s the tight ADR plus what else we can reuse.</p>
 <h1 id="adr-001-reasoning-core-v0-advisor-sandbox-for-chief">ADR-001 — Reasoning Core v0 (“Advisor Sandbox”) for Chief</h1>
