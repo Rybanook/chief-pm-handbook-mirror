@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app) - Chief Handbook</title>
+        <title>Index - Chief Handbook</title>
         <link href="../../css/bootstrap.min.css" rel="stylesheet">
         <link href="../../css/fontawesome.min.css" rel="stylesheet">
         <link href="../../css/brands.min.css" rel="stylesheet">
@@ -84,7 +84,7 @@
     <ul class="dropdown-menu">
             
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app)</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
 </li>
     </ul>
   </li>
@@ -210,6 +210,59 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="1"><a href="#handover-chief-android-rescue-whisper-a2-port" class="nav-link">Handover — Chief Android (Rescue + Whisper a2-port)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0-mission" class="nav-link">0) Mission</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1-current-truth-repo-phone" class="nav-link">1) Current Truth (repo + phone)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-guardrails-enforced-today" class="nav-link">2) Guardrails (enforced today)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-build-reality-whats-committed-vs-local-only" class="nav-link">3) Build Reality (what’s committed vs local-only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-files-that-changed-in-the-a2-port-merge" class="nav-link">4) Files that changed in the a2-port merge</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-how-to-reproduce-the-exact-working-state-single-command-blocks" class="nav-link">5) How to reproduce the exact working state (single command blocks)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-whisper-a2-port-state-constraints" class="nav-link">6) Whisper a2-port — state &amp; constraints</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-workspace-topology-after-rescue" class="nav-link">7) Workspace topology (after rescue)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-known-risks-how-well-avoid-another-mess" class="nav-link">8) Known risks / how we’ll avoid another mess</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-next-actions-do-these-in-order" class="nav-link">9) Next actions (do these in order)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-if-things-go-sideways" class="nav-link">10) If things go sideways</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-hand-off-checklist-for-the-next-gpt" class="nav-link">11) Hand-off checklist for the next GPT</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
             
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp" class="nav-link">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app)</a>
               <ul class="nav flex-column">
@@ -611,6 +664,156 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="handover-chief-android-rescue-whisper-a2-port">Handover — Chief Android (Rescue + Whisper a2-port)</h1>
+<h2 id="0-mission">0) Mission</h2>
+<p>Protect the working build, keep <code>safety/*</code> pristine, and continue Whisper a2-port work only via feature → guarded PR. Zero cowboy edits.</p>
+<hr />
+<h2 id="1-current-truth-repo-phone">1) Current Truth (repo + phone)</h2>
+<ul>
+<li><strong>Base branch (working):</strong> <code>safety/post-rescue-2025-11-10</code></li>
+<li><strong>HEAD commit:</strong> <code>8abdc3e</code> (phone-verified receipt committed)</li>
+<li>
+<p><strong>Tags you can hard-reset to:</strong></p>
+</li>
+<li>
+<p><code>safety/phone-verified-20251110-175828</code> (installed on device)</p>
+</li>
+<li><code>safety/a2-port-good-20251110-174004</code> (branch-level a2 port known-good)</li>
+<li><code>safety/post-rescue-2025-11-10-20251110-171825</code> (earlier rescue lock)</li>
+<li><strong>PR merged:</strong> #6 “feat: v4.0a2 Whisper core port (guarded)” → rebased into <code>safety/post-rescue-2025-11-10</code></li>
+<li><strong>Cold backup bundle (all branches+tags):</strong>
+  <code>C:\Users\User\Desktop\chief-rescue-20251110-180112.bundle</code></li>
+<li><strong>Cold build verified from bundle:</strong> success (assembled APK, installed)</li>
+<li><strong>Device status:</strong> app <code>app.chief.app</code> installed and launches as expected</li>
+</ul>
+<p><strong>Receipts in repo:</strong>
+<code>proof/phone-verify-20251110-175739.txt</code> • <code>proof/rescue-checkpoint-20251110-175957.md</code> • plus a2-port build receipts.</p>
+<hr />
+<h2 id="2-guardrails-enforced-today">2) Guardrails (enforced today)</h2>
+<ul>
+<li>
+<p><strong>Local pre-push hook</strong> blocks <strong>any push to <code>refs/heads/safety/*</code></strong> unless explicitly bypassed.</p>
+</li>
+<li>
+<p>Hook path: <code>.githooks/pre-push</code></p>
+</li>
+<li>Configured via: <code>git config core.hooksPath .githooks</code></li>
+<li>Bypass (for emergencies only): set env <strong><code>ALLOW_SAFETY_PUSH=1</code></strong> on the push command.</li>
+<li><strong>Expected workflow:</strong> <code>feature/*</code> → PR → rebase-merge into <code>safety/*</code>. No direct pushes.</li>
+</ul>
+<blockquote>
+<p>Note: GitHub branch protection API rejected (private repo / plan). Local hook gives equivalent protection for this machine.</p>
+</blockquote>
+<hr />
+<h2 id="3-build-reality-whats-committed-vs-local-only">3) Build Reality (what’s committed vs local-only)</h2>
+<ul>
+<li><strong>Committed source:</strong> compiles and installs clean on <code>safety/post-rescue-2025-11-10</code>.</li>
+<li><strong>Whisper JNI + model files:</strong> <strong>not checked in</strong> by design (license/size). Dev must supply locally if using offline ASR.</li>
+<li><strong>ASR code present:</strong> <code>app/src/main/java/app/chief/app/asr/{AsrEngine.kt,SystemAsrEngine.kt}</code> scaffold is merged.
+  The <strong>NDK/JNI lib and model are optional</strong>, guarded by a DEV flag; the app still builds without them.</li>
+</ul>
+<hr />
+<h2 id="4-files-that-changed-in-the-a2-port-merge">4) Files that changed in the a2-port merge</h2>
+<ul>
+<li>Touched: <code>MainActivity.kt</code>, <code>data/settings/SettingsStore.kt</code>, <code>ui/brief/{BriefScreen.kt, BriefVisualPanel.kt}</code>, <code>ui/common/DevChips.kt</code></li>
+<li>Added: <code>asr/AsrEngine.kt</code>, <code>asr/SystemAsrEngine.kt</code></li>
+<li>Proof artifacts: many under <code>/proof/…</code> (receipts, backups, logs)</li>
+</ul>
+<p>This is why the working base now builds clean and looks right on device.</p>
+<hr />
+<h2 id="5-how-to-reproduce-the-exact-working-state-single-command-blocks">5) How to reproduce the exact working state (single command blocks)</h2>
+<p><strong>Pull working base &amp; install to phone</strong></p>
+<pre><code class="language-bash">cd &quot;$HOME/AndroidStudioProjects/Chief&quot;
+git switch safety/post-rescue-2025-11-10
+git pull --ff-only
+./gradlew clean installDebug
+</code></pre>
+<p><strong>Tag a human-readable rescue lock (optional but recommended)</strong></p>
+<pre><code class="language-bash">cd &quot;$HOME/AndroidStudioProjects/Chief&quot;
+git tag -a safety/rescue-locked-$(date +%Y%m%d-%H%M%S) -m &quot;safety: lock final post-rescue state (phone-verified)&quot;
+git push --tags
+</code></pre>
+<p><strong>Cold restore from the bundle (parachute)</strong></p>
+<pre><code class="language-bash">git clone -b safety/post-rescue-2025-11-10 &quot;/c/Users/User/Desktop/chief-rescue-20251110-180112.bundle&quot; &quot;/c/Users/User/Desktop/chief-rescue-verify&quot;
+printf 'sdk.dir=C:/Users/User/AppData/Local/Android/Sdk\r\n' &gt; &quot;/c/Users/User/Desktop/chief-rescue-verify/local.properties&quot;
+cd &quot;/c/Users/User/Desktop/chief-rescue-verify&quot; &amp;&amp; ./gradlew clean assembleDebug
+</code></pre>
+<hr />
+<h2 id="6-whisper-a2-port-state-constraints">6) Whisper a2-port — state &amp; constraints</h2>
+<ul>
+<li><strong>State:</strong> Core a2-port code merged; app builds without JNI.</li>
+<li><strong>Not committed:</strong> <code>app/src/main/jniLibs/…/libwhisper_jni.so</code> and any model files (e.g., <code>ggml-tiny.en…bin</code>).</li>
+<li><strong>DEV flag:</strong> Offline/NDK Whisper is behind a DEV flag (file-based); default behavior keeps current UX untouched.</li>
+</ul>
+<p><strong>Implication:</strong> If you need <strong>offline ASR</strong> locally, drop the JNI <code>.so</code> and model under your <code>app/src/main/jniLibs/...</code> and <code>filesDir/whisper</code> at runtime. Do <strong>not</strong> commit binaries.</p>
+<hr />
+<h2 id="7-workspace-topology-after-rescue">7) Workspace topology (after rescue)</h2>
+<ul>
+<li><strong>Primary worktree:</strong> <code>~/AndroidStudioProjects/Chief</code> → <code>safety/post-rescue-2025-11-10</code></li>
+<li><strong>Feature worktree (used during PR #6):</strong> <code>~/AndroidStudioProjects/Chief-a2-port</code> → <code>feat/v4.0a2-whisper-core-port</code> (merged).
+  Keep or delete; base already contains the changes.</li>
+</ul>
+<hr />
+<h2 id="8-known-risks-how-well-avoid-another-mess">8) Known risks / how we’ll avoid another mess</h2>
+<ul>
+<li><strong>Risk:</strong> direct pushes to <code>safety/*</code> → <strong>Mitigation:</strong> local pre-push hook (hard stop).</li>
+<li><strong>Risk:</strong> untracked JNI/model <strong>look like missing files</strong> on revisit → <strong>Mitigation:</strong> documented explicitly; treat as dev-local assets.</li>
+<li><strong>Risk:</strong> stash drift → <strong>Mitigation:</strong> we merged the needed stash and tagged; <strong>no active stash is required</strong> for the working base.</li>
+</ul>
+<hr />
+<h2 id="9-next-actions-do-these-in-order">9) Next actions (do these in order)</h2>
+<p><strong>1. Create a fresh feature branch for the next Whisper task.</strong></p>
+<pre><code class="language-bash">cd &quot;$HOME/AndroidStudioProjects/Chief&quot;
+git switch safety/post-rescue-2025-11-10
+git pull --ff-only
+git switch -c feat/v4.0a3-whisper-dev-flag-hardening
+</code></pre>
+<p><strong>2. Run and verify the pre-push protection still blocks <code>safety/*</code>.</strong></p>
+<pre><code class="language-bash">git push --dry-run origin HEAD:refs/heads/safety/test-should-fail
+</code></pre>
+<p><strong>3. Implement ONLY the scoped task (example scope): ensure DEV flag path is bulletproof and cannot affect non-DEV builds.</strong></p>
+<ul>
+<li>Keep all changes inside <code>asr/*</code>, <code>BuildConfig</code> checks, and guarded UI toggles.</li>
+<li>Do <strong>not</strong> touch OAuth, package IDs, or <code>app/build.gradle(.kts)</code>.</li>
+</ul>
+<p><strong>4. Produce receipts.</strong></p>
+<pre><code class="language-bash">mkdir -p proof &amp;&amp; ts=$(date +%Y%m%d-%H%M%S)
+./gradlew clean assembleDebug
+printf &quot;a3-receipt-%s\n&quot; &quot;$ts&quot; &gt; &quot;proof/a3-receipt-$ts.txt&quot;
+git add proof/a3-receipt-$ts.txt &amp;&amp; git commit -m &quot;a3: build receipt $ts&quot;
+git push -u origin HEAD
+</code></pre>
+<p><strong>5. Open a guarded PR into <code>safety/post-rescue-2025-11-10</code>.</strong></p>
+<pre><code class="language-bash">gh pr create \
+  --base safety/post-rescue-2025-11-10 \
+  --head feat/v4.0a3-whisper-dev-flag-hardening \
+  --title &quot;feat: v4.0a3 Whisper DEV flag hardening (guarded)&quot; \
+  --body $'- Scope: tighten DEV flag; no OAuth/package changes\n- Receipts under proof/\n- Do NOT squash; rebase-merge' \
+  --draft
+</code></pre>
+<hr />
+<h2 id="10-if-things-go-sideways">10) If things go sideways</h2>
+<p><strong>Hard reset to phone-verified tag:</strong></p>
+<pre><code class="language-bash">cd &quot;$HOME/AndroidStudioProjects/Chief&quot;
+git fetch --tags
+git switch safety/post-rescue-2025-11-10
+git reset --hard safety/phone-verified-20251110-175828
+./gradlew clean installDebug
+</code></pre>
+<p><strong>Or reclone from the bundle</strong> (Section 5).</p>
+<hr />
+<h2 id="11-hand-off-checklist-for-the-next-gpt">11) Hand-off checklist for the next GPT</h2>
+<ul>
+<li>You are starting from <code>safety/post-rescue-2025-11-10 @ 8abdc3e</code> (phone-verified).</li>
+<li>Never push to <code>safety/*</code>; the hook blocks you; work in <code>feature/*</code> and PR.</li>
+<li>Whisper JNI/model are <strong>local assets</strong>; don’t commit binaries.</li>
+<li>All change scopes must be receipts-backed and minimal.</li>
+<li>If uncertain: tag first, then proceed.</li>
+</ul>
+<hr />
+<p>If you want this pasted straight into the <strong>Worker Handover</strong> page, say the word and I’ll give you the exact one-liner Git Bash command to open the right file in Notepad.</p>
+<hr />
 <h1 id="worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto <strong>app.chief.app</strong>)</h1>
 <h2 id="tldr">TL;DR</h2>
 <ul>
