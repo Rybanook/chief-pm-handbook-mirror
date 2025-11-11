@@ -211,6 +211,63 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a3-whisper-rebuild-ndk-skeleton-dev-mic-ux" class="nav-link">Worker Handover — v4.0a3 Whisper Rebuild (NDK skeleton + DEV mic UX)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#tldr" class="nav-link">TL;DR</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#repos-branches-tags-prs" class="nav-link">Repos, Branches, Tags, PRs</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#scope-completed-this-session" class="nav-link">Scope Completed This Session</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#receipts-proof" class="nav-link">Receipts (Proof)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#whats-still-missing-known-issues" class="nav-link">What’s Still Missing / Known Issues</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#exact-commands-run-chronological-highlights" class="nav-link">Exact Commands Run (chronological highlights)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-code-landmarks" class="nav-link">Current Code Landmarks</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#plan-next-steps-surgical-sequential" class="nav-link">Plan — Next Steps (surgical, sequential)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#guardrails-donottouch-without-pm-checkpoint" class="nav-link">Guardrails (do‑not‑touch without PM checkpoint)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rollback-recovery" class="nav-link">Rollback / Recovery</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-questions-notes-for-pm" class="nav-link">Open Questions / Notes for PM</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#appendix-file-diffs-essentials" class="nav-link">Appendix — File Diffs (essentials)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#status" class="nav-link">Status</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-chief-android-rescue-whisper-a2-port" class="nav-link">Handover — Chief Android (Rescue + Whisper a2-port)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#0-mission" class="nav-link">0) Mission</a>
@@ -266,7 +323,7 @@
             
             <li class="nav-item" data-bs-level="1"><a href="#worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp" class="nav-link">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto app.chief.app)</a>
               <ul class="nav flex-column">
-            <li class="nav-item" data-bs-level="2"><a href="#tldr" class="nav-link">TL;DR</a>
+            <li class="nav-item" data-bs-level="2"><a href="#tldr_1" class="nav-link">TL;DR</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -454,7 +511,7 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#receipts-proof" class="nav-link">Receipts (proof)</a>
+            <li class="nav-item" data-bs-level="2"><a href="#receipts-proof_1" class="nav-link">Receipts (proof)</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -665,6 +722,264 @@
                     <div class="col-md-9" role="main">
 
 <hr />
+<h1 id="worker-handover-v40a3-whisper-rebuild-ndk-skeleton-dev-mic-ux">Worker Handover — v4.0a3 Whisper Rebuild (NDK skeleton + DEV mic UX)</h1>
+<p><strong>Date:</strong> 2025‑11‑10 (America/Vancouver)</p>
+<h2 id="tldr">TL;DR</h2>
+<p>We rebuilt the Whisper JNI <strong>skeleton</strong> inside the <strong>correct Android app repo</strong> and proved the <code>.so</code> is packaged + JNI loads at runtime. DEV flag file is detected (<code>DEV_WHISPER_FLAG=true</code>). <strong>No mic gesture logs appear</strong> because the real tap/long‑press lives on <strong><code>PulseButton</code> in another file</strong>, not where we added <code>DevMicChip</code>. Next worker must move the DEV gesture layer to <code>PulseButton</code> and keep default UX unchanged when the flag is OFF.</p>
+<hr />
+<h2 id="repos-branches-tags-prs">Repos, Branches, Tags, PRs</h2>
+<ul>
+<li><strong>Repo:</strong> <code>chief-android</code> (Android app)</li>
+<li><strong>Safety tag before rebuild:</strong> <code>safety/rescue-locked-20251110-181035</code>  (locked, phone‑verified)</li>
+<li><strong>Current working branch (HEAD):</strong> <code>feat/v4.0a3-whisper-rebuild</code></li>
+<li><strong>Intended PR base:</strong> <code>feat/v4.0-mic-transcribe</code> (confirmed ancestry OK)</li>
+<li><strong>PR:</strong> #7 — <em>“v4.0a3 — Whisper rebuild (NDK skeleton + JNI stubs)”</em> — <strong>Draft</strong></li>
+</ul>
+<h3 id="branch-ancestry-sanity-check-already-run">Branch ancestry sanity check (already run)</h3>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief
+git fetch origin &amp;&amp; git merge-base --is-ancestor origin/feat/v4.0-mic-transcribe HEAD &amp;&amp; echo &quot;OK: correct base&quot; || echo &quot;WRONG: not based&quot;
+# Output earlier: OK: correct base
+</code></pre>
+<hr />
+<h2 id="scope-completed-this-session">Scope Completed This Session</h2>
+<p><strong>Goal met:</strong> Add minimal NDK + JNI stub in correct tree; load at app launch; gate dev behavior behind a file flag; keep default UX unchanged when flag OFF.</p>
+<h3 id="files-added">Files <strong>added</strong></h3>
+<ul>
+<li><code>app/src/main/cpp/CMakeLists.txt</code></li>
+<li><code>app/src/main/cpp/whisper_jni.cpp</code> <em>(stub: logs version “whisper-skel v0”)</em></li>
+<li><code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code> <em>(loads lib, dev flag check, version log)</em></li>
+<li><code>proof/apk-libs.txt</code> <em>(receipt written by command)</em></li>
+</ul>
+<h3 id="files-modified">Files <strong>modified</strong></h3>
+<ul>
+<li>
+<p><code>app/build.gradle.kts</code> — <strong>inside <code>android {}</code> only</strong>:</p>
+</li>
+<li>
+<p><code>externalNativeBuild { cmake { path = file("src/main/cpp/CMakeLists.txt") } }</code></p>
+</li>
+<li><code>defaultConfig { ndk { abiFilters += listOf("arm64-v8a", "x86_64") } }</code></li>
+<li>
+<p><code>app/src/main/java/app/chief/app/MainActivity.kt</code></p>
+</li>
+<li>
+<p><strong>Added</strong>: <code>WhisperEngine.logVersion()</code> call on startup</p>
+</li>
+<li><strong>Temporary DEV mic UI</strong>: <code>DevMicChip()</code> composable overlayed near bottom‑end (for DEV only). <strong>Note:</strong> Actual app interaction occurs through <code>PulseButton</code>; see “Known Issues”.</li>
+</ul>
+<blockquote>
+<p>Guardrail honored: <strong>No edits</strong> to OAuth, package/app IDs, or unrelated Gradle blocks.</p>
+</blockquote>
+<hr />
+<h2 id="receipts-proof">Receipts (Proof)</h2>
+<h3 id="build">Build</h3>
+<pre><code>./gradlew :app:assembleDebug
+→ BUILD SUCCESSFUL
+</code></pre>
+<h3 id="apk-contains-jni-libs">APK contains JNI libs</h3>
+<pre><code>zipinfo -1 app/build/outputs/apk/debug/app-debug.apk | grep libwhisper_jni.so
+lib/arm64-v8a/libwhisper_jni.so
+lib/x86_64/libwhisper_jni.so
+</code></pre>
+<h3 id="runtime-logs-launch">Runtime logs (launch)</h3>
+<pre><code>WhisperJNI: Whisper JNI loaded
+WhisperEngine: version=whisper-skel v0
+WhisperEngine: DEV_WHISPER_FLAG=true
+</code></pre>
+<h3 id="dev-flag-creation-works">DEV flag creation (works)</h3>
+<pre><code>adb shell run-as app.chief.app &quot;mkdir -p files/whisper &amp;&amp; touch files/whisper/USE_WHISPER_DEV&quot;
+</code></pre>
+<p>Flag OFF/ON toggles <code>DEV_WHISPER_FLAG</code> correctly in log.</p>
+<hr />
+<h2 id="whats-still-missing-known-issues">What’s Still Missing / Known Issues</h2>
+<ol>
+<li><strong>Gestures not firing:</strong> No <code>Mic{state=…}</code> logs appear on press/long‑press. Root cause: the live press target is the <strong>PulseButton</strong> component in a <strong>separate file</strong>. Our <code>DevMicChip</code> is rendered, but <strong>touch events are consumed by PulseButton</strong>, so our handler never triggers.</li>
+<li><strong>No recording yet:</strong> We intentionally haven’t wired <code>AudioRecord</code> or Whisper core. This is skeleton‑phase only.</li>
+<li><strong>No model handling yet:</strong> No <code>ggml</code> model load. DEV flag exists; model path staging will come in the next sub‑phase.</li>
+</ol>
+<hr />
+<h2 id="exact-commands-run-chronological-highlights">Exact Commands Run (chronological highlights)</h2>
+<pre><code class="language-bash"># Safety tag + branch
+cd ~/AndroidStudioProjects/Chief
+git tag -a safety/rescue-locked-$(date +%Y%m%d-%H%M%S) -m &quot;safety: lock final post-rescue state (phone-verified)&quot; &amp;&amp; git push --tags
+git switch -c feat/v4.0a3-whisper-rebuild safety/post-rescue-2025-11-10
+
+# Base ancestry sanity
+git fetch origin &amp;&amp; git merge-base --is-ancestor origin/feat/v4.0-mic-transcribe HEAD &amp;&amp; echo &quot;OK: correct base&quot; || echo &quot;WRONG: not based&quot;
+
+# Build sanity pre-NDK
+./gradlew :app:installDebug  # green
+
+# NDK skeleton check (initially missing)
+{ test -f app/src/main/cpp/CMakeLists.txt &amp;&amp; echo CMAKE=FOUND || echo CMAKE=MISSING; \
+  test -f app/src/main/cpp/whisper_jni.cpp &amp;&amp; echo JNI=FOUND || echo JNI=MISSING; \
+  grep -R &quot;externalNativeBuild&quot; -n app/build.gradle* &gt;/dev/null &amp;&amp; echo GRADLE_EXTN=FOUND || echo GRADLE_EXTN=MISSING; }
+
+# After edits — build + receipts
+./gradlew :app:assembleDebug
+zipinfo -1 app/build/outputs/apk/debug/app-debug.apk | grep libwhisper_jni.so | tee proof/apk-libs.txt
+
+# Install + runtime logs
+./gradlew :app:installDebug
+adb logcat -c &amp;&amp; adb logcat -v time | grep -E &quot;WhisperJNI|WhisperEngine|Mic\{state|ASR\{&quot; -m 10
+
+# DEV flag
+adb shell run-as app.chief.app &quot;mkdir -p files/whisper &amp;&amp; touch files/whisper/USE_WHISPER_DEV&quot;
+
+# Port reverse (backend)
+adb reverse tcp:8080 tcp:8080
+adb reverse --list  # shows UsbFfs tcp:8080 tcp:8080
+
+# PR
+git push -u origin feat/v4.0a3-whisper-rebuild
+gh pr create \
+  --base feat/v4.0-mic-transcribe \
+  --head feat/v4.0a3-whisper-rebuild \
+  --title &quot;v4.0a3 — Whisper rebuild (NDK skeleton + JNI stubs)&quot; \
+  --body  &quot;Scope: NDK skeleton + JNI stubs behind dev flag. Gradle: add externalNativeBuild.cmake path and ndk { abiFilters }. No OAuth/package/app ID changes.&quot; \
+  --draft
+</code></pre>
+<hr />
+<h2 id="current-code-landmarks">Current Code Landmarks</h2>
+<ul>
+<li>
+<p><strong>JNI entry points (stub):</strong> <code>app/src/main/cpp/whisper_jni.cpp</code></p>
+</li>
+<li>
+<p><code>Java_app_chief_app_speech_WhisperEngine_nativeInit</code></p>
+</li>
+<li><code>Java_app_chief_app_speech_WhisperEngine_nativeVersion</code></li>
+<li>
+<p><strong>Kotlin wrapper:</strong> <code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code></p>
+</li>
+<li>
+<p><code>isDevEnabled(context)</code> checks <code>files/whisper/USE_WHISPER_DEV</code></p>
+</li>
+<li><code>logVersion()</code> logs JNI load + version at app start</li>
+<li><strong>MainActivity hook:</strong> <code>WhisperEngine.logVersion()</code> called in <code>onCreate()</code></li>
+<li><strong>DEV UI shim:</strong> <code>DevMicChip()</code> composable rendered near bottom‑end (overlay). <strong>But active UX is <code>PulseButton</code> elsewhere.</strong></li>
+</ul>
+<hr />
+<h2 id="plan-next-steps-surgical-sequential">Plan — Next Steps (surgical, sequential)</h2>
+<ol>
+<li>
+<p><strong>Locate PulseButton source</strong></p>
+</li>
+<li>
+<p>Search: <code>grep -R --line-number --ignore-case "PulseButton" app/src/main/java</code></p>
+</li>
+<li>Confirm the composable and where it’s placed on the Brief screen.</li>
+<li>
+<p><strong>Move DEV gesture layer onto PulseButton</strong> (guarded by DEV flag)</p>
+</li>
+<li>
+<p>Add <code>combinedClickable(onLongClick=…, onClick=…)</code> to the <strong>actual</strong> PulseButton composable.</p>
+</li>
+<li>
+<p>Behavior when <code>USE_WHISPER_DEV</code> exists:</p>
+<ul>
+<li><strong>Long‑press:</strong> log <code>Mic{state=START, engine=whisper, sr=16000}</code> and set <code>isRecording=true</code>.</li>
+<li><strong>Tap while recording:</strong> log <code>Mic{state=STOP}</code> and set <code>isRecording=false</code>.</li>
+<li><strong>Tap when idle:</strong> keep existing “Play Brief” flow untouched.</li>
+<li>When flag is <strong>OFF</strong>: PulseButton must behave exactly as today (no gesture override/logs).</li>
+<li><strong>Verify gesture logs</strong></li>
+</ul>
+</li>
+<li>
+<p><code>adb logcat -c &amp;&amp; adb logcat -v time | grep -E "DEV_WHISPER_FLAG|Mic\{state|ASR\{" -m 12</code></p>
+</li>
+<li>Long‑press → expect START; tap → STOP.</li>
+<li>
+<p><strong>(Then) Add minimal AudioRecord (DEV only)</strong></p>
+</li>
+<li>
+<p>16 kHz mono PCM16, 30s cap, ~2s silence timeout.</p>
+</li>
+<li>Feed a fixed dummy short array into <code>WhisperEngine.transcribe()</code> (return stubbed "…") until core is linked.</li>
+<li>
+<p><strong>Whisper core integration</strong> <em>(separate PR or sub‑branch)</em></p>
+</li>
+<li>
+<p>Vendor minimal <code>third_party/whisper.cpp</code> sources; extend CMake to link static lib; add JNI methods: <code>nativeLoadModel</code>, <code>nativeTranscribe</code>.</p>
+</li>
+<li>Model file path (DEV only): <code>&lt;app files&gt;/whisper/ggml-tiny.en-q5_1.bin</code>.</li>
+</ol>
+<hr />
+<h2 id="guardrails-donottouch-without-pm-checkpoint">Guardrails (do‑not‑touch without PM checkpoint)</h2>
+<ul>
+<li><strong>OAuth/auth files</strong> and scopes</li>
+<li><strong>Package/application IDs</strong></li>
+<li><strong><code>app/build.gradle(.kts)</code></strong> beyond the <strong>explicit</strong> NDK lines above</li>
+<li>Any rename of modules/packages</li>
+</ul>
+<p>Create a checkpoint tag <strong>before</strong> any additional Gradle or NDK edits.</p>
+<hr />
+<h2 id="rollback-recovery">Rollback / Recovery</h2>
+<ul>
+<li>To revert to the locked safety state:</li>
+</ul>
+<pre><code class="language-bash">git fetch --tags
+git switch safety/post-rescue-2025-11-10
+# or check out the exact safety tag created at 18:10:35 on 2025‑11‑10
+</code></pre>
+<ul>
+<li>To drop local JNI skeleton while keeping branch:</li>
+</ul>
+<pre><code class="language-bash">git revert &lt;commit-sha-of-ndk-skeleton&gt;
+</code></pre>
+<hr />
+<h2 id="open-questions-notes-for-pm">Open Questions / Notes for PM</h2>
+<ul>
+<li>Confirm exact file/location of <code>PulseButton</code> and whether it’s used across multiple screens.</li>
+<li>Define acceptance receipts for DEV mic in PulseButton (START/STOP logs, no behavior change when flag OFF).</li>
+<li>Approve next sub‑phase: minimal <code>AudioRecord</code> capture and stubbed <code>transcribe()</code> logging.</li>
+</ul>
+<hr />
+<h2 id="appendix-file-diffs-essentials">Appendix — File Diffs (essentials)</h2>
+<p><strong><code>app/build.gradle.kts</code> additions (inside <code>android { }</code>):</strong></p>
+<pre><code class="language-kts">externalNativeBuild {
+    cmake { path = file(&quot;src/main/cpp/CMakeLists.txt&quot;) }
+}
+
+defaultConfig {
+    ndk { abiFilters += listOf(&quot;arm64-v8a&quot;, &quot;x86_64&quot;) }
+}
+</code></pre>
+<p><strong><code>app/src/main/cpp/CMakeLists.txt</code>:</strong></p>
+<pre><code class="language-cmake">cmake_minimum_required(VERSION 3.22)
+project(whisper_jni)
+add_library(whisper_jni SHARED whisper_jni.cpp)
+find_library(log-lib log)
+target_link_libraries(whisper_jni ${log-lib})
+</code></pre>
+<p><strong><code>app/src/main/cpp/whisper_jni.cpp</code> (skeleton):</strong></p>
+<pre><code class="language-cpp">#include &lt;jni.h&gt;
+#include &lt;android/log.h&gt;
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, &quot;WhisperJNI&quot;, __VA_ARGS__)
+extern &quot;C&quot; JNIEXPORT void JNICALL
+Java_app_chief_app_speech_WhisperEngine_nativeInit(JNIEnv*, jobject) { LOGI(&quot;Whisper JNI loaded&quot;); }
+extern &quot;C&quot; JNIEXPORT jstring JNICALL
+Java_app_chief_app_speech_WhisperEngine_nativeVersion(JNIEnv* env, jobject) { return env-&gt;NewStringUTF(&quot;whisper-skel v0&quot;); }
+</code></pre>
+<p><strong><code>WhisperEngine.kt</code> (key bits):</strong></p>
+<pre><code class="language-kotlin">object WhisperEngine {
+    init { try { System.loadLibrary(&quot;whisper_jni&quot;) } catch (_: Throwable) {} }
+    @JvmStatic external fun nativeInit()
+    @JvmStatic external fun nativeVersion(): String
+    fun isDevEnabled(ctx: Context): Boolean = File(ctx.filesDir, &quot;whisper/USE_WHISPER_DEV&quot;).exists()
+    fun logVersion() { try { nativeInit(); Log.i(&quot;WhisperEngine&quot;, &quot;version=&quot; + nativeVersion()) } catch (_: Throwable) {} }
+}
+</code></pre>
+<hr />
+<h2 id="status">Status</h2>
+<ul>
+<li>✅ JNI skeleton packaged and loads</li>
+<li>✅ DEV flag detected</li>
+<li>✅ PR draft open (#7)</li>
+<li>⚠️ Gesture logs missing — <strong>correct target is <code>PulseButton</code> file (separate)</strong></li>
+<li>⏭ Next: move gesture layer to PulseButton under DEV flag, then add minimal <code>AudioRecord</code> (DEV only)</li>
+</ul>
+<hr />
 <h1 id="handover-chief-android-rescue-whisper-a2-port">Handover — Chief Android (Rescue + Whisper a2-port)</h1>
 <h2 id="0-mission">0) Mission</h2>
 <p>Protect the working build, keep <code>safety/*</code> pristine, and continue Whisper a2-port work only via feature → guarded PR. Zero cowboy edits.</p>
@@ -815,7 +1130,7 @@ git reset --hard safety/phone-verified-20251110-175828
 <p>If you want this pasted straight into the <strong>Worker Handover</strong> page, say the word and I’ll give you the exact one-liner Git Bash command to open the right file in Notepad.</p>
 <hr />
 <h1 id="worker-handover-v40a2-mic-ux-dev-flag-whisper-reset-onto-appchiefapp">Worker Handover — v4.0a.2 Mic UX (DEV flag) + Whisper (reset onto <strong>app.chief.app</strong>)</h1>
-<h2 id="tldr">TL;DR</h2>
+<h2 id="tldr_1">TL;DR</h2>
 <ul>
 <li>The only package we ship and care about is <strong><code>app.chief.app</code></strong>.</li>
 <li>The device is now clean of the legacy <strong><code>app.chief.android</code></strong>.</li>
@@ -1597,7 +1912,7 @@ cd ~/AndroidStudioProjects/Chief &amp;&amp; ./gradlew :app:installDebug
 <li>This allows QA to re-trigger first-run greet to test gates (Silent/Quiet Hours).</li>
 </ul>
 <hr />
-<h2 id="receipts-proof">Receipts (proof)</h2>
+<h2 id="receipts-proof_1">Receipts (proof)</h2>
 <h3 id="backend-curl-beforeafter">Backend — curl before/after</h3>
 <p><strong>Before</strong> (no <code>updatedAt</code>):</p>
 <pre><code>curl -s -H &quot;x-user-id: dev&quot; http://localhost:8080/profile
