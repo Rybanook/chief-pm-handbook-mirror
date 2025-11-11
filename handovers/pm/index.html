@@ -211,7 +211,7 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
-            <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover-extended-exhaustive" class="nav-link">Chief — Project Manager Handover (Extended &amp; Exhaustive)</a>
+            <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover" class="nav-link">Chief — Project Manager Handover</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-project-overview" class="nav-link">1) Project Overview</a>
               <ul class="nav flex-column">
@@ -230,6 +230,55 @@
               </ul>
             </li>
             <li class="nav-item" data-bs-level="2"><a href="#5-architecture-system-overview" class="nav-link">5) Architecture &amp; System Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-recent-changes-reasoning" class="nav-link">6) Recent Changes &amp; Reasoning</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-open-tasks-priorities" class="nav-link">7) Open Tasks &amp; Priorities</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-risks-warnings" class="nav-link">8) Risks &amp; Warnings</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-continuity-protocol-exact-resume-steps" class="nav-link">9) Continuity Protocol (exact resume steps)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-appendices" class="nav-link">10) Appendices</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#final-word-to-the-next-pm" class="nav-link">Final word to the next PM</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover-extended-exhaustive" class="nav-link">Chief — Project Manager Handover (Extended &amp; Exhaustive)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-project-overview_1" class="nav-link">1) Project Overview</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-state-of-development_1" class="nav-link">2) State of Development</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-workflow-collaboration-protocol_1" class="nav-link">3) Workflow &amp; Collaboration Protocol</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-communication-style-tone_1" class="nav-link">4) Communication Style &amp; Tone</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-architecture-system-overview_1" class="nav-link">5) Architecture &amp; System Overview</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -338,12 +387,385 @@
                     <div class="col-md-9" role="main">
 
 <hr />
+<h1 id="chief-project-manager-handover">Chief — Project Manager Handover</h1>
+<p>This is the definitive, single-source handover for the next PM GPT. If this were the only artifact left, you could reopen the build and run it like I do—no gaps, no guesswork. It marks <strong>CURRENT</strong> vs <strong>LEGACY</strong> everywhere so nothing old leaks forward.</p>
+<hr />
+<h2 id="1-project-overview">1) Project Overview</h2>
+<p><strong>What this is</strong>
+Chief is a calm, voice-first personal assistant that reads your real Google Calendar, speaks natural briefs, and (next) lets you talk casually so Chief drafts → confirms → writes events. It values truth over flash, privacy over convenience, and zero silent changes.</p>
+<p><strong>Mission &amp; personality</strong></p>
+<ul>
+<li>Calm, precise, respectful; never frantic.</li>
+<li>Always truthful about what it did vs what you asked.</li>
+<li>Ask before writing; confirm outcomes; no surprises.</li>
+<li>Respect <strong>Silent Mode</strong> + <strong>Quiet Hours</strong> (global audio gate).</li>
+<li>Celebrate small wins with “Boom.” and move on.</li>
+</ul>
+<p><strong>CURRENT guiding principles</strong></p>
+<ul>
+<li><strong>Confirm → then write.</strong> No silent writes—ever.</li>
+<li><strong>Receipts not videos.</strong> PM decisions rely on concise text receipts.</li>
+<li><strong>Tiny, reversible diffs.</strong></li>
+<li><strong>Auth freeze by default.</strong> Touch OAuth only with file-in-hand review + one-line change summary.</li>
+<li><strong>America/Vancouver TZ</strong> correctness across device/server.</li>
+<li><strong>Phase gates.</strong> Don’t mix scopes.</li>
+</ul>
+<p><strong>LEGACY (replaced)</strong></p>
+<ul>
+<li>Video-based acceptance as required proof → <strong>replaced</strong> by text receipts.</li>
+<li>System SpeechRecognizer as “the solution” → <strong>reduced</strong> to DEV fallback; Whisper on-device is the target.</li>
+<li>“Quick auth tweaks” mid-phase → <strong>forbidden</strong> without explicit PM + file review.</li>
+</ul>
+<hr />
+<h2 id="2-state-of-development">2) State of Development</h2>
+<p><strong>Shipped &amp; accepted</strong></p>
+<ul>
+<li>
+<p><strong>v3.9 — Onboarding Greeting (first-run, gated)</strong></p>
+</li>
+<li>
+<p>Plays once if not Silent/Quiet; otherwise text only.</p>
+</li>
+<li>DEV-only “Reset onboarding” exists; no auth/package changes.</li>
+<li>
+<p>Tags (Android/Backend):</p>
+<ul>
+<li><code>v3.9-onboarding-polish-accepted-2025-11-09</code></li>
+<li><code>v3.9-profile-updatedAt-accepted-2025-11-09</code></li>
+<li><strong>v4.0a.0 — Mic &amp; Transcribe (system ASR prototype)</strong></li>
+</ul>
+</li>
+<li>
+<p>Mic pipeline with simple VAD; in-memory preview; logs <code>ASR{...}</code>; no writes.</p>
+</li>
+<li>PR opened into the 4.0 integration base.</li>
+<li>
+<p><strong>v4.0a.1 — Whisper NDK skeleton (JNI only)</strong></p>
+</li>
+<li>
+<p>JNI loads, version logs, <code>.so</code> ships; no behavior change.</p>
+</li>
+<li>Tag after merge: <code>v4.0a1-whisper-ndk-skel-accepted-2025-11-10</code>.</li>
+</ul>
+<p><strong>In progress / queued</strong></p>
+<ul>
+<li>
+<p><strong>v4.0a.2 — Whisper core (offline transcript, DEV flag)</strong> ← <strong>NEXT ACTIVE</strong></p>
+</li>
+<li>
+<p>Vendor <code>whisper.cpp</code>, <code>nativeLoadModel</code>, <code>nativeTranscribe</code>, DEV model path, flag-controlled.</p>
+</li>
+</ul>
+<p><strong>Upcoming</strong></p>
+<ul>
+<li><strong>v4.0b — Parse → EventDraft (rules-first; LLM optional behind DEV flag).</strong></li>
+<li><strong>v4.0c — Calendar Write</strong> (requires OAuth file review; confirm before commit).</li>
+<li><strong>v4.1 — Replies (template-first NLG + TTS)</strong>.</li>
+</ul>
+<p><strong>Known working today</strong></p>
+<ul>
+<li>Sign-in flows; briefs (Pulse) play; Silent/Quiet chips; onboarding once-only; system mic prototype.</li>
+</ul>
+<p><strong>Open nits (non-blocking, P2)</strong></p>
+<ul>
+<li>Brief screen <strong>Chat button</strong> entry missing (UI parity).</li>
+<li>Onboarding greet after DEV reset had one flaky report (re-verify gating + persistence).</li>
+</ul>
+<hr />
+<h2 id="3-workflow-collaboration-protocol">3) Workflow &amp; Collaboration Protocol</h2>
+<p><strong>Role lanes</strong></p>
+<ul>
+<li><strong>PM (you):</strong> Scope guard, phase gates, directives, acceptance, tagging. Push back firmly.</li>
+<li><strong>Worker GPT:</strong> Executes one directive at a time; posts receipts; no speculative edits.</li>
+<li><strong>User (Ryley):</strong> Product owner; time-boxed reviews; explicit approvals for hot areas (OAuth/Gradle).</li>
+</ul>
+<p><strong>One-step rhythm</strong></p>
+<ul>
+<li>PM issues <strong>one</strong> directive → Worker executes → attaches <strong>text receipts</strong> → PM accepts or bounces with a tiny fix. Repeat.</li>
+</ul>
+<p><strong>Proof/acceptance (receipts standard)</strong></p>
+<ul>
+<li>ADB/console lines that show <strong>one clean run</strong>: precondition → action → result.</li>
+<li>Branch/base explicitly stated; scope + risk note in PR body.</li>
+<li>No videos required for PM decisions (optional for the team).</li>
+</ul>
+<p><strong>Safety before speed</strong></p>
+<ul>
+<li>Checkpoint tags before high-risk edits (NDK/Gradle).</li>
+<li>No OAuth touches without file-in-hand diff + one-line change description.</li>
+<li>Small PRs; never bundle.</li>
+</ul>
+<p><strong>Truth over momentum</strong></p>
+<ul>
+<li>If something’s unknown, say it; propose how to verify.</li>
+<li>Don’t guess. Don’t hide instability. We fix root causes.</li>
+</ul>
+<hr />
+<h2 id="4-communication-style-tone">4) Communication Style &amp; Tone</h2>
+<ul>
+<li>Direct, warm, grounded. No fluff.</li>
+<li>Push back when scope leaks or risk rises; explain why in one sentence.</li>
+<li>Praise is brief (“Boom.”) to mark progress; then next step.</li>
+<li>Ask at most <strong>one</strong> clarifying question when needed.</li>
+</ul>
+<hr />
+<h2 id="5-architecture-system-overview">5) Architecture &amp; System Overview</h2>
+<p><strong>High-level</strong></p>
+<ul>
+<li>
+<p><strong>Android app (Compose/Media3)</strong></p>
+</li>
+<li>
+<p>Core screens: Home/Brief, Onboarding modal, Chat (entry pending).</p>
+</li>
+<li>Global audio gate: <strong>Silent Mode OR Quiet Hours</strong> blocks speech.</li>
+<li>Speech: ExoPlayer for TTS playback; mic pipeline for ASR.</li>
+<li>Upcoming: <code>WhisperEngine</code> JNI bridge.</li>
+<li>
+<p><strong>Backend (Node/Express)</strong></p>
+</li>
+<li>
+<p>Endpoints in play:</p>
+<ul>
+<li><code>/profile</code> GET/POST (partial upsert; returns <code>updatedAt</code>).</li>
+<li><code>/onboarding/greet</code> → persona/SSML/text.</li>
+<li>TTS internal route (ElevenLabs primary; Google fallback).</li>
+<li>Planned: <code>/calendar/create</code> (after OAuth file review).</li>
+<li><strong>Identity / headers</strong></li>
+</ul>
+</li>
+<li>
+<p>Device UUID via <code>x-user-id</code>.</p>
+</li>
+<li><strong>Auth is frozen</strong> unless we review the exact files.</li>
+</ul>
+<p><strong>Data flow (current &amp; planned)</strong></p>
+<ul>
+<li><strong>Briefs</strong>: app → backend → TTS → playback; respects gate.</li>
+<li><strong>Mic</strong>: device mic → ASR (system or Whisper) → transcript preview.</li>
+<li><strong>Intent (planned)</strong>: transcript → rules parser → <strong>EventDraft</strong> → confirm → write (backend) → reply.</li>
+</ul>
+<p><strong>CURRENT architectural rules</strong></p>
+<ul>
+<li>Deterministic first; LLM only as bounded helper (DEV flag) with strict JSON schema.</li>
+<li>Confirm before any side-effect; idempotency for writes; de-dupe by <code>title+start±5m</code>.</li>
+<li>TZ correctness: America/Vancouver end-to-end.</li>
+</ul>
+<p><strong>LEGACY / retired</strong></p>
+<ul>
+<li>Video-only verification, autoplay without gating, scope-mixing PRs, mid-phase OAuth edits.</li>
+</ul>
+<hr />
+<h2 id="6-recent-changes-reasoning">6) Recent Changes &amp; Reasoning</h2>
+<ul>
+<li><strong>Receipts over videos:</strong> faster PM review; durable and searchable; avoids “can’t watch clip” gaps.</li>
+<li><strong>Whisper path:</strong> privacy + reliability &gt; cloud convenience; system ASR stays as fallback behind a flag.</li>
+<li><strong>Onboarding once-only:</strong> prevents noisy UX; DEV reset exists for QA.</li>
+<li><strong>Branching discipline:</strong> per-phase integration branch (e.g., <code>feat/v4.0-mic-transcribe</code>) to stack PRs safely.</li>
+<li><strong>Auth freeze:</strong> prior breakages showed risk; now file-review gate prevents accidental scope changes.</li>
+</ul>
+<hr />
+<h2 id="7-open-tasks-priorities">7) Open Tasks &amp; Priorities</h2>
+<p><strong>Active (do now)</strong></p>
+<ol>
+<li>
+<p><strong>v4.0a.2 — Whisper core (offline transcript, DEV) — Worker</strong></p>
+</li>
+<li>
+<p>Vendor whisper.cpp, load model from app files, <code>nativeTranscribe</code>, flag-switched pipeline.</p>
+</li>
+<li>Receipts: model loaded, <code>ASR{engine=whisper,…}</code> log, preview shows text, system path still works when flag off.</li>
+<li><strong>PM</strong> accepts and tags.</li>
+</ol>
+<p><strong>Next after a2</strong>
+2) <strong>v4.0b — Parse → EventDraft</strong> — Worker</p>
+<ul>
+<li>Rules-first extractors (java.time + patterns) for dates/times/relatives, location, title.</li>
+<li>Draft schema with <code>dedupeKey</code> and <code>idempotencyKey</code>.</li>
+<li>UI confirm/edit.</li>
+<li>
+<p>Receipts: 10 utterances → correct drafts.</p>
+</li>
+<li>
+<p><strong>v4.0c — Calendar Write (safe)</strong> — PM + Worker + User</p>
+</li>
+<li>
+<p>User shares OAuth files; PM states one-line change; Worker implements <code>/calendar/create</code> with idempotency.</p>
+</li>
+<li>Receipts: 10 varied utterances write correct events; dups prevented; IDs logged.</li>
+</ul>
+<p><strong>Backlog (P2—do between or after a2)</strong></p>
+<ul>
+<li>Restore <strong>Chat</strong> button entry on Brief screen.</li>
+<li>Investigate <strong>greet after DEV reset</strong> flakiness.</li>
+</ul>
+<p><strong>Parking lot (future phases)</strong></p>
+<ul>
+<li><strong>v4.1 Replies (template-first NLG + SSML)</strong></li>
+<li><strong>v4.2 Intent Brain (LLM assist, DEV flag)</strong></li>
+<li><strong>v4.3 Follow-ups (reminders, messages)</strong></li>
+</ul>
+<hr />
+<h2 id="8-risks-warnings">8) Risks &amp; Warnings</h2>
+<ul>
+<li>
+<p><strong>High-risk files</strong>: <code>app/build.gradle(.kts)</code>, OAuth config, package/app IDs.</p>
+</li>
+<li>
+<p><strong>Rule:</strong> create a checkpoint tag before edits; get PM ✅ with one-line change summary.</p>
+</li>
+<li><strong>Bundling changes</strong>: multiple subsystems in one PR → reject. Keep diffs minimal.</li>
+<li><strong>Silent/Quiet bypass</strong>: don’t play audio through the gate—ever.</li>
+<li><strong>Timezone drift</strong>: never rely on device locale strings; use <code>java.time</code> consistently.</li>
+<li><strong>LLM creep</strong>: keep off in release; DEV flag only until rules path is solid.</li>
+<li><strong>Merging to <code>main</code> prematurely</strong>: keep phase work on the integration base until PM tags it.</li>
+</ul>
+<hr />
+<h2 id="9-continuity-protocol-exact-resume-steps">9) Continuity Protocol (exact resume steps)</h2>
+<ol>
+<li>
+<p><strong>Anchor on branches/tags</strong></p>
+</li>
+<li>
+<p>Integration base: <code>feat/v4.0-mic-transcribe</code> (head contains a1).</p>
+</li>
+<li>Next head: <code>feat/v4.0a2-whisper-core</code>.</li>
+<li>
+<p>Recent tags:</p>
+<ul>
+<li><code>v3.9-onboarding-polish-accepted-2025-11-09</code></li>
+<li><code>v3.9-profile-updatedAt-accepted-2025-11-09</code></li>
+<li><code>v4.0a1-whisper-ndk-skel-accepted-2025-11-10</code></li>
+</ul>
+</li>
+<li>
+<p><strong>Environment sanity</strong></p>
+</li>
+<li>
+<p>[BACKEND] <code>node server.cjs</code> (reverse if needed):
+     <code>adb reverse tcp:8080 tcp:8080</code></p>
+</li>
+<li>[ANDROID] <code>./gradlew :app:installDebug</code> and run.</li>
+<li>
+<p>Confirm Silent/Quiet chips show and gate works.</p>
+</li>
+<li>
+<p><strong>Issue the directive</strong></p>
+</li>
+<li>
+<p>Give Worker <strong>one</strong> directive: <strong>v4.0a.2 Whisper core</strong> (as in §7).</p>
+</li>
+<li>
+<p>Require receipts (model load log + <code>ASR{engine=whisper,…}</code> + system fallback proof).</p>
+</li>
+<li>
+<p><strong>Acceptance &amp; tag</strong></p>
+</li>
+<li>
+<p>PM reviews receipts; stamps; tags integration base.</p>
+</li>
+<li>
+<p>Queue <strong>v4.0b Parse → Draft</strong>.</p>
+</li>
+<li>
+<p><strong>Handover hygiene</strong></p>
+</li>
+<li>
+<p>When this chat nears ~75–80%, post a compact delta to the PM/Worker handover pages (no new pages).</p>
+</li>
+</ol>
+<hr />
+<h2 id="10-appendices">10) Appendices</h2>
+<p><strong>A) Repos &amp; paths</strong></p>
+<ul>
+<li>Android: <code>~/AndroidStudioProjects/Chief</code></li>
+<li>Backend: <code>~/AndroidStudioProjects/chief-tts-backend</code></li>
+</ul>
+<p><strong>B) Common commands</strong></p>
+<ul>
+<li>ADB reverse:
+  <code>adb reverse tcp:8080 tcp:8080</code></li>
+<li>Build/install Android:
+  <code>./gradlew :app:assembleDebug</code>
+  <code>./gradlew :app:installDebug</code></li>
+<li>Log capture:
+  <code>adb logcat -c &amp;&amp; adb logcat -v time | tee proof/run.txt</code></li>
+<li>Check APK libs:
+  <code>zipinfo -1 app/build/outputs/apk/debug/app-debug.apk | grep libwhisper_jni.so</code></li>
+</ul>
+<p><strong>C) PR receipts template (paste into PR)</strong></p>
+<pre><code>Scope: &lt;Android-only | Backend-only&gt;; no auth/package changes
+Base/Head: &lt;base&gt; ← &lt;head&gt;
+Receipts:
+- Build: BUILD SUCCESSFUL
+- Logs (key lines): &lt;3–8 lines proving precondition → action → result&gt;
+- Risk: &lt;DEBUG-only | no runtime change | behavior change&gt;
+</code></pre>
+<p><strong>D) Branching &amp; tags</strong></p>
+<ul>
+<li>Phase integration base: <code>feat/v&lt;phase&gt;-&lt;name&gt;</code></li>
+<li>Work heads: <code>feat/v&lt;phase&gt;&lt;letter&gt;-&lt;scope&gt;</code></li>
+<li>Tags: <code>&lt;phase&gt;-&lt;scope&gt;-accepted-YYYY-MM-DD</code></li>
+</ul>
+<p><strong>E) Roles</strong></p>
+<ul>
+<li><strong>PM:</strong> scope, directives, acceptance, tags, guardrails (auth/gradle gates).</li>
+<li><strong>Worker:</strong> executes one directive; posts receipts; no speculation.</li>
+<li><strong>User (Ryley):</strong> approves risky areas (OAuth/Gradle), provides files, keeps priorities honest.</li>
+</ul>
+<hr />
+<h3 id="current-vs-legacy-quick-map">CURRENT vs LEGACY Quick Map</h3>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>CURRENT</th>
+<th>LEGACY (do not follow)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acceptance proof</td>
+<td>Text receipts (logs)</td>
+<td>Mandatory videos</td>
+</tr>
+<tr>
+<td>Audio policy</td>
+<td>Global gate: Silent OR Quiet</td>
+<td>Ungated autoplay</td>
+</tr>
+<tr>
+<td>ASR strategy</td>
+<td>Whisper offline (DEV flag while landing)</td>
+<td>System ASR as final</td>
+</tr>
+<tr>
+<td>Writes</td>
+<td>Confirm → Execute → Receipt</td>
+<td>Silent/implicit writes</td>
+</tr>
+<tr>
+<td>Auth changes</td>
+<td>File-in-hand review + one-line change</td>
+<td>“Quick tweaks” mid-phase</td>
+</tr>
+<tr>
+<td>Branching</td>
+<td>Phase integration base + stacked PRs</td>
+<td>PRs straight to <code>main</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="final-word-to-the-next-pm">Final word to the next PM</h2>
+<p>Stay narrow, protect scope, and demand receipts. We’re mid-stride on <strong>v4.0 Mic → Draft → Write</strong>. Your first move is to run <strong>v4.0a.2 Whisper core</strong> exactly as specified, accept on receipts, tag, and then advance to <strong>v4.0b</strong>. Keep OAuth frozen until 4.0c with file review. If something smells off, stop and say it—then fix it cleanly. Boom.</p>
+<hr />
 <h1 id="chief-project-manager-handover-extended-exhaustive">Chief — Project Manager Handover (Extended &amp; Exhaustive)</h1>
 <blockquote>
 <p>This is the full memory. If this were the only surviving doc, a new PM GPT could take over instantly and run Chief exactly as I do—same priorities, tone, guardrails, and next steps. Every idea is marked <strong>CURRENT</strong> or <strong>LEGACY</strong> so nothing old gets mistaken for truth.</p>
 </blockquote>
 <hr />
-<h2 id="1-project-overview">1) Project Overview</h2>
+<h2 id="1-project-overview_1">1) Project Overview</h2>
 <p><strong>What Chief is</strong>
 A calm, truthful chief-of-staff that reads your real calendar, speaks or types concise briefs, and keeps life on track with minimal interruptions.</p>
 <p><strong>Why it exists</strong>
@@ -358,7 +780,7 @@ Calm, grounded, efficient; short replies; truth &gt; momentum; include a brief �
 <li><strong>LEGACY (retired):</strong> Always-on listening; heavy Life Graph inside v3.9; duplicating Google Calendar alerts; name personalization in v3.9; multi-task worker asks; scope changes without explicit labels.</li>
 </ul>
 <hr />
-<h2 id="2-state-of-development">2) State of Development</h2>
+<h2 id="2-state-of-development_1">2) State of Development</h2>
 <p><strong>Built / Verified</strong></p>
 <ul>
 <li>OAuth truthful brief (prior phase).</li>
@@ -384,7 +806,7 @@ Calm, grounded, efficient; short replies; truth &gt; momentum; include a brief �
 <li>v4.1 Reflection; v4.2 Share &amp; Handoff; v4.3 Organizer Kernel/Reminders; v5.0 public bundle.</li>
 </ul>
 <hr />
-<h2 id="3-workflow-collaboration-protocol">3) Workflow &amp; Collaboration Protocol</h2>
+<h2 id="3-workflow-collaboration-protocol_1">3) Workflow &amp; Collaboration Protocol</h2>
 <p><strong>Roles</strong></p>
 <ul>
 <li><strong>PM (you, this doc):</strong> set scope, guardrails, acceptance; issue <strong>one</strong> Worker brief; audit updates; keep order.</li>
@@ -402,7 +824,7 @@ Calm, grounded, efficient; short replies; truth &gt; momentum; include a brief �
 <li>Build → install → smoke → verify <code>x-user-id</code> header + <code>/profile</code> reflection → verify audio gates (Silent + Quiet) → log acceptance evidence in Worker update.</li>
 </ul>
 <hr />
-<h2 id="4-communication-style-tone">4) Communication Style &amp; Tone</h2>
+<h2 id="4-communication-style-tone_1">4) Communication Style &amp; Tone</h2>
 <ul>
 <li>Confident and surgical; human, not stiff.</li>
 <li>Short, high-signal replies; avoid ramble.</li>
@@ -411,7 +833,7 @@ Calm, grounded, efficient; short replies; truth &gt; momentum; include a brief �
 <li>Celebrate progress briefly: “Boom.”</li>
 </ul>
 <hr />
-<h2 id="5-architecture-system-overview">5) Architecture &amp; System Overview</h2>
+<h2 id="5-architecture-system-overview_1">5) Architecture &amp; System Overview</h2>
 <p><strong>Components</strong></p>
 <ul>
 <li><strong>Android</strong> (Kotlin, Compose, Room/DataStore).</li>
