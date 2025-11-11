@@ -211,6 +211,28 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            
+            
+            
+            
+            
+            
+            
+            <li class="nav-item" data-bs-level="1"><a href="#include-includewhisperh" class="nav-link">include "include/whisper.h"</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#include-whisperh" class="nav-link">include "whisper.h"</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#temp-define-commit-string-to-satisfy-ggml-build-android-only" class="nav-link">TEMP: define commit string to satisfy ggml build (Android-only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#chief-project-manager-handover" class="nav-link">Chief — Project Manager Handover</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-project-overview" class="nav-link">1) Project Overview</a>
@@ -386,6 +408,305 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<p>🧭 **Handover: Whisper JNI Build — feat/v4.0a3-whisper-rebuild **</p>
+<p><strong>Date:</strong> 2025-11-11
+<strong>Author:</strong> Worker GPT
+<strong>Environment:</strong> <code>~/AndroidStudioProjects/Chief</code> on Windows (Git Bash / MINGW64)
+<strong>Branch:</strong> <code>feat/v4.0a3-whisper-rebuild</code> (off <code>safety/post-rescue-2025-11-10</code>)
+<strong>Goal:</strong> Achieve a clean, working JNI + NDK build for Whisper (whisper.cpp) integrated into Chief. Remove linker chaos, align ggml backend logic, and confirm <code>.so</code> output for both <code>arm64-v8a</code> and <code>x86_64</code>.</p>
+<hr />
+<h3 id="summary-of-work-done">✅ <strong>Summary of Work Done</strong></h3>
+<p><strong>Root Issue:</strong>
+Initial builds failed with unresolved <code>ggml_backend_*</code> and <code>whisper_*</code> symbols during link time. This pointed to broken linkage between Whisper’s core (<code>libwhisper_core.a</code>) and JNI bridge (<code>libwhisper_jni.so</code>).</p>
+<p><strong>Investigation &amp; Verification:</strong></p>
+<ul>
+<li>Inspected <code>ggml/src</code> and <code>include</code> for symbol definitions — confirmed they exist but weren’t linked in.</li>
+<li>Verified CMakeLists under <code>ggml/src</code> (very large, backend-heavy) — used to confirm backend registration macros and targets are valid.</li>
+<li>Validated directory completeness with <code>ls -la</code> (ggml tree was fully populated).</li>
+<li>Checked for <code>def ggml_backend_</code> symbols using grep — verified headers had typedefs, but linker symbols missing → link order issue, not source absence.</li>
+</ul>
+<p><strong>CMake Adjustments:</strong></p>
+<ul>
+<li>Confirmed all <code>ggml</code> sources are built into <code>whisper_core.a</code>.</li>
+<li>Ensured JNI explicitly links against that static library (<code>whisper_core</code>).</li>
+<li>Cleaned and rebuilt CMake environment with:</li>
+</ul>
+<p><code>bash
+  ./gradlew clean :app:buildCMakeDebug --no-daemon --info</code></p>
+<p>→ Fully rebuilt <code>.cxx/Debug</code> directory for fresh build generation.</p>
+<p><strong>Verification Build:</strong></p>
+<ul>
+<li>
+<p>Rebuild succeeded on both ABIs:</p>
+</li>
+<li>
+<p>✅ <code>arm64-v8a</code></p>
+</li>
+<li>✅ <code>x86_64</code></li>
+<li><code>.so</code> successfully linked with <code>whisper_core.a</code></li>
+<li>Only one benign warning:</li>
+</ul>
+<p><code>'whisper_init_from_file' is deprecated: use whisper_init_from_file_with_params instead</code></p>
+<p>→ Safe to ignore for now (backward-compatible; will migrate later).</p>
+<p><strong>No linker errors remain. Build completed successfully with:</strong></p>
+<pre><code>BUILD SUCCESSFUL in 57s
+</code></pre>
+<hr />
+<h3 id="current-status">🧩 <strong>Current Status</strong></h3>
+<ul>
+<li>✅ Native build successful on both ABIs.</li>
+<li>✅ No missing or undefined symbols.</li>
+<li>⚠️ One deprecated function warning (non-blocking).</li>
+<li>⚙️ Whisper JNI layer (<code>libwhisper_jni.so</code>) produced cleanly.</li>
+<li>🧱 Verified NDK, CMake, and Gradle are synchronized and stable.</li>
+</ul>
+<hr />
+<h3 id="environment-verification">🧰 <strong>Environment &amp; Verification</strong></h3>
+<ul>
+<li><strong>NDK:</strong> 27.0.12077973</li>
+<li><strong>CMake:</strong> 3.22.1</li>
+<li><strong>Toolchain:</strong> clang++ (Android LLVM)</li>
+<li><strong>ABIs:</strong> arm64-v8a, x86_64</li>
+<li><strong>Gradle:</strong> 8.13</li>
+</ul>
+<p>Verification artifacts:</p>
+<pre><code class="language-bash">ls app/build/intermediates/cxx/Debug/*/obj/*/libwhisper_jni.so
+</code></pre>
+<p>Both architectures output confirmed.</p>
+<hr />
+<h3 id="open-items-next-steps">⚠️ <strong>Open Items / Next Steps</strong></h3>
+<ol>
+<li><strong>Deprecation Update (optional next phase)</strong>
+   Replace:</li>
+</ol>
+<p><code>cpp
+   whisper_init_from_file(path);</code></p>
+<p>with:</p>
+<p><code>cpp
+   whisper_context_params params = whisper_context_default_params();
+   g_ctx = whisper_init_from_file_with_params(path, params);</code></p>
+<p>→ Ensures future-proof compatibility with new whisper.cpp API.</p>
+<ol>
+<li>
+<p><strong>Runtime JNI Validation</strong></p>
+</li>
+<li>
+<p>Confirm successful model load:</p>
+<p><code>I/WhisperEngine: modelLoaded=true path=/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</code>
+   * Run short PCM sample to confirm text output.</p>
+</li>
+<li>
+<p><strong>Post-Validation Tag</strong></p>
+</li>
+<li>
+<p><code>v4.0a3-whisper-rebuild-accepted-2025-11-11</code></p>
+</li>
+</ol>
+<hr />
+<h3 id="key-files">🧱 <strong>Key Files</strong></h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>app/src/main/cpp/CMakeLists.txt</code></td>
+<td>Final native build orchestration</td>
+</tr>
+<tr>
+<td><code>app/src/main/cpp/whisper_jni.cpp</code></td>
+<td>JNI bridge to whisper.cpp</td>
+</tr>
+<tr>
+<td><code>app/src/main/cpp/third_party/whisper.cpp/</code></td>
+<td>Vendored Whisper + ggml source tree</td>
+</tr>
+<tr>
+<td><code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code></td>
+<td>Kotlin interface layer</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="meta">🪶 <strong>Meta</strong></h3>
+<ul>
+<li>Worker adhered to guardrails (single-step, no OAuth edits, no Gradle tampering).</li>
+<li>Branch state clean and validated.</li>
+<li>Build log used for proof receipts.</li>
+<li>Verified <code>.so</code> existence and no fatal warnings.</li>
+</ul>
+<hr />
+<h3 id="tags-branching">🔖 <strong>Tags &amp; Branching</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base safety branch</td>
+<td><code>safety/post-rescue-2025-11-10</code></td>
+</tr>
+<tr>
+<td>Active feature branch</td>
+<td><code>feat/v4.0a3-whisper-rebuild</code></td>
+</tr>
+<tr>
+<td>Next checkpoint tag</td>
+<td><code>v4.0a3-whisper-rebuild-accepted-2025-11-11</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><strong>Outcome:</strong>
+✅ Whisper JNI and NDK integration are now stable and fully buildable.
+No linker errors remain.
+Next step: runtime test and tag release.</p>
+<hr />
+<p>🧭 Handover: Whisper Rebuild — feat/v4.0a3-whisper-rebuild</p>
+<p>Date: 2025-11-11
+Author: Worker GPT
+Environment: ~/AndroidStudioProjects/Chief on Windows (Git Bash / MINGW64)
+Branch: feat/v4.0a3-whisper-rebuild (off safety/post-rescue-2025-11-10)
+Goal: Restore and rebuild offline Whisper ASR integration via whisper.cpp (NDK-based), vendor the latest sources, fix all linker/include issues, and reach successful .so build for libwhisper_jni.so.</p>
+<p>✅ Summary of Work Done</p>
+<p>Vendored whisper.cpp source tree</p>
+<p>Added under: app/src/main/cpp/third_party/whisper.cpp</p>
+<p>Verified upstream commit &amp; licensing (record provenance per PM rule).</p>
+<p>Shim Compatibility Layer Attempt (ggml-compat.c)</p>
+<p>Added ggml-compat.c to re-expose legacy symbols:</p>
+<p>ggml_backend_dev_count, ggml_backend_dev_get, etc.</p>
+<p>Corrected recursion bug (ggml_backend_by_type → ggml_backend_dev_by_type).</p>
+<p>Registered file in CMakeLists.txt whitelist.</p>
+<p>Ultimately removed the shim after new backend headers caused signature conflicts.</p>
+<p>ggml-backend.h now requires ggml_backend_reg_t args; incompatible with legacy call pattern.</p>
+<p>Resolved by restoring pristine upstream behavior.</p>
+<p>CMake Rebuild &amp; Cleanup</p>
+<p>Confirmed failure chain: linker errors → missing symbols → ggml-compat.c not compiled → then removed.</p>
+<p>Reset CMakeLists.txt via:</p>
+<p>git checkout -- app/src/main/cpp/CMakeLists.txt
+rm -f app/src/main/cpp/third_party/whisper.cpp/ggml/src/ggml-compat.c</p>
+<p>Verified revert success and fresh CMake regeneration.</p>
+<p>Include Path Fixes</p>
+<p>whisper_jni.cpp originally used:</p>
+<h1 id="include-includewhisperh">include "include/whisper.h"</h1>
+<p>→ changed to:</p>
+<h1 id="include-whisperh">include "whisper.h"</h1>
+<p>Added explicit include directories for JNI target:</p>
+<p>target_include_directories(whisper_jni PRIVATE
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/ggml/include
+  ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/ggml/src
+)</p>
+<p>Linker Failure (undefined Whisper symbols)</p>
+<p>Next failure: unresolved symbols whisper_free, whisper_init_from_file, etc.</p>
+<p>Root cause: JNI wasn’t linked against the static core lib.</p>
+<p>Final Link Fix</p>
+<p>Added conditional block to CMake:</p>
+<p>if (TARGET whisper_core)
+  target_link_libraries(whisper_jni PRIVATE whisper_core)
+else()
+  add_library(whisper_core STATIC ${WHISPER_WHITELIST})
+  target_include_directories(whisper_core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/ggml/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/whisper.cpp/ggml/src
+  )
+  target_link_libraries(whisper_core PUBLIC atomic m)
+  target_link_libraries(whisper_jni PRIVATE whisper_core)
+endif()</p>
+<p>This ensures JNI links directly to the Whisper core static library.</p>
+<p>🧩 Current Status</p>
+<p>Build succeeds up to linking phase; final fix expected to resolve whisper_* unresolved symbols.</p>
+<p>No more include or path errors.</p>
+<p>NDK, CMake, Gradle, and all sources validated as synchronized.</p>
+<p>🧰 Environment &amp; Verification</p>
+<p>NDK: 27.0.12077973</p>
+<p>CMake: 3.22.1</p>
+<p>ABI: arm64-v8a</p>
+<p>Verified commands:</p>
+<p>./gradlew :app:assembleDebug --no-daemon --info
+llvm-nm -A app/.cxx/Debug/.../libwhisper_core.a | grep whisper_</p>
+<p>Confirmed header paths and static lib presence in .a.</p>
+<p>⚠️ Open Items / Next Steps</p>
+<p>Re-run build and confirm final link success (expect no undefined whisper_* symbols).</p>
+<p>Once confirmed:</p>
+<p>Tag commit as v4.0a3-whisper-rebuild-accepted-YYYY-MM-DD.</p>
+<p>Update THIRD_PARTY.md with upstream commit hash &amp; license.</p>
+<p>Test JNI runtime:</p>
+<p>Verify WhisperEngine.nativeLoadModel() loads ggml-tiny.en-q5_1.bin without crash.</p>
+<p>Confirm WhisperEngine.nativeTranscribe() returns text output from short PCM clip.</p>
+<p>If runtime OK → mark feature as integrated in v4.0a3 milestone and close directive.</p>
+<p>🧱 Key Files</p>
+<p>app/src/main/cpp/CMakeLists.txt — final patched include/link logic.</p>
+<p>app/src/main/cpp/whisper_jni.cpp — JNI bridge.</p>
+<p>app/src/main/cpp/third_party/whisper.cpp/ — vendored engine source.</p>
+<p>app/src/main/java/app/chief/app/speech/WhisperEngine.kt — Kotlin wrapper.</p>
+<p>🔖 Tags &amp; Branching
+Type    Name
+Base safety branch  safety/post-rescue-2025-11-10
+Active feature branch   feat/v4.0a3-whisper-rebuild
+Next checkpoint (after success) v4.0a3-whisper-rebuild-accepted-2025-11-11
+🧾 Verification Notes</p>
+<p>Run smoke test after linking succeeds:</p>
+<p>adb logcat -c
+adb logcat -v time WhisperEngine:I *:S</p>
+<p>Trigger model load and confirm log output:</p>
+<p>I/WhisperEngine: modelLoaded=true path=/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</p>
+<p>🪶 Meta</p>
+<p>Worker adhered to guardrails (no multi-step, no OAuth edits, full CMake isolation).</p>
+<p>Backups already protected via safety branch.</p>
+<p>Verified environment paths and gradlew integrity.</p>
+<hr />
+<p>Handover — Whisper Rebuild (a3)</p>
+<p>Branch: feat/v4.0a3-whisper-rebuild
+Date: 2025-11-11 (America/Vancouver)
+Goal: Get JNI/NDK build green with minimal, Android-only guards. No behavior changes.</p>
+<p>What we did / decisions</p>
+<p>Kept build scope minimal: Android-only, whitelist changes in app/src/main/cpp/CMakeLists.txt.</p>
+<p>Unblocked ggml version symbol: Build died on missing GGML_COMMIT. We chose a temporary compile-time define to get past it, rather than editing third-party sources or generating headers. This keeps the diff tiny and reversible.</p>
+<p>Current build status</p>
+<p>Before fix: Ninja stopped with GGML_COMMIT not defined while compiling ggml sources.</p>
+<p>After fix: Macro is now defined for target whisper_core. Next action is to re-build to see if anything else blocks.</p>
+<p>Exact hunks (with filenames)</p>
+<p>File: app/src/main/cpp/CMakeLists.txt
+Rationale: Provide a local definition so ggml can compile without touching vendor files.</p>
+<h1 id="temp-define-commit-string-to-satisfy-ggml-build-android-only">TEMP: define commit string to satisfy ggml build (Android-only)</h1>
+<p>target_compile_definitions(whisper_core PRIVATE GGML_COMMIT="unknown")</p>
+<p>Inserted once, after add_library(whisper_core STATIC …) and its options/includes. Scoped to whisper_core only.</p>
+<p>No other behavior-, API-, or runtime-affecting edits were made.</p>
+<p>Receipts (proof artifacts)</p>
+<p>Error trace captured (user paste): ninja failure with GGML_COMMIT undefined during ggml compile under:</p>
+<p>C:\Users\User\AndroidStudioProjects\Chief\app.cxx\Debug\5k6b526g\arm64-v8a
+cmake 3.22.1 • ninja • ABI: arm64-v8a</p>
+<p>Repo grep confirming target names and where we injected the fix:</p>
+<p>app/src/main/cpp/CMakeLists.txt:44 add_library(whisper_core STATIC …)
+app/src/main/cpp/CMakeLists.txt:61 target_link_libraries(whisper_jni PRIVATE whisper_core …)</p>
+<p>Command used to append the fix (already run by you):</p>
+<p>printf '\n# temp fix... \n' &gt;&gt; app/src/main/cpp/CMakeLists.txt</p>
+<p>Open items / risks</p>
+<p>TEMP define: GGML_COMMIT="unknown" is a stop-gap. Upstream usually generates a commit header; we’re bypassing that. Risk is only cosmetic (version string) unless ggml expects special formatting elsewhere.</p>
+<p>Scope check: If any ggml/whisper sources are compiled under a different target, we may need the same definition there. Right now it’s scoped to whisper_core which is what links them.</p>
+<p>Next blockers: After this, typical next errors are missing NEON flags, pthreads, or incorrect C/C++ standards on some NDKs. Our CMake already shows Threads::Threads and -O3 -DNDEBUG …; we’ll adjust only if the build asks for it.</p>
+<p>Next step (single)</p>
+<p>Run a debug build to verify the unblock and surface the next concrete error (if any):</p>
+<p>./gradlew :app:assembleDebug</p>
+<p>If build still fails (one-liners, in order)</p>
+<p>Show the exact failing line(s) (one screen) so we can add the minimal flag/include.</p>
+<p>If GGML_COMMIT pops again under another target, mirror the same target_compile_definitions on that target only.</p>
+<p>If we hit missing pthreads on some toolchains, we’ll link -pthread via target_link_libraries(whisper_core PRIVATE Threads::Threads) (it’s already present per grep; we’ll confirm on error).</p>
+<p>Rollback</p>
+<p>Revert the temp define by deleting the single target_compile_definitions(whisper_core …) line. No vendor files touched, so rollback is trivial.</p>
+<p>Direction (why this path)</p>
+<p>Keep vendor tree pristine.</p>
+<p>Keep surface area tiny (one CMake line).</p>
+<p>Get a green build first, then replace the temp define with a proper generated header later if we care about version strings.</p>
 <hr />
 <h1 id="chief-project-manager-handover">Chief — Project Manager Handover</h1>
 <p>This is the definitive, single-source handover for the next PM GPT. If this were the only artifact left, you could reopen the build and run it like I do—no gaps, no guesswork. It marks <strong>CURRENT</strong> vs <strong>LEGACY</strong> everywhere so nothing old leaks forward.</p>
