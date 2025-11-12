@@ -260,6 +260,51 @@
               </ul>
             </li>
             
+            <li class="nav-item" data-bs-level="1"><a href="#whisper-android-engineering-readme" class="nav-link">Whisper (Android) — Engineering README</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-guardrails-must-read" class="nav-link">1) Guardrails (must read)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-file-map" class="nav-link">2) File map</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-quick-start-dev" class="nav-link">3) Quick start (DEV)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-models-checksum-policy" class="nav-link">4) Models &amp; checksum policy</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-performance-configuration-cmake" class="nav-link">5) Performance configuration (CMake)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-kotlin-wiring" class="nav-link">6) Kotlin wiring</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-known-issues-future-work" class="nav-link">7) Known issues / future work</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-troubleshooting-checklist" class="nav-link">8) Troubleshooting checklist</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-commands-copypaste" class="nav-link">9) Commands (copy/paste)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-change-log-seed" class="nav-link">10) Change log (seed)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025" class="nav-link">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-executive-summary" class="nav-link">1) Executive Summary</a>
@@ -1299,6 +1344,206 @@ Log.i(&quot;WhisperEngine&quot;, &quot;transcribe{ms=$ms, chars=${text.length}}&
 <ul>
 <li>The user requires <strong>one command at a time</strong>, explicit Git Bash commands to open files in Notepad, and <strong>no guessing</strong>. Ask for the file before proposing edits that touch critical paths (OAuth, auth flows, build files).</li>
 </ul>
+<hr />
+<pre><code>                                                                          &lt;title&gt;Whisper ReadME&lt;/title&gt;
+</code></pre>
+<hr />
+<p>Here’s the README content. Paste it into <code>handovers/worker/README-whisper.md</code> (it’s self-contained).</p>
+<hr />
+<h1 id="whisper-android-engineering-readme">Whisper (Android) — Engineering README</h1>
+<p><strong>Scope:</strong> Native Whisper JNI + Compose mic flow on Android. Covers model placement/verification, build flags, runtime testing, and guardrails for future work.</p>
+<p><strong>Current status (2025-11-12):</strong></p>
+<ul>
+<li>On-device ASR latency: <strong>~3.8s</strong> for tiny.en, 16 kHz, ~9s clip (SM-S918W / Android 15).</li>
+<li>Branch: <code>feat/v4.0a3-whisper-rebuild</code></li>
+<li>Tag: <code>accept/whisper-a3-perf-2025-11-12</code></li>
+<li>No OAuth/App ID/Gradle plugin changes in this work.</li>
+</ul>
+<hr />
+<h2 id="1-guardrails-must-read">1) Guardrails (must read)</h2>
+<ul>
+<li><strong>Do not</strong> touch OAuth, app IDs, or Gradle plugins/versions here.</li>
+<li>One change at a time; verify with build + install + log smoke.</li>
+<li>Ask for files before editing (no guesses); keep diffs surgical.</li>
+<li>Preserve <code>ensureDevModel(...)</code> behavior and checksum guard unless changing the canonical digest intentionally (with proof).</li>
+</ul>
+<hr />
+<h2 id="2-file-map">2) File map</h2>
+<ul>
+<li>Native build: <code>app/src/main/cpp/CMakeLists.txt</code></li>
+<li>JNI shim: <code>app/src/main/cpp/whisper_jni.cpp</code></li>
+<li>Upstream sources: <code>app/src/main/cpp/third_party/whisper.cpp/**</code> (includes ggml)</li>
+<li>Kotlin engine: <code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code></li>
+<li>Entry wire: <code>app/src/main/java/app/chief/app/MainActivity.kt</code></li>
+<li>Mic UI (DEV): <code>app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code></li>
+<li>Proofs: <code>proof/</code> (e.g., <code>logcat-whisper-live.txt</code>, receipts)</li>
+</ul>
+<hr />
+<h2 id="3-quick-start-dev">3) Quick start (DEV)</h2>
+<p><strong>Build + install</strong></p>
+<pre><code class="language-bash">./gradlew :app:assembleDebug -x lint
+./gradlew :app:installDebug
+</code></pre>
+<p><strong>Place model(s) in app sandbox</strong></p>
+<pre><code class="language-bash">adb push models/ggml-tiny.en-q5_1.bin /data/local/tmp/ggml-tiny.en-q5_1.bin
+adb shell run-as app.chief.app mkdir files || true
+adb shell run-as app.chief.app mkdir files/whisper || true
+adb shell run-as app.chief.app cp //data/local/tmp/ggml-tiny.en-q5_1.bin files/whisper/
+</code></pre>
+<p><em>(Double slash avoids Git Bash path rewrite.)</em></p>
+<p><strong>Optionally add plain tiny.en if you have it</strong></p>
+<pre><code class="language-bash">adb push ggml-tiny.en.bin /data/local/tmp/ggml-tiny.en.bin
+adb shell run-as app.chief.app cp //data/local/tmp/ggml-tiny.en.bin files/whisper/
+</code></pre>
+<p><strong>Verify files + checksums</strong></p>
+<pre><code class="language-bash">adb shell run-as app.chief.app ls -l files/whisper
+adb shell run-as app.chief.app toybox sha256sum files/whisper/ggml-tiny.en*.bin
+</code></pre>
+<p><strong>Enable DEV mic flow</strong></p>
+<pre><code class="language-bash">adb shell run-as app.chief.app sh -c &quot;echo 1 &gt; files/whisper/USE_WHISPER_DEV&quot;
+</code></pre>
+<p><strong>Runtime smoke (logs)</strong></p>
+<pre><code class="language-bash">adb logcat -v brief -T 1 -s Mic WhisperEngine DevPcmRecorder Whisper WhisperInit
+</code></pre>
+<ul>
+<li>Long-press Pulse to record (~5–9s), release to transcribe.</li>
+<li>Expect: <code>Mic{START}</code>, <code>Mic{STOP}</code>, <code>model check … match=true</code>,
+  <code>transcribe{ms≈3800, chars&gt;0}</code> and a Toast with text.</li>
+</ul>
+<hr />
+<h2 id="4-models-checksum-policy">4) Models &amp; checksum policy</h2>
+<ul>
+<li>Canonical tiny.en SHA-256:</li>
+</ul>
+<pre><code>921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f
+</code></pre>
+<ul>
+<li><code>WhisperEngine.ensureDevModel(ctx)</code> prefers <strong>plain</strong> <code>ggml-tiny.en.bin</code>, else falls back to <code>ggml-tiny.en-q5_1.bin</code>.</li>
+<li>If checksum mismatch → <strong>disable</strong> load/transcribe (returns null) and log an error.</li>
+</ul>
+<p><strong>Where models live (runtime):</strong></p>
+<pre><code>/data/user/0/app.chief.app/files/whisper/
+  ├─ USE_WHISPER_DEV                 (presence toggles DEV mic flow)
+  ├─ ggml-tiny.en.bin                (preferred)
+  └─ ggml-tiny.en-q5_1.bin           (fallback)
+</code></pre>
+<hr />
+<h2 id="5-performance-configuration-cmake">5) Performance configuration (CMake)</h2>
+<p>Applied per-target (works in Debug/Release) in <code>app/src/main/cpp/CMakeLists.txt</code>:</p>
+<pre><code class="language-cmake">target_compile_options(whisper_core PRIVATE
+    -O3 -DNDEBUG -ffast-math -fno-math-errno -fno-finite-math-only -funroll-loops -fvisibility=hidden
+)
+target_compile_options(whisper_jni PRIVATE
+    -O3 -DNDEBUG -ffast-math -fno-math-errno -fno-finite-math-only -funroll-loops -fvisibility=hidden
+)
+if(ANDROID_ABI STREQUAL &quot;arm64-v8a&quot;)
+    target_compile_options(whisper_core PRIVATE -march=armv8-a)
+    target_compile_options(whisper_jni  PRIVATE -march=armv8-a)
+endif()
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li><code>-fno-finite-math-only</code> is required by ggml (<code>vec.h</code>) to avoid compile errors.</li>
+<li>We kept CPU backend only; NEON is implied on arm64.</li>
+</ul>
+<hr />
+<h2 id="6-kotlin-wiring">6) Kotlin wiring</h2>
+<p><strong>WhisperEngine.kt</strong></p>
+<ul>
+<li><code>ensureDevModel(ctx)</code> selects model + validates SHA256; returns <code>String?</code>.</li>
+<li><code>loadModel(path)</code> and <code>transcribe(pcm16, sampleRate)</code> bridge to JNI.</li>
+<li>Logs <code>JNI loaded</code>, <code>version=…</code>, and checksum verdicts.</li>
+</ul>
+<p><strong>MainActivity.kt</strong></p>
+<pre><code class="language-kotlin">val modelPath = WhisperEngine.ensureDevModel(this)
+if (modelPath == null) {
+    Log.e(&quot;WhisperInit&quot;, &quot;Whisper disabled: model missing or checksum mismatch&quot;)
+    showShortToast(&quot;Whisper disabled (model)&quot;)
+} else {
+    WhisperEngine.loadModel(modelPath)
+}
+</code></pre>
+<p><strong>PulseButton.kt (DEV flow)</strong></p>
+<ul>
+<li>Single <code>DevPcmRecorder</code> via <code>remember { ... }</code>.</li>
+<li>On permission grant, starts <strong>same</strong> recorder and flips <code>devRecording = true</code>.</li>
+<li>Tap after long-press: stop → dump PCM to <code>files/dev/last.pcm</code> → call <code>transcribe</code>.</li>
+<li>Timing log:</li>
+</ul>
+<pre><code class="language-kotlin">val t0 = System.nanoTime()
+val text = WhisperEngine.transcribe(pcm, 16_000)
+val ms = (System.nanoTime() - t0) / 1_000_000
+Log.i(&quot;WhisperEngine&quot;, &quot;transcribe{ms=$ms, chars=${text.length}}&quot;)
+</code></pre>
+<hr />
+<h2 id="7-known-issues-future-work">7) Known issues / future work</h2>
+<ul>
+<li>JNI warns on deprecated <code>whisper_init_from_file</code>.
+  <strong>Next safe task:</strong> migrate to <code>whisper_init_from_file_with_params</code> (no behavior change).</li>
+<li>If production cold start regresses, consider a keep-warm strategy (preload model once, reuse context), behind a dev flag.</li>
+<li>Verify which ABIs we actually ship; we currently build <code>arm64-v8a</code> and <code>x86_64</code>.</li>
+</ul>
+<hr />
+<h2 id="8-troubleshooting-checklist">8) Troubleshooting checklist</h2>
+<ol>
+<li>
+<p><strong>No transcription / blank toast</strong></p>
+</li>
+<li>
+<p>Check <code>USE_WHISPER_DEV</code> present for DEV flow.</p>
+</li>
+<li>Verify <code>ensureDevModel</code> logs and checksum match.</li>
+<li>
+<p><strong>Permission granted but no recording</strong></p>
+</li>
+<li>
+<p>Ensure single recorder instance is used; <code>devRecording</code> set to true on grant.</p>
+</li>
+<li>
+<p><strong>Latency high again</strong></p>
+</li>
+<li>
+<p>Confirm CMake flags present in final <code>.ninja</code> compile lines (<code>-O3 ... -fno-finite-math-only</code>).</p>
+</li>
+<li>Test with tiny.en (plain) vs q5_1; plain is preferred and verified fastest in our setup.</li>
+<li>
+<p><strong>Checksum mismatch</strong></p>
+</li>
+<li>
+<p>Re-push model; confirm SHA matches canonical.</p>
+</li>
+<li>
+<p><strong>Git Bash path weirdness</strong></p>
+</li>
+<li>
+<p>Use <code>//data/...</code> when copying from <code>/data/local/tmp</code> via <code>run-as</code>.</p>
+</li>
+</ol>
+<hr />
+<h2 id="9-commands-copypaste">9) Commands (copy/paste)</h2>
+<pre><code class="language-bash"># Build &amp; install
+./gradlew :app:assembleDebug -x lint &amp;&amp; ./gradlew :app:installDebug
+
+# Logs
+adb logcat -v brief -T 1 -s Mic WhisperEngine DevPcmRecorder Whisper WhisperInit
+
+# Sandbox verify
+adb shell run-as app.chief.app ls -l files/whisper
+adb shell run-as app.chief.app toybox sha256sum files/whisper/ggml-tiny.en*.bin
+
+# Enable DEV mic
+adb shell run-as app.chief.app sh -c &quot;echo 1 &gt; files/whisper/USE_WHISPER_DEV&quot;
+</code></pre>
+<hr />
+<h2 id="10-change-log-seed">10) Change log (seed)</h2>
+<ul>
+<li><strong>2025-11-12:</strong> CMake perf flags; PulseButton recorder fix; checksum guard + guarded load; ASR ~3.8s; tag <code>accept/whisper-a3-perf-2025-11-12</code>.</li>
+</ul>
+<hr />
+<p><em>Owner note:</em> Keep this README close to the code. When moving into the Handbook, include the same guardrails and link to the latest “accepted” tag.</p>
+<hr />
+<pre><code>                                                                          &lt;title&gt;End ReadME&lt;/title&gt;
+</code></pre>
 <hr />
 <h1 id="handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</h1>
 <p><strong>Repo/Branch:</strong> <code>chief-android</code> → <code>feat/v4.0a3-whisper-rebuild</code>
