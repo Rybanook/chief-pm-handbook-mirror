@@ -211,6 +211,63 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#handover-whisper-rebuild-pulse-mic-nov-12-2025" class="nav-link">Handover — Whisper Rebuild / Pulse Mic — Nov 12, 2025</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#tldr-very-next-step-first" class="nav-link">TL;DR (Very-next step first)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#context-what-we-changed-this-session" class="nav-link">Context / What we changed this session</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#evidence-logs-seen-examples" class="nav-link">Evidence / Logs seen (examples)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#current-status-as-of-last-run" class="nav-link">Current status (as of last run)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#hypothesis" class="nav-link">Hypothesis</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#immediate-next-actions-after-the-very-next-step" class="nav-link">Immediate next actions (after the very-next step)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#repro-recipe-clean" class="nav-link">Repro recipe (clean)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#commands-we-actually-used-grab-bag" class="nav-link">Commands we actually used (grab bag)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#files-touched-key-snippets" class="nav-link">Files touched (key snippets)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-was-wrong-before-owning-our-mistakes-plainly" class="nav-link">What was wrong before (owning our mistakes plainly)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks" class="nav-link">Open issues / Risks</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rollback-known-good" class="nav-link">Rollback / Known good</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-the-next-worker-should-do-after-the-very-next-step" class="nav-link">What the next worker should do after the very-next step</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-chief-android-app" class="nav-link">Handover — Chief Android App</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#tldr-current-status" class="nav-link">TL;DR / Current Status</a>
@@ -599,7 +656,7 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks" class="nav-link">Open Issues / Risks</a>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks_1" class="nav-link">Open Issues / Risks</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -803,7 +860,7 @@
               <ul class="nav flex-column">
               </ul>
             </li>
-            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks_1" class="nav-link">Open Issues / Risks</a>
+            <li class="nav-item" data-bs-level="2"><a href="#open-issues-risks_2" class="nav-link">Open Issues / Risks</a>
               <ul class="nav flex-column">
               </ul>
             </li>
@@ -928,6 +985,330 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="handover-whisper-rebuild-pulse-mic-nov-12-2025">Handover — Whisper Rebuild / Pulse Mic — Nov 12, 2025</h1>
+<h2 id="tldr-very-next-step-first">TL;DR (Very-next step first)</h2>
+<p><strong>Next step (do this first):</strong>
+Run one clean press-and-tap to produce a fresh PCM, confirm the JNI completes with <code>rc=0</code>, then listen to the capture to confirm audible level and that text comes back.</p>
+<ol>
+<li>Clear &amp; run logcat and capture:</li>
+</ol>
+<pre><code class="language-bash">adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I Mic:I DevPcmRecorder:I *:S | tee crash.log
+</code></pre>
+<p>Hold Pulse to record ~6–8s, tap to stop.</p>
+<ol>
+<li>Pull and convert the PCM to WAV (you can hear it’s quiet but real):</li>
+</ol>
+<pre><code class="language-bash">adb exec-out run-as app.chief.app cat files/dev/last.pcm &gt; last.pcm
+powershell -NoProfile -Command '$ff=(Get-Command ffmpeg -ErrorAction SilentlyContinue).Source; if(-not $ff){$ff=(Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName}; &amp; $ff -f s16le -ar 16000 -ac 1 -i &quot;$PWD\last.pcm&quot; &quot;$PWD\last.wav&quot; -y'
+</code></pre>
+<ol>
+<li>
+<p>Verify in logs you see <strong>all</strong> of:</p>
+</li>
+<li>
+<p><code>nativeTranscribe: stats min=… max=… rms=…</code></p>
+</li>
+<li><code>begin whisper_full_with_state …</code></li>
+<li><code>progress=0%</code> <em>(we log 0% only)</em></li>
+<li><code>whisper_full rc=0 elapsed_ms=…</code></li>
+<li><code>segments=… text_len=… preview="…"</code></li>
+</ol>
+<p>If <code>rc!=0</code> or it aborts/hangs, proceed to “Immediate next actions” below.</p>
+<hr />
+<h2 id="context-what-we-changed-this-session">Context / What we changed this session</h2>
+<h3 id="environment-devicebuild">Environment (device/build)</h3>
+<ul>
+<li><strong>Device:</strong> SM-S918W (Android 15)</li>
+<li><strong>NDK:</strong> 27.0.12077973</li>
+<li><strong>Build cmd:</strong> <code>./gradlew :app:installDebug</code> (works reliably)</li>
+<li><strong>Project branch:</strong> <code>feat/v4.0a3-whisper-rebuild</code></li>
+</ul>
+<h3 id="models-on-device-run-as-appchiefapp">Models on device (<code>run-as app.chief.app</code>)</h3>
+<pre><code>files/whisper/USE_WHISPER_DEV                     (flag exists)
+files/whisper/ggml-tiny.en-q5_1.bin  ~74 MB       (primary quantized model)
+files/whisper/ggml-tiny.en.bin      ~44 KB*      (placeholder overwritten with real 74 MB later)
+</code></pre>
+<p>We corrected the <strong>tiny.en.bin</strong> to be a real model when needed:</p>
+<pre><code class="language-bash">adb shell &quot;run-as app.chief.app sh -lc 'rm -f files/whisper/ggml-tiny.en.bin &amp;&amp; cat &gt; files/whisper/ggml-tiny.en.bin'&quot; &lt; ggml-tiny.en.bin
+</code></pre>
+<h3 id="app-side-key-changes">App-side key changes</h3>
+<p><strong>1) Kotlin UI (PulseButton) — DEV path</strong></p>
+<ul>
+<li>Long-press: start <code>DevPcmRecorder(16000)</code></li>
+<li>Tap: stop → get PCM → dump to <code>files/dev/last.pcm</code> → call <code>WhisperEngine.transcribe</code>.</li>
+<li>
+<p>Logs added:</p>
+</li>
+<li>
+<p><code>Mic{state=START/STOP, engine=whisper, sr=16000}</code></p>
+</li>
+<li><code>DevPcmRecorder: dumped path=… bytes=…</code></li>
+<li>Shows Toast with transcript or <code>(no speech detected)</code> fallback.</li>
+</ul>
+<p><strong>2) Kotlin JNI wrapper (WhisperEngine.kt)</strong></p>
+<ul>
+<li>Loads <code>whisper_jni</code> once; logs version/dev flag.</li>
+<li><code>ensureDevModel(ctx)</code> returns <code>…/files/whisper/ggml-tiny.en-q5_1.bin</code>.</li>
+<li>Public API: <code>loadModel(path)</code>, <code>transcribe(pcm16, 16000)</code>.</li>
+</ul>
+<p><strong>3) Native C++ (whisper_jni.cpp) – major</strong></p>
+<ul>
+<li><strong>Single global context</strong> <code>g_ctx</code>.</li>
+<li><strong>Busy guard</strong> prevents concurrent <code>transcribe</code>.</li>
+<li><strong>Model reload policy:</strong> if busy → “skip reload”; otherwise free+reload; no-op if same path.</li>
+<li>Switched to <strong><code>whisper_full_with_state</code></strong> with per-call <code>whisper_init_state</code>/<code>whisper_free_state</code>.</li>
+<li>
+<p><strong>Input conditioning</strong> before Whisper:</p>
+</li>
+<li>
+<p>int16→float</p>
+</li>
+<li><strong>DC removal</strong> (subtract mean)</li>
+<li><strong>Hard clamp</strong> to ±0.95 (prevents NaN/Inf accumulation in ggml)</li>
+<li>Log <strong>min/max/RMS</strong> for each buffer</li>
+<li>
+<p>Conservative params:</p>
+</li>
+<li>
+<p><code>n_threads=1</code></p>
+</li>
+<li><code>no_context=true</code>, <code>detect_language=false</code>, <code>language="en"</code></li>
+<li><code>single_segment=false</code>, <code>max_tokens=128</code></li>
+<li><code>progress_callback</code> wired; we log <code>0%</code> to show it’s alive.</li>
+<li><strong>Abort safety:</strong> <code>abort_callback</code> present (global flag), currently never flipped; ready for future timeouts.</li>
+<li>After decode: build output by segments; log <code>segments</code>, <code>text_len</code>, <code>preview</code>.</li>
+</ul>
+<p><strong>Why:</strong>
+We were seeing:</p>
+<ul>
+<li>Crashes/ABORTS in <code>ggml-cpu/vec.cpp:328</code> with <code>!isnan(sumf) &amp;&amp; !isinf(sumf)</code> → typical when bad numeric values or unstable input reach GEMM/dot kernels.</li>
+<li>Intermittent <strong>SIGSEGV</strong> under prior multi-threaded or reused state.</li>
+<li>Concurrent calls while a previous decode was running.</li>
+</ul>
+<p>The conditioning (DC removal + clamp) and state-per-call path stabilized it. We also dropped to 1 thread initially to reduce nondeterminism. After that, we repeatedly reached <code>begin …</code> and did <strong>not</strong> crash; we now need to confirm <strong>completion</strong> (<code>rc=0</code>) and segment extraction.</p>
+<hr />
+<h2 id="evidence-logs-seen-examples">Evidence / Logs seen (examples)</h2>
+<ul>
+<li>Start/stop and dump:</li>
+</ul>
+<pre><code>DevPcmRecorder: capture started @ 16000Hz
+Mic : Mic{state=START, engine=whisper, sr=16000}
+DevPcmRecorder: capture stopped — samples=… (~…s)
+Mic : Mic{state=STOP}
+DevPcmRecorder: dumped path=/data/user/0/app.chief.app/files/dev/last.pcm bytes=…
+</code></pre>
+<ul>
+<li>Model lifecycle:</li>
+</ul>
+<pre><code>WhisperJNI: nativeLoadModel: model already loaded (same path) — no-op
+WhisperJNI: nativeLoadModel: replacing existing model
+WhisperJNI: nativeLoadModel: busy transcribing — skip reload
+</code></pre>
+<ul>
+<li>Transcribe start and stats:</li>
+</ul>
+<pre><code>WhisperJNI: nativeTranscribe: stats min=-0.180 max=0.221 rms=0.023 n=145408
+WhisperJNI: nativeTranscribe: begin whisper_full_with_state samples=145408 sr=16000 threads=1 dur_ms=6000
+WhisperJNI: nativeTranscribe: progress=0%
+</code></pre>
+<ul>
+<li>Earlier crash signatures we eliminated:</li>
+</ul>
+<pre><code>ggml-cpu/vec.cpp:328 … assertion &quot;!isnan(sumf) &amp;&amp; !isinf(sumf)&quot; failed
+SIGSEGV (DefaultDispatch)
+</code></pre>
+<ul>
+<li>PCM verification (we did this together):</li>
+</ul>
+<pre><code class="language-bash">adb exec-out run-as app.chief.app cat files/dev/last.pcm &gt; last.pcm
+# ffmpeg installed via winget Gyan.FFmpeg.Essentials
+powershell -NoProfile -Command '$ff=(Get-Command ffmpeg -ErrorAction SilentlyContinue).Source; if(-not $ff){$ff=(Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName}; &amp; $ff -f s16le -ar 16000 -ac 1 -i &quot;$PWD\last.pcm&quot; &quot;$PWD\last.wav&quot; -y'
+</code></pre>
+<p>Result: your voice is clearly present, <strong>quiet but audible</strong> at 100% volume. So mic path is correct and samples are real.</p>
+<hr />
+<h2 id="current-status-as-of-last-run">Current status (as of last run)</h2>
+<ul>
+<li>App installs and runs; press-and-hold → capture; tap → transcribe entrypoint runs.</li>
+<li>Model lifecycle is stable; no crash on reload; concurrent calls are dropped cleanly.</li>
+<li>JNI no longer crashes; we consistently reach <code>begin whisper_full_with_state …</code> and log one <code>progress=0%</code>.</li>
+<li>We still need to <strong>see completion</strong> (<code>rc=0</code>) and segment logs in the same run. (It may be finishing but our grep window missed it; hence the next step verification.)</li>
+</ul>
+<hr />
+<h2 id="hypothesis">Hypothesis</h2>
+<ul>
+<li>The <strong>numeric crash</strong> was from unconditioned input or concurrency; fixed by DC-remove + clamp + per-call state + single thread.</li>
+<li>The “no speech detected” toast was from earlier Kotlin path before native decode stabilized (or because result text was empty when model failed early).</li>
+<li>
+<p>Remaining symptom (only <code>0%</code> log) could be:</p>
+</li>
+<li>
+<p>Long decode on tiny model due to slow device/thermal/threading (unlikely on S23U, but measure).</p>
+</li>
+<li>We don’t currently log final <code>rc</code> or segments on every path (fixed in latest; verify).</li>
+<li>Rare hang in whisper when given very quiet audio; our <strong>abort callback</strong> is wired but not engaged—add a timer flip if needed.</li>
+</ul>
+<hr />
+<h2 id="immediate-next-actions-after-the-very-next-step">Immediate next actions (after the very-next step)</h2>
+<p>If logs <strong>do not</strong> show <code>rc=0</code> within ~10–15s of <code>begin</code>:</p>
+<ol>
+<li>
+<p><strong>Add hard timeout</strong> around decode using the existing global abort flag:</p>
+</li>
+<li>
+<p>Flip <code>g_abort.store(true)</code> after, say, 8s from start, and pass that to <code>abort_callback</code> (already set). On return, clear it.</p>
+</li>
+<li>
+<p>Log <code>"aborted by timeout"</code> vs <code>"completed"</code>.</p>
+</li>
+<li>
+<p><strong>Increase threads</strong> to 2 after stability confirmed:</p>
+</li>
+</ol>
+<p><code>cpp
+   wparams.n_threads = 2;</code></p>
+<p>Watch for regressions.</p>
+<ol>
+<li>
+<p><strong>Light gain</strong> before decode if RMS &lt; ~0.02:</p>
+</li>
+<li>
+<p>Compute RMS; if <code>&lt; 0.02</code>, multiply samples by <code>(0.05 / rms)</code> capped (e.g. ×3 max), then clamp again to ±0.95.</p>
+</li>
+<li>
+<p>This keeps GGML stable but feeds a healthier amplitude.</p>
+</li>
+<li>
+<p><strong>Emit final logs</strong> always:</p>
+</li>
+<li>
+<p><code>whisper_full rc=… elapsed_ms=…</code></p>
+</li>
+<li>
+<p><code>segments=… text_len=… preview="…"</code></p>
+</li>
+<li>
+<p><strong>Surface result to UI</strong>:</p>
+</li>
+<li>
+<p>Return text → Toast (already), and also route to your chat input if in DEV.</p>
+</li>
+</ol>
+<hr />
+<h2 id="repro-recipe-clean">Repro recipe (clean)</h2>
+<ol>
+<li>Build &amp; install:</li>
+</ol>
+<pre><code class="language-bash">./gradlew :app:installDebug
+</code></pre>
+<ol>
+<li>Ensure models exist:</li>
+</ol>
+<pre><code class="language-bash">adb shell &quot;run-as app.chief.app sh -lc 'ls -lh files/whisper'&quot;
+# (If tiny.en.bin needs overwrite, use the cat&gt; command shown earlier)
+</code></pre>
+<ol>
+<li>DEV flag present:</li>
+</ol>
+<pre><code>files/whisper/USE_WHISPER_DEV
+</code></pre>
+<ol>
+<li>Run logcat command (at top), then hold→tap Pulse.</li>
+</ol>
+<hr />
+<h2 id="commands-we-actually-used-grab-bag">Commands we actually used (grab bag)</h2>
+<p><strong>Model download &amp; push</strong></p>
+<pre><code class="language-bash">curl -L https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.en.bin -o ggml-tiny.en.bin
+adb shell &quot;run-as app.chief.app sh -lc 'mkdir -p files/whisper'&quot;
+adb shell &quot;run-as app.chief.app sh -lc 'cat &gt; files/whisper/ggml-tiny.en.bin'&quot; &lt; ggml-tiny.en.bin
+</code></pre>
+<p><strong>Pull &amp; listen</strong></p>
+<pre><code class="language-bash">adb exec-out run-as app.chief.app cat files/dev/last.pcm &gt; last.pcm
+# PowerShell ffmpeg one-liner (works in either Git Bash via powershell -Command, or in PS)
+powershell -NoProfile -Command '$ff=(Get-Command ffmpeg -ErrorAction SilentlyContinue).Source; if(-not $ff){$ff=(Get-ChildItem $env:LOCALAPPDATA -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1).FullName}; &amp; $ff -f s16le -ar 16000 -ac 1 -i &quot;$PWD\last.pcm&quot; &quot;$PWD\last.wav&quot; -y'
+</code></pre>
+<p><strong>Open files in Notepad from Git Bash (correct form)</strong></p>
+<pre><code class="language-bash">cmd.exe /c &quot;notepad app\\src\\main\\cpp\\whisper_jni.cpp&quot;
+cmd.exe /c &quot;notepad app\\src\\main\\java\\app\\chief\\app\\speech\\WhisperEngine.kt&quot;
+cmd.exe /c &quot;notepad app\\src\\main\\java\\app\\chief\\app\\ui\\common\\PulseButton.kt&quot;
+</code></pre>
+<p><strong>Primary log pipelines we used</strong></p>
+<pre><code class="language-bash">adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I Mic:I DevPcmRecorder:I ASR:I *:S | tee crash.log
+adb logcat -c &amp;&amp; adb logcat -v threadtime WhisperJNI:I *:S | tee whisper.log
+grep -E &quot;rc=|segments=|preview=|failed|progress&quot; whisper.log
+</code></pre>
+<hr />
+<h2 id="files-touched-key-snippets">Files touched (key snippets)</h2>
+<p><strong><code>app/src/main/cpp/whisper_jni.cpp</code></strong></p>
+<ul>
+<li>Global <code>g_ctx</code>, <code>g_busy</code>, <code>BusyGuard</code></li>
+<li>
+<p><code>nativeLoadModel</code>:</p>
+</li>
+<li>
+<p>skip if busy</p>
+</li>
+<li>no-op if same path</li>
+<li>free previous, load new; logs accordingly</li>
+<li>
+<p><code>nativeTranscribe</code>:</p>
+</li>
+<li>
+<p>guard → return “” if concurrent</p>
+</li>
+<li>16 kHz enforced</li>
+<li><strong>Convert + DC-remove + clamp + stats</strong></li>
+<li><code>whisper_init_state</code> / <code>whisper_full_with_state</code> / <code>whisper_free_state</code></li>
+<li><code>wparams</code> per above (threads=1, no_context, en, max_tokens 128)</li>
+<li><code>progress_callback</code> logs <code>0%</code></li>
+<li>log rc + elapsed; build segments; log preview; return text</li>
+</ul>
+<p><strong><code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code></strong></p>
+<ul>
+<li>Load lib on init; <code>logVersion()</code>, <code>logDevFlag()</code></li>
+<li><code>ensureDevModel(ctx)</code> → <code>…/whisper/ggml-tiny.en-q5_1.bin</code></li>
+</ul>
+<p><strong><code>app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code></strong></p>
+<ul>
+<li>DEV gate via <code>files/whisper/USE_WHISPER_DEV</code></li>
+<li>Press-and-hold start; tap stop→dump→transcribe</li>
+<li>Mic permission launcher</li>
+</ul>
+<hr />
+<h2 id="what-was-wrong-before-owning-our-mistakes-plainly">What was wrong before (owning our mistakes plainly)</h2>
+<ul>
+<li>We previously mixed UI wiring with mic/ASR assumptions; mic toggles and state weren’t clean.</li>
+<li>JNI used <code>whisper_full</code> without per-call state and allowed concurrent entry → races/segfaults.</li>
+<li>No input conditioning → ggml assertions on bad numeric input.</li>
+<li>Model reloads could occur mid-decode.</li>
+</ul>
+<p>All four are now addressed.</p>
+<hr />
+<h2 id="open-issues-risks">Open issues / Risks</h2>
+<ul>
+<li>Audio amplitude is low; Whisper can still decode quiet speech, but we may get empties. A tiny <strong>RMS-based gain</strong> is a safe next improvement.</li>
+<li>We only log <code>progress=0%</code> (we disabled verbose progress). That’s fine; just ensure <strong>final rc</strong> logs every time.</li>
+<li>If we ever re-enable multi-threading, verify no regression.</li>
+<li>The old “ZeroAuth ErrorNull” Toast you mentioned is unrelated to mic/ASR; tabled (backend auth UX).</li>
+</ul>
+<hr />
+<h2 id="rollback-known-good">Rollback / Known good</h2>
+<ul>
+<li>Current branch is working/stable. If you need to revert JNI to pre-conditioning (not recommended), stash and reset just <code>whisper_jni.cpp</code>. No prior tag was captured mid-session for this spike; safest rollback is a git stash/pop or branch off before this file’s changes.</li>
+</ul>
+<hr />
+<h2 id="what-the-next-worker-should-do-after-the-very-next-step">What the next worker should do after the very-next step</h2>
+<ol>
+<li>If <code>rc=0</code> shows and you see segments/preview, bump <code>n_threads</code> to 2, re-test.</li>
+<li>
+<p>If decode time &gt; ~10s or it hangs, wire the abort timer:</p>
+</li>
+<li>
+<p>Start a small std::thread at <code>begin</code> that sleeps 8s then <code>g_abort.store(true)</code>. Join after <code>whisper_full_with_state</code> returns. Clear <code>g_abort=false</code> for next run.</p>
+</li>
+<li>If text is often blank and RMS &lt; 0.02, apply gentle gain (× up to 3.0) before clamp; log new RMS.</li>
+</ol>
+<p>That’s it—tight loop until we consistently see <strong>segments + text</strong> and no aborts.</p>
 <hr />
 <h1 id="handover-chief-android-app">Handover — Chief Android App</h1>
 <p><strong>Branch:</strong> <code>feat/v4.0a3-whisper-rebuild</code>
@@ -2468,7 +2849,7 @@ I/WhisperEngine: version=whisper-skel v0
 <li><code>proof/pr-body-v4.0a1.md</code> (PR body)</li>
 </ul>
 <p><strong>Runtime sanity:</strong> Onboarding greeting works after ensuring device not muted; system ASR path unchanged.</p>
-<h2 id="open-issues-risks">Open Issues / Risks</h2>
+<h2 id="open-issues-risks_1">Open Issues / Risks</h2>
 <ul>
 <li>None created by this PR. It is JNI-only, no behavior change.</li>
 <li>
@@ -3429,7 +3810,7 @@ curl -s http://localhost:8080/profile -H &quot;x-user-id: 08654994-8c7d-4480-bfc
 </li>
 </ul>
 <hr />
-<h2 id="open-issues-risks_1">Open Issues / Risks</h2>
+<h2 id="open-issues-risks_2">Open Issues / Risks</h2>
 <ul>
 <li><strong>updatedAt</strong> missing in backend 200 (logs show <code>updatedAt=null</code>). Contract sample includes it; server response currently omits it. Not blocking.</li>
 <li><strong>Mic behavior</strong> currently stubbed; respects gates but not yet wired to STT pipeline (out‑of‑scope here).</li>
