@@ -211,6 +211,76 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#eg-14277-12746-17857-etc" class="nav-link">e.g. 14277, 12746, 17857, etc.</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#cmake-whitelist-fix" class="nav-link">CMake whitelist fix</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#remove-duplicate-whisperengine-imports-in-pulsebuttonkt" class="nav-link">Remove duplicate WhisperEngine imports in PulseButton.kt</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#fix-logdevflag-call-to-no-arg" class="nav-link">Fix logDevFlag() call to no-arg</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#we-first-inserted-a-wrong-loadmodel-signature-corrected-to-string-only-argument" class="nav-link">(We first inserted a wrong loadModel signature; corrected to String-only argument)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#final-form-should-be-done-via-editor" class="nav-link">Final form should be (done via editor):</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#whisperengineloadmodelfilesdirpath-whisperggml-tinyen-q5_1bin" class="nav-link">WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en-q5_1.bin")</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#put-tinyen-f16-on-device-adjust-local-path-to-your-host-file" class="nav-link">Put tiny.en F16 on device (adjust local path to your host file)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#1-push-f16-tiny-model-and-copy-into-app-files" class="nav-link">1) Push F16 tiny model and copy into app files</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#2-edit-mainactivitykt-to-call-and-log-the-boolean-result-of-loadmodelf16" class="nav-link">2) Edit MainActivity.kt to call and log the boolean result of loadModel(F16)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#exact-code-to-add-right-after-logversionlogdevflag" class="nav-link">(exact code to add right after logVersion()/logDevFlag()):</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#val-ok-whisperengineloadmodelfilesdirpath-whisperggml-tinyenf16bin" class="nav-link">val ok = WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en.f16.bin")</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#androidutillogiwhisperengine-loadmodelf16-okok" class="nav-link">android.util.Log.i("WhisperEngine", "loadModel(F16) ok=$ok")</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#3-build-install-launch-and-watch-logs" class="nav-link">3) Build, install, launch, and watch logs:</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#whisper-dir-ultimately-chmod-700-individual-model-files-chmod-600" class="nav-link">whisper dir ultimately chmod 700; individual model files chmod 600</a>
               <ul class="nav flex-column">
               </ul>
@@ -801,6 +871,233 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<p>Handover — Chief (feat/v4.0a3-whisper-rebuild) — Whisper JNI / ANR / Model-load
+Overview</p>
+<p>Goal: Get on-device Whisper (JNI) stable in Chief, eliminate UI ANRs, and confirm model-initialization &amp; threading are correct.</p>
+<p>State right now: App builds, installs, launches. Mic capture works and UI remains responsive. On transcription attempt, native logs show:</p>
+<p>E/WhisperJNI: nativeTranscribe: model not loaded (g_ctx == NULL)</p>
+<p>We suspect: The model isn’t actually initialized in native code before transcribe() runs (or is being freed/reset), despite Kotlin thinking “modelReady”.</p>
+<p>Immediate next action: Run with unquantized tiny.en.F16 to rule out quantization + add an explicit native “loaded?” check log before/after loadModel() (see “Next Action” section).</p>
+<p>Device / Branch / App</p>
+<p>Device: Samsung SM-S918W (Android 15 / API 35)</p>
+<p>App ID: app.chief.app</p>
+<p>Branch: feat/v4.0a3-whisper-rebuild</p>
+<p>Timezone: America/Vancouver (ANRs ~ Nov 11, 2025 13:49)</p>
+<p>What we changed (and why)
+1) Native build fix (host x86_64 cmake)</p>
+<p>Symptom: Host x86_64 build complained about missing repack code in the whitelist.
+Change: Added ggml-cpu/arch/x86/repack.cpp to CMake whitelist.</p>
+<p>Command we used:</p>
+<p>sed -i '/arch\/x86\/quants.c)/a \    list(APPEND WHISPER_WHITELIST ${GGML_ROOT}/src/ggml-cpu/arch/x86/repack.cpp)' app/src/main/cpp/CMakeLists.txt</p>
+<p>Result: ./gradlew :app:buildCMakeDebug[x86_64] → SUCCESS.</p>
+<p>2) App build/install/run loop</p>
+<p>We repeatedly verified the pipeline:</p>
+<p>./gradlew :app:assembleDebug
+./gradlew :app:installDebug</p>
+<p>Install logs consistently succeeded:</p>
+<p>BUILD SUCCESSFUL</p>
+<p>Installed on 1 device.</p>
+<p>3) PID-targeted logging &amp; ANR capture</p>
+<p>We moved from noisy logcat to filtered per-PID logging:</p>
+<p>Find PID:</p>
+<p>adb shell pidof -s app.chief.app</p>
+<h1 id="eg-14277-12746-17857-etc">e.g. 14277, 12746, 17857, etc.</h1>
+<p>Per-PID log (quiet channels + our tags):</p>
+<p>adb logcat -v threadtime --pid=$(adb shell pidof -s app.chief.app | tr -d '\r') \
+  WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S</p>
+<p>What we saw during a “good run” (no crash, but no ASR):</p>
+<p>DevPcmRecorder: capture started @ 16000Hz</p>
+<p>Mic: START → later Mic: STOP</p>
+<p>WhisperEngine: modelReady=/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</p>
+<p>But: E/WhisperJNI: nativeTranscribe: model not loaded (g_ctx == NULL)</p>
+<p>ANR attempts:
+We tried to harvest ANR details when the old behavior was freezing input for ~10s.</p>
+<p>SIGQUIT from host shell (not permitted):</p>
+<p>adb shell kill -3 <pid>          # “Operation not permitted”
+adb shell debuggerd -b <pid>     # “root is required”</p>
+<p>SIGQUIT via app context (works when allowed):</p>
+<p>adb shell 'run-as app.chief.app kill -3 $(pidof -s app.chief.app)'</p>
+<p>System ANR evidence:</p>
+<p>adb logcat -b system -b crash -b main -v threadtime -d | grep -i -E "tombstone|anr|wrote stack"
+adb shell dumpsys activity lastanr | head -n 200</p>
+<p>Findings: Multiple “Input dispatching timed out” ANRs at ~13:49, pointing to MainActivity. That means something (earlier in session) was blocking the UI thread during/after touch. Today’s build no longer hit the ANR; mic capture + UI remained fine.</p>
+<p>/data/anr access attempts:
+sed/awk on /data/anr/trace_00 hit Permission denied (expected without root). We pivoted to dumpsys activity lastanr and DropBox.</p>
+<p>4) Kotlin ↔ JNI glue refactor (and fallout we fixed)</p>
+<p>We standardized on a single Kotlin facade:
+app/src/main/java/app/chief/app/speech/WhisperEngine.kt</p>
+<p>Exposes:</p>
+<p>fun version(): String</p>
+<p>fun devFlag(): Boolean</p>
+<p>fun logVersion()</p>
+<p>fun logDevFlag()</p>
+<p>fun loadModel(path: String): Boolean</p>
+<p>suspend fun transcribe(pcm16: ShortArray, sampleRate: Int): String</p>
+<p>Ensures System.loadLibrary("whisper_jni") on class init.</p>
+<p>Cleanups we did:</p>
+<p>Duplicate imports in PulseButton.kt (two imports of WhisperEngine) → removed all but one.</p>
+<p>Command used:</p>
+<p>sed -i '0,/^import app.chief.app.speech.WhisperEngine$/!{/^import app.chief.app.speech.WhisperEngine$/d}' app/src/main/java/app/chief/app/ui/common/PulseButton.kt</p>
+<p>Wrong call signature for logDevFlag(...):</p>
+<p>Code had an argument; API is no-arg.</p>
+<p>Fix:</p>
+<p>sed -i 's/WhisperEngine.logDevFlag([^)]*)/WhisperEngine.logDevFlag()/g' app/src/main/java/app/chief/app/MainActivity.kt</p>
+<p>We first tried (and then removed) a mistaken call form WhisperEngine.loadModel(this, ...) (Kotlin side expects just the path: String). That caused:</p>
+<p>“Argument type mismatch: actual type is MainActivity, expected String.”</p>
+<p>Load timing:</p>
+<p>We attempted to insert a loadModel(...) call after logDevFlag() in MainActivity.kt:</p>
+<p>sed -i '/WhisperEngine.logDevFlag()/a\        WhisperEngine.loadModel(this, filesDir.path + "/whisper/ggml-tiny.en-q5_1.bin")' app/src/main/java/app/chief/app/MainActivity.kt</p>
+<p>This was incorrect signature (extra this). We reverted by editing back to just:</p>
+<p>WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en-q5_1.bin")</p>
+<p>PulseButton path / timing:</p>
+<p>We also considered model loading right before transcription in PulseButton.kt, but the one-liner sed that injected a line before .transcribe() failed due to an over-greedy subst. We ultimately kept model loading in MainActivity for now (see “Next Action”).</p>
+<p>5) Runtime observations (post-fixes)</p>
+<p>App logs at launch:</p>
+<p>WhisperEngine: JNI loaded</p>
+<p>WhisperEngine: version=whisper-vendor v1.8.2</p>
+<p>WhisperEngine: DEV_WHISPER_FLAG=true</p>
+<p>On long-press / stop:</p>
+<p>Mic starts/stops, sample counts look sane.</p>
+<p>Then:</p>
+<p>WhisperEngine: modelReady=/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</p>
+<p>But the JNI says g_ctx == NULL when nativeTranscribe is called.</p>
+<p>Interpretation: Kotlin tracked/printed the intended path, but native context (g_ctx) was never successfully initialized. Either:</p>
+<p>We never actually called nativeLoadModel() (Kotlin loadModel(...)) before the first transcribe(...), or</p>
+<p>nativeLoadModel() returned false and we didn’t gate transcribe on success, or</p>
+<p>g_ctx is being reset/freed between load and transcribe (less likely given timing), or</p>
+<p>JNI symbol mismatch (wrong method name/signature) or the lib didn’t link the loader call we think it did.</p>
+<p>Files we touched (and where)</p>
+<p>app/src/main/cpp/CMakeLists.txt
+(added x86 repack.cpp to whitelist)</p>
+<p>app/src/main/java/app/chief/app/speech/WhisperEngine.kt
+(unified the Kotlin facade; exposes loadModel(path: String) and transcribe)</p>
+<p>app/src/main/java/app/chief/app/ui/common/PulseButton.kt
+(pruned duplicate imports; transcribe calls WhisperEngine with 16kHz PCM; dev flag from filesDir/whisper/USE_WHISPER_DEV)</p>
+<p>app/src/main/java/app/chief/app/MainActivity.kt
+(ensure WhisperEngine.logVersion() + logDevFlag(), and add WhisperEngine.loadModel("<filesDir>/whisper/ggml-tiny.en-q5_1.bin") with correct signature)</p>
+<p>Commands we ran (chronological highlights)</p>
+<p>Build/install:</p>
+<p>./gradlew :app:buildCMakeDebug[x86_64]
+./gradlew :app:assembleDebug
+./gradlew :app:installDebug</p>
+<p>PID + logs:</p>
+<p>adb shell pidof -s app.chief.app
+adb logcat -v threadtime --pid=$(adb shell pidof -s app.chief.app | tr -d '\r') \
+  WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S</p>
+<p>ANR intel:</p>
+<p>adb logcat -b system -b crash -b main -v threadtime -d | grep -i -E "tombstone|anr|wrote stack"
+adb shell dumpsys activity lastanr | head -n 200</p>
+<p>Edits:</p>
+<h1 id="cmake-whitelist-fix">CMake whitelist fix</h1>
+<p>sed -i '/arch\/x86\/quants.c)/a \    list(APPEND WHISPER_WHITELIST ${GGML_ROOT}/src/ggml-cpu/arch/x86/repack.cpp)' app/src/main/cpp/CMakeLists.txt</p>
+<h1 id="remove-duplicate-whisperengine-imports-in-pulsebuttonkt">Remove duplicate WhisperEngine imports in PulseButton.kt</h1>
+<p>sed -i '0,/^import app.chief.app.speech.WhisperEngine$/!{/^import app.chief.app.speech.WhisperEngine$/d}' app/src/main/java/app/chief/app/ui/common/PulseButton.kt</p>
+<h1 id="fix-logdevflag-call-to-no-arg">Fix logDevFlag() call to no-arg</h1>
+<p>sed -i 's/WhisperEngine.logDevFlag([^)]*)/WhisperEngine.logDevFlag()/g' app/src/main/java/app/chief/app/MainActivity.kt</p>
+<h1 id="we-first-inserted-a-wrong-loadmodel-signature-corrected-to-string-only-argument">(We first inserted a wrong loadModel signature; corrected to String-only argument)</h1>
+<h1 id="final-form-should-be-done-via-editor">Final form should be (done via editor):</h1>
+<h1 id="whisperengineloadmodelfilesdirpath-whisperggml-tinyen-q5_1bin">WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en-q5_1.bin")</h1>
+<p>Findings &amp; reasoning</p>
+<p>Original ANRs were input dispatch timeouts (10s) when transcription was happening from the UI thread. Today’s flow (with mic capture on UI and transcribe off UI) avoided that ANR.</p>
+<p>Current blocker is purely model init in native:</p>
+<p>Kotlin printed “modelReady=<path>” (our app’s notion), but native says g_ctx==NULL. That means the JNI load didn’t happen or failed. We need to log the return value of loadModel() and ensure we gate transcribe() on successful load.</p>
+<p>Quantization as contributing factor: Q5_1 is fast, but some builds or params can fail silently or require explicit init params. Testing with F16 rules out quantization issues.</p>
+<p>Hypotheses to test</p>
+<p>H1: WhisperEngine.loadModel(path) isn’t actually being called before transcribe.</p>
+<p>H2: It is called, but nativeLoadModel() returns false and we didn’t check it; result is ignored and we still call transcribe.</p>
+<p>H3: JNI signature mismatch (e.g., Java_app_chief_app_speech_WhisperEngine_nativeLoadModel) not bound due to method signature differences → call is a stub/no-op. (Less likely if we saw no UnsatisfiedLinkError.)</p>
+<p>H4: Our native implementation still uses whisper_init_from_file(...) (deprecated) and needs whisper_init_from_file_with_params(...) on this vendor build.</p>
+<p>H5: g_ctx is global and got freed/overwritten (unlikely in our short path, but keep in mind).</p>
+<p>Verified paths / flags</p>
+<p>Model dir: /data/user/0/app.chief.app/files/whisper</p>
+<p>Quantized model: ggml-tiny.en-q5_1.bin</p>
+<p>DEV flag file (enables dev mic flow): filesDir/whisper/USE_WHISPER_DEV</p>
+<p>Next Action (do this first)</p>
+<p>Purpose: Separate “model init failure” from “quantization weirdness” and get definitive logs that loadModel() succeeded in JNI.</p>
+<p>Push an F16 model (tiny.en F16) to app files and load that exact path, then try one transcription.</p>
+<h1 id="put-tinyen-f16-on-device-adjust-local-path-to-your-host-file">Put tiny.en F16 on device (adjust local path to your host file)</h1>
+<p>adb push ./ggml-tiny.en.bin /sdcard/Download/ggml-tiny.en.f16.bin
+adb shell 'run-as app.chief.app cp /sdcard/Download/ggml-tiny.en.f16.bin /data/user/0/app.chief.app/files/whisper/ggml-tiny.en.f16.bin'</p>
+<p>Edit MainActivity.kt so we load F16 explicitly right after the existing logs:</p>
+<p>// after WhisperEngine.logVersion() and WhisperEngine.logDevFlag()
+val ok = WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en.f16.bin")
+android.util.Log.i("WhisperEngine", "loadModel(F16) ok=$ok")</p>
+<p>(Make sure the call is exactly one String argument.)</p>
+<p>Rebuild, install, launch, capture logs:</p>
+<p>./gradlew :app:assembleDebug :app:installDebug
+adb shell am start -n app.chief.app/.MainActivity
+adb logcat -c
+adb logcat -v threadtime --pid=$(adb shell pidof -s app.chief.app | tr -d '\r') WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S</p>
+<p>Trigger a short dev mic capture (hold then release) to attempt a transcribe and watch for:</p>
+<p>WhisperEngine: loadModel(F16) ok=true</p>
+<p>WhisperJNI: nativeTranscribe: calling whisper_full (samples=...)</p>
+<p>An ASR{engine=whisper, ...} log result or segment text lines</p>
+<p>Outcome interpretation:</p>
+<p>If ok=true and transcribe works with F16 but not with Q5_1 → quantization is the trigger.</p>
+<p>If ok=false or still g_ctx==NULL → the load never occurred or JNI init is wrong; go to Follow-ups A/B below.</p>
+<p>Follow-ups (queue, in order)
+A) Harden the Kotlin gate &amp; logs</p>
+<p>In both MainActivity and the dev path in PulseButton, gate transcribe on loadModel(...) == true and log clear errors if false.</p>
+<p>Add a WhisperEngine.nativeIsLoaded(): Boolean JNI that returns g_ctx != nullptr and log that before transcribe.</p>
+<p>B) Verify JNI bindings and native init</p>
+<p>In whisper_jni.cpp, ensure:</p>
+<p>Java_app_chief_app_speech_WhisperEngine_nativeLoadModel(JNIEnv*, jclass, jstring) exists and returns JNI_TRUE/JNI_FALSE meaningfully.</p>
+<p>Use whisper_init_from_file_with_params(...) (not the deprecated one).</p>
+<p>Log every branch:</p>
+<p>path received,</p>
+<p>params used,</p>
+<p>g_ctx before/after init,</p>
+<p>return code.</p>
+<p>Example native debug lines you should see:</p>
+<p>WhisperJNI: nativeLoadModel: path=&lt;...&gt;</p>
+<p>WhisperJNI: nativeLoadModel: success (g_ctx!=NULL)</p>
+<p>Or WhisperJNI: nativeLoadModel: failed</p>
+<p>C) Threading safety (ANR guardrail)</p>
+<p>Ensure transcribe(...) runs off UI (Dispatchers.Default) and you never block the main thread with whisper_full(...).</p>
+<p>If needed, add a user-cancel / abort path via an atomic flag in native wparams.abort_callback.</p>
+<p>D) Model placement &amp; permissions</p>
+<p>Confirm the model file is readable by app process at that path:</p>
+<p>adb shell 'run-as app.chief.app ls -l /data/user/0/app.chief.app/files/whisper'</p>
+<p>If not present, copy from assets or Download into filesDir/whisper at runtime.</p>
+<p>E) Re-test quantized after F16 works</p>
+<p>Once F16 path succeeds, re-test ggml-tiny.en-q5_1.bin. If it fails:</p>
+<p>Try alternative quant (Q5_0, Q8_0) or rebuild with consistent GGML + Whisper version.</p>
+<p>Consider wparams.n_threads and wparams.audio_ctx sanity defaults.</p>
+<p>Known Good / Repro Snippets</p>
+<p>Per-PID filtered logs (we used this heavily):</p>
+<p>adb logcat -v threadtime --pid=$(adb shell pidof -s app.chief.app | tr -d '\r') \
+  WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S</p>
+<p>ANR summary (most recent):</p>
+<p>adb shell dumpsys activity lastanr | head -n 200</p>
+<p>Showed Input dispatching timed out for MainActivity at Nov 11, 2025 13:49 (older build state).</p>
+<p>What worked</p>
+<p>CMake host fix → native build clean.</p>
+<p>App install/run loop stable.</p>
+<p>Dev mic capture (16 kHz) start/stop works and logs cleanly.</p>
+<p>Per-PID logging reduces noise and caught the key native error (g_ctx==NULL).</p>
+<p>What didn’t (and how we corrected)</p>
+<p>Duplicate imports in PulseButton.kt → compile errors. Fixed via sed.</p>
+<p>Wrong logDevFlag(...) signature → compile error. Fixed to no-arg.</p>
+<p>Wrong loadModel(this, path) signature → compile error. Fixed to loadModel(path).</p>
+<p>Attempts to read /data/anr/trace_00 → permission denied (expected without root). We used dumpsys activity lastanr instead.</p>
+<p>Current assessment</p>
+<p>Primary blocker: The native whisper context (g_ctx) never becomes non-null. Either the Kotlin loadModel(path) call isn’t executed early enough, returns false and we ignore it, or JNI loader uses the deprecated init and fails silently on this vendor build. We need a definitive boolean and native logs around load to proceed confidently.</p>
+<p>One-liner for the next worker (start here)</p>
+<h1 id="1-push-f16-tiny-model-and-copy-into-app-files">1) Push F16 tiny model and copy into app files</h1>
+<p>adb push ./ggml-tiny.en.bin /sdcard/Download/ggml-tiny.en.f16.bin &amp;&amp; \
+adb shell 'run-as app.chief.app cp /sdcard/Download/ggml-tiny.en.f16.bin /data/user/0/app.chief.app/files/whisper/ggml-tiny.en.f16.bin'</p>
+<h1 id="2-edit-mainactivitykt-to-call-and-log-the-boolean-result-of-loadmodelf16">2) Edit MainActivity.kt to call and log the boolean result of loadModel(F16)</h1>
+<h1 id="exact-code-to-add-right-after-logversionlogdevflag">(exact code to add right after logVersion()/logDevFlag()):</h1>
+<h1 id="val-ok-whisperengineloadmodelfilesdirpath-whisperggml-tinyenf16bin">val ok = WhisperEngine.loadModel(filesDir.path + "/whisper/ggml-tiny.en.f16.bin")</h1>
+<h1 id="androidutillogiwhisperengine-loadmodelf16-okok">android.util.Log.i("WhisperEngine", "loadModel(F16) ok=$ok")</h1>
+<h1 id="3-build-install-launch-and-watch-logs">3) Build, install, launch, and watch logs:</h1>
+<p>./gradlew :app:assembleDebug :app:installDebug &amp;&amp; \
+adb shell am start -n app.chief.app/.MainActivity &amp;&amp; \
+adb logcat -c &amp;&amp; \
+adb logcat -v threadtime --pid=$(adb shell pidof -s app.chief.app | tr -d '\r') WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S</p>
+<p>Success criteria:
+You see loadModel(F16) ok=true, followed by WhisperJNI: nativeTranscribe: calling whisper_full (...), and returned text (or at least no g_ctx==NULL). If ok=false or g_ctx==NULL, jump to Follow-ups B (JNI loader logging + *_with_params swap) immediately.</p>
 <hr />
 <p>Chief – Whisper Rebuild Handover (2025-11-11, branch feat/v4.0a3-whisper-rebuild)
 TL;DR (for quick start)</p>
