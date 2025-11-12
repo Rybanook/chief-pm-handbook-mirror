@@ -211,6 +211,55 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#chief-android-worker-handover-whisper-a3-perf-nov-12-2025" class="nav-link">Chief Android — Worker Handover (Whisper a3 Perf) — Nov 12, 2025</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#0-tldr-verynext-step-first" class="nav-link">0) TL;DR / Very‑Next Step First</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#1-repo-environment" class="nav-link">1) Repo / Environment</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-what-changed-this-session-and-why" class="nav-link">2) What Changed This Session (and Why)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-files-touched-with-reasons" class="nav-link">3) Files Touched (with reasons)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-proofs-receipts" class="nav-link">4) Proofs / Receipts</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-commands-used-copypaste-ready" class="nav-link">5) Commands Used (copy‑paste ready)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-key-code-snippets" class="nav-link">6) Key Code Snippets</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-open-items-risks-parked" class="nav-link">7) Open Items / Risks / Parked</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-next-steps-ordered-singlethread" class="nav-link">8) Next Steps (ordered, single‑thread)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-verification-checklist-run-beforeafter-each-change" class="nav-link">9) Verification Checklist (run before/after each change)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-contact-context-reminders" class="nav-link">10) Contact / Context Reminders</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025" class="nav-link">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#1-executive-summary" class="nav-link">1) Executive Summary</a>
@@ -1046,6 +1095,210 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="chief-android-worker-handover-whisper-a3-perf-nov-12-2025">Chief Android — Worker Handover (Whisper a3 Perf) — Nov 12, 2025</h1>
+<h2 id="0-tldr-verynext-step-first">0) TL;DR / Very‑Next Step First</h2>
+<ul>
+<li><strong>Status:</strong> On‑device ASR now ~<strong>3.8s</strong> for tiny.en on SM‑S918W (Android 15). Build green, APK installs, Pulse mic flow fixed, model checksum guard active.</li>
+<li><strong>Very‑next step for the next worker:</strong> Wait for the PM directive and execute the first item verbatim. If none arrives immediately, migrate JNI init to <code>whisper_init_from_file_with_params</code> (drop‑in, no behavior change) as a clean‑up task.</li>
+</ul>
+<hr />
+<h2 id="1-repo-environment">1) Repo / Environment</h2>
+<ul>
+<li><strong>Branch:</strong> <code>feat/v4.0a3-whisper-rebuild</code></li>
+<li>
+<p><strong>Tags:</strong></p>
+</li>
+<li>
+<p>Prior: <code>accept/whisper-a3-prep-2025-11-12</code> (OAuth code‑exchange fixed; build OK)</p>
+</li>
+<li><strong>New:</strong> <code>accept/whisper-a3-perf-2025-11-12</code> (ASR ~3.8s; mic permission flow fixed; checksum guard)</li>
+<li>
+<p><strong>Tooling</strong> (from <code>Session Initialization Protocol</code>):</p>
+</li>
+<li>
+<p><strong>Gradle:</strong> 8.13</p>
+</li>
+<li><strong>Kotlin:</strong> 2.0.21 (Kapt falls back to 1.9 automatically)</li>
+<li><strong>Java:</strong> OpenJDK 21.0.7</li>
+<li><strong>NDK:</strong> r27 (from build logs)</li>
+<li><strong>OS:</strong> Windows 10 x64</li>
+</ul>
+<blockquote>
+<p><strong>Guardrails:</strong> Do <strong>not</strong> touch OAuth settings, App IDs, or Gradle plugins/versions without explicit user approval and file diff verification. One change at a time; verify success before proceeding.</p>
+</blockquote>
+<hr />
+<h2 id="2-what-changed-this-session-and-why">2) What Changed This Session (and Why)</h2>
+<h3 id="21-whisper-performance-ccmake">2.1 Whisper performance (C++/CMake)</h3>
+<ul>
+<li><strong>Problem:</strong> Transcription latency ~55–56 s (Debug) for ~6–9 s clips → unacceptable.</li>
+<li><strong>Cause:</strong> No optimization flags in native build; default Debug flags.</li>
+<li><strong>Fix:</strong> Added per‑target compile options (apply to Debug/Release) to <code>whisper_core</code> and <code>whisper_jni</code>:</li>
+</ul>
+<p><code>cmake
+  # app/src/main/cpp/CMakeLists.txt
+  target_compile_options(whisper_core PRIVATE
+      -O3 -DNDEBUG -ffast-math -fno-math-errno -fno-finite-math-only -funroll-loops -fvisibility=hidden
+  )
+  target_compile_options(whisper_jni PRIVATE
+      -O3 -DNDEBUG -ffast-math -fno-math-errno -fno-finite-math-only -funroll-loops -fvisibility=hidden
+  )
+  if(ANDROID_ABI STREQUAL "arm64-v8a")
+      target_compile_options(whisper_core PRIVATE -march=armv8-a)
+      target_compile_options(whisper_jni  PRIVATE -march=armv8-a)
+  endif()</code>
+* <strong>Result:</strong> ASR time reduced to ~<strong>3.754 s</strong> on device. Proof captured in <code>proof/logcat-whisper-live.txt</code>.</p>
+<h3 id="22-pulse-mic-flow-compose">2.2 Pulse mic flow (Compose)</h3>
+<ul>
+<li><strong>Problem:</strong> After granting RECORD_AUDIO, the UI didn’t start recording because a <strong>new</strong> <code>DevPcmRecorder</code> was created only inside the permission callback; <code>devRecording</code> never flipped true.</li>
+<li><strong>Fix:</strong> Rewrote <code>PulseButton.kt</code> to keep <strong>one</strong> <code>DevPcmRecorder</code> via <code>remember { ... }</code>, and set <code>devRecording = true</code> on permission grant using the same instance.</li>
+<li><strong>Outcome:</strong> Long‑press starts capture; tap stops and transcribes as expected. Logs show START/STOP events.</li>
+</ul>
+<h3 id="23-model-integrity-guard-kotlin">2.3 Model integrity guard (Kotlin)</h3>
+<ul>
+<li><strong>Rationale:</strong> Prior crashes traced to a corrupt tiny model. Added SHA‑256 verification and dual‑name support.</li>
+<li>
+<p><strong>Change:</strong> <code>WhisperEngine.ensureDevModel(ctx)</code> now returns the <strong>preferred</strong> plain <code>ggml-tiny.en.bin</code> if present, else <code>ggml-tiny.en-q5_1.bin</code>. Both paths are validated against the canonical tiny.en digest:</p>
+</li>
+<li>
+<p>Canonical SHA‑256 (tiny.en): <code>921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f</code></p>
+</li>
+<li><strong>App wiring:</strong> <code>MainActivity</code> now calls <code>ensureDevModel(...)</code> and loads only if non‑null; otherwise shows a toast and logs an error.</li>
+</ul>
+<hr />
+<h2 id="3-files-touched-with-reasons">3) Files Touched (with reasons)</h2>
+<ul>
+<li><code>app/src/main/cpp/CMakeLists.txt</code> — add per‑target optimization flags; keep CPU backend.</li>
+<li><code>app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code> — single recorder instance; permission callback flips <code>devRecording</code>; preserves UX.</li>
+<li><code>app/src/main/java/app/chief/app/speech/WhisperEngine.kt</code> — checksum guard + prefer plain tiny.en; keeps existing <code>sha256File</code> helper.</li>
+<li><code>app/src/main/java/app/chief/app/MainActivity.kt</code> — replace hardcoded model path with guarded <code>ensureDevModel(...)</code> usage and toast fallback.</li>
+</ul>
+<blockquote>
+<p><strong>No</strong> changes to OAuth IDs, <code>build.gradle.kts</code> fields, or app IDs.</p>
+</blockquote>
+<hr />
+<h2 id="4-proofs-receipts">4) Proofs / Receipts</h2>
+<ul>
+<li><strong>Runtime logs:</strong> <code>proof/logcat-whisper-live.txt</code> (includes <code>transcribe{ms=3754, chars=...}</code>)</li>
+<li>
+<p><strong>Sandbox state (<code>run-as</code>)</strong></p>
+</li>
+<li>
+<p><code>files/whisper/USE_WHISPER_DEV</code> present</p>
+</li>
+<li><code>files/whisper/ggml-tiny.en.bin</code> → <strong>sha256=921e4cf8… (match)</strong></li>
+<li><code>files/whisper/ggml-tiny.en-q5_1.bin</code> → sha256=c77c5766… (expected, different)</li>
+<li><strong>Tags/branch pushed:</strong> <code>accept/whisper-a3-perf-2025-11-12</code>; branch up to date.</li>
+</ul>
+<hr />
+<h2 id="5-commands-used-copypaste-ready">5) Commands Used (copy‑paste ready)</h2>
+<h3 id="51-session-init-env">5.1 Session init / env</h3>
+<pre><code class="language-bash">pwd &amp;&amp; git status &amp;&amp; git branch -vv &amp;&amp; git log --oneline -n 5 &amp;&amp; git describe --tags --always &amp;&amp; \
+  git config --get core.autocrlf &amp;&amp; git config --get core.eol &amp;&amp; git --version &amp;&amp; node -v || true; npm -v || true; java -version || true; ./gradlew -v
+</code></pre>
+<h3 id="52-build-install">5.2 Build / install</h3>
+<pre><code class="language-bash">./gradlew :app:assembleDebug -x lint
+./gradlew :app:installDebug
+</code></pre>
+<h3 id="53-push-model-git-bash-doubleslash-workaround">5.3 Push model (Git Bash double‑slash workaround)</h3>
+<pre><code class="language-bash">adb push models/ggml-tiny.en-q5_1.bin /data/local/tmp/ggml-tiny.en-q5_1.bin
+adb shell run-as app.chief.app cp //data/local/tmp/ggml-tiny.en-q5_1.bin files/whisper/
+</code></pre>
+<h3 id="54-verify-sandbox-checksums">5.4 Verify sandbox + checksums</h3>
+<pre><code class="language-bash">adb shell run-as app.chief.app ls -l files/whisper
+adb shell run-as app.chief.app toybox sha256sum files/whisper/ggml-tiny.en-q5_1.bin files/whisper/ggml-tiny.en.bin
+</code></pre>
+<h3 id="55-focused-logs-for-smoke-tests">5.5 Focused logs for smoke tests</h3>
+<pre><code class="language-bash">adb logcat -v brief -T 1 -s Mic WhisperEngine DevPcmRecorder Whisper WhisperInit
+</code></pre>
+<h3 id="56-commit-tag-push">5.6 Commit / tag / push</h3>
+<pre><code class="language-bash">git add app/src/main/cpp/CMakeLists.txt \
+  app/src/main/java/app/chief/app/ui/common/PulseButton.kt \
+  app/src/main/java/app/chief/app/speech/WhisperEngine.kt \
+  app/src/main/java/app/chief/app/MainActivity.kt
+
+git commit -m &quot;perf(whisper): cut ASR latency from ~56s → ~3.8s via CMake -O3 + fno-finite-math-only; fix PulseButton recorder perm flow; add model checksum guard + MainActivity guard&quot;
+
+git tag -a accept/whisper-a3-perf-2025-11-12 -m &quot;v4.0a3 perf checkpoint: ASR ~3.8s, CMake -O3 + fno-finite-math-only, PulseButton perm fix, checksum+guard wired&quot;
+
+git push origin feat/v4.0a3-whisper-rebuild
+
+git push origin accept/whisper-a3-perf-2025-11-12
+</code></pre>
+<hr />
+<h2 id="6-key-code-snippets">6) Key Code Snippets</h2>
+<h3 id="61-whisperengineensuredevmodel">6.1 <code>WhisperEngine.ensureDevModel(...)</code></h3>
+<pre><code class="language-kotlin">@JvmStatic
+fun ensureDevModel(ctx: Context): String? {
+    val dir = File(ctx.filesDir, &quot;whisper&quot;).apply { mkdirs() }
+    val plain = File(dir, &quot;ggml-tiny.en.bin&quot;)
+    val q51   = File(dir, &quot;ggml-tiny.en-q5_1.bin&quot;)
+    val target = when {
+        plain.exists() -&gt; plain
+        q51.exists()   -&gt; q51
+        else -&gt; { Log.e(&quot;WhisperEngine&quot;, &quot;model missing in ${dir.absolutePath}&quot;); return null }
+    }
+    val expected = &quot;921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f&quot;
+    return try {
+        val sha = sha256File(target)
+        val match = sha.equals(expected, ignoreCase = true)
+        Log.i(&quot;WhisperEngine&quot;, &quot;model check: name=${target.name}, bytes=${target.length()}, sha256=$sha, match=$match&quot;)
+        if (match) target.absolutePath else null
+    } catch (t: Throwable) { Log.e(&quot;WhisperEngine&quot;, &quot;Checksum failed for ${target.absolutePath}&quot;, t); null }
+}
+</code></pre>
+<h3 id="62-mainactivity-guarded-load">6.2 <code>MainActivity</code> guarded load</h3>
+<pre><code class="language-kotlin">val modelPath = WhisperEngine.ensureDevModel(this)
+if (modelPath == null) {
+    Log.e(&quot;WhisperInit&quot;, &quot;Whisper disabled: model missing or checksum mismatch&quot;)
+    showShortToast(&quot;Whisper disabled (model)&quot;)
+} else {
+    WhisperEngine.loadModel(modelPath)
+}
+</code></pre>
+<h3 id="63-pulsebutton-recorderpermission-fix-essentials">6.3 <code>PulseButton</code> recorder/permission fix (essentials)</h3>
+<pre><code class="language-kotlin">val recorder = remember { DevPcmRecorder(sampleRate = 16_000) }
+var devRecording by remember { mutableStateOf(false) }
+val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted -&gt;
+    if (granted) {
+        if (!recorder.isRunning()) { recorder.start(); devRecording = true }
+    } else { Log.i(&quot;Mic&quot;, &quot;Mic{denied=RECORD_AUDIO}&quot;) }
+}
+</code></pre>
+<h3 id="64-asr-timing-log-for-measurement">6.4 ASR timing log (for measurement)</h3>
+<pre><code class="language-kotlin">val t0 = System.nanoTime()
+val text = WhisperEngine.transcribe(pcm, 16_000)
+val ms = (System.nanoTime() - t0) / 1_000_000
+Log.i(&quot;WhisperEngine&quot;, &quot;transcribe{ms=$ms, chars=${text.length}}&quot;)
+</code></pre>
+<hr />
+<h2 id="7-open-items-risks-parked">7) Open Items / Risks / Parked</h2>
+<ul>
+<li><strong>Deprecated JNI API:</strong> <code>whisper_init_from_file</code> (warning only). <strong>Next:</strong> migrate to <code>_with_params</code> (no behavior change expected).</li>
+<li><strong>Cold start:</strong> Now acceptable, but we may still consider a <strong>keep‑warm</strong> strategy for Release if PM prioritizes instant responsiveness.</li>
+<li><strong>x86_64 build:</strong> Flags applied; verify if this ABI is actually needed for your device farm; otherwise consider slimming ABIs.</li>
+</ul>
+<hr />
+<h2 id="8-next-steps-ordered-singlethread">8) Next Steps (ordered, single‑thread)</h2>
+<ol>
+<li><strong>PM directive:</strong> Execute the first item exactly as written (no OAuth/Gradle changes without file comparison to last accepted tag).</li>
+<li>Migrate JNI init to <code>whisper_init_from_file_with_params</code> (drop‑in, measured no functional change expected).</li>
+<li>(Optional) Implement keep‑warm (preload on app start) behind a dev flag.</li>
+</ol>
+<hr />
+<h2 id="9-verification-checklist-run-beforeafter-each-change">9) Verification Checklist (run before/after each change)</h2>
+<ul>
+<li><code>./gradlew :app:assembleDebug -x lint</code> → <strong>SUCCESS</strong></li>
+<li><code>./gradlew :app:installDebug</code> → <strong>Installed on 1 device</strong></li>
+<li>Logs show: <code>JNI loaded</code>, <code>version=whisper-vendor v1.8.2</code>, <code>model check … match=true</code>, <code>transcribe{ms≈3800, chars&gt;0}</code></li>
+<li>Sandbox: <code>ggml-tiny.en.bin</code> SHA256 = <code>921e4cf8…</code></li>
+<li>No edits to OAuth IDs or Gradle plugins.</li>
+</ul>
+<hr />
+<h2 id="10-contact-context-reminders">10) Contact / Context Reminders</h2>
+<ul>
+<li>The user requires <strong>one command at a time</strong>, explicit Git Bash commands to open files in Notepad, and <strong>no guessing</strong>. Ask for the file before proposing edits that touch critical paths (OAuth, auth flows, build files).</li>
+</ul>
 <hr />
 <h1 id="handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</h1>
 <p><strong>Repo/Branch:</strong> <code>chief-android</code> → <code>feat/v4.0a3-whisper-rebuild</code>
