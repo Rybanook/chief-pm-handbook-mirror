@@ -211,6 +211,67 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025" class="nav-link">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#1-executive-summary" class="nav-link">1) Executive Summary</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#2-current-working-state-locked" class="nav-link">2) Current Working State (locked)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#3-timeline-key-evidence" class="nav-link">3) Timeline / Key Evidence</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#4-code-changes-high-value" class="nav-link">4) Code Changes (high-value)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#5-pm-directive-a3-stabilization-status" class="nav-link">5) PM Directive — a3 Stabilization (Status)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#6-pm-hotfix-directive-kill-3045s-lag-plan" class="nav-link">6) PM Hotfix Directive — Kill 30–45s Lag (Plan)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#7-artifacts-evidence-in-repo" class="nav-link">7) Artifacts / Evidence in Repo</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#8-exact-commands-for-reproducibility" class="nav-link">8) Exact Commands (for reproducibility)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#9-known-warnings-risks" class="nav-link">9) Known Warnings / Risks</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#10-next-actions-for-the-next-worker" class="nav-link">10) Next Actions (for the next worker)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#11-rollback-plan" class="nav-link">11) Rollback Plan</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#12-useful-snippets" class="nav-link">12) Useful Snippets</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#13-open-questions-assumptions" class="nav-link">13) Open Questions / Assumptions</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#14-whats-done-vs-pending-checkboxes" class="nav-link">14) What’s Done vs Pending (checkboxes)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-whisper-rebuild-pulse-mic-nov-12-2025" class="nav-link">Handover — Whisper Rebuild / Pulse Mic — Nov 12, 2025</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#tldr-very-next-step-first" class="nav-link">TL;DR (Very-next step first)</a>
@@ -985,6 +1046,385 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="handover-whisper-v40a3-stabilization-latency-hotfix-nov-12-2025">Handover — Whisper v4.0a3 Stabilization &amp; Latency Hotfix (Nov 12, 2025)</h1>
+<p><strong>Repo/Branch:</strong> <code>chief-android</code> → <code>feat/v4.0a3-whisper-rebuild</code>
+<strong>Device:</strong> Galaxy S23 Ultra (SM-S918W), Android 15 (arm64)
+<strong>Tag (good):</strong> <code>v4.0a3-whisper-ok-2025-11-12</code> (rc=0, end-to-end working)
+<strong>PM Directive(s):</strong></p>
+<ul>
+<li><strong>Stabilization &amp; Integration (a3)</strong> — checksum guard, init modernize, receipts.</li>
+<li><strong>Hotfix: Kill 30–45s lag</strong> — keep model warm, move to executor, prewarm, tune threads.</li>
+</ul>
+<hr />
+<h2 id="1-executive-summary">1) Executive Summary</h2>
+<ul>
+<li><strong>Root cause of crashes:</strong> corrupted model file <code>ggml-tiny.en.bin</code> (44 KB instead of ~74 MB) caused ggml f16 dot <strong>NaN/Inf assert</strong> → SIGABRT in <code>ggml_vec_dot_f16</code>.</li>
+<li><strong>Fix implemented:</strong> removed corrupt <code>tiny.en</code>; <strong>mirrored</strong> known-good quantized model <code>ggml-tiny.en-q5_1.bin</code> to <code>ggml-tiny.en.bin</code>; both now identical and checksum-verified.</li>
+<li><strong>JNI pipeline stabilized:</strong> rc=0, segments produced, preview text logged; <strong>no crash</strong>.</li>
+<li><strong>Auth note:</strong> You (Ryley) fixed Google OAuth flow (mobile→backend code exchange) in <code>MainActivity.kt</code>; we committed and pushed.</li>
+<li><strong>Latency:</strong> still ~48–50s on <strong>debug</strong> run due to cold start + synchronous decode. <strong>Hotfix plan</strong> prepared (executor + warm state); not yet applied (per request to handover before changes).</li>
+</ul>
+<hr />
+<h2 id="2-current-working-state-locked">2) Current Working State (locked)</h2>
+<ul>
+<li><strong>Whisper JNI</strong> compiles and runs; <strong>rc=0</strong> with meaningful text output.</li>
+<li>
+<p><strong>Models on device (identical):</strong></p>
+</li>
+<li>
+<p><code>/data/user/0/app.chief.app/files/whisper/ggml-tiny.en.bin</code></p>
+</li>
+<li><code>/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</code></li>
+<li>
+<p><strong>SHA-256 (canonical):</strong></p>
+<p><code>921e4cf8686fdd993dcd081a5da5b6c365bfde1162e72b08d75ac75289920b1f</code>
+* <strong>JNI parameters (current):</strong> <code>n_threads=2</code>, <code>no_timestamps=true</code>, <code>duration_ms=3000</code>.
+* <strong>Preprocessing (JNI):</strong> PCM16 → float; <strong>DC removal</strong>, <strong>±0.95 clamp</strong>; stats logging; per-call <code>whisper_state</code>; concurrency guard via <code>std::atomic_bool g_busy</code>; once-per-second abort logging.
+* <strong>APK contents:</strong> <code>lib/arm64-v8a/libwhisper_jni.so</code> present; size recorded (see receipts).</p>
+</li>
+</ul>
+<hr />
+<h2 id="3-timeline-key-evidence">3) Timeline / Key Evidence</h2>
+<h3 id="failure">Failure</h3>
+<ul>
+<li>Crash log (before fix):</li>
+</ul>
+<p><code>ggml-cpu/vec.cpp:328: ggml_vec_dot_f16(...): assertion "!isnan(sumf) &amp;&amp; !isinf(sumf)" failed
+  signal 6 (SIGABRT) ... backtrace into ggml_compute_forward_mul_mat → whisper_full_with_state</code>
+* Triggered when model reloaded to bad <code>tiny.en.bin</code> (44 KB).</p>
+<h3 id="diagnosis">Diagnosis</h3>
+<ul>
+<li><code>adb shell run-as app.chief.app ... ls/sha256sum</code> confirmed <strong>44 KB</strong> <code>tiny.en.bin</code>.</li>
+<li>Reload attempts hit <code>whisper_init_from_file</code> fail / crash.</li>
+</ul>
+<h3 id="fix">Fix</h3>
+<ul>
+<li>Removed corrupt file; mirrored quantized file → <code>tiny.en.bin</code>.</li>
+<li>Verified <strong>SHA-256 match</strong> on both files (see commands).</li>
+</ul>
+<h3 id="verification-after-fix">Verification (after fix)</h3>
+<ul>
+<li>
+<p><code>rc=0</code> with preview:</p>
+</li>
+<li>
+<p><code>"Let's build an incredible app today called Chief..."</code> (first run)</p>
+</li>
+<li><code>"Today is going to be an awesome day..."</code> (receipt run)</li>
+<li>Concurrency guard blocked overlapping calls and busy reloads correctly.</li>
+</ul>
+<hr />
+<h2 id="4-code-changes-high-value">4) Code Changes (high-value)</h2>
+<h3 id="41-appsrcmaincppwhisper_jnicpp-committed">4.1 <code>app/src/main/cpp/whisper_jni.cpp</code> (committed)</h3>
+<ul>
+<li><strong>Concurrency:</strong> <code>static std::atomic_bool g_busy</code>, <code>BusyGuard</code> RAII → drops concurrent <code>nativeTranscribe</code>.</li>
+<li><strong>Model lifecycle:</strong> single <code>g_ctx</code> shared; skip reload if same path; skip reload when busy.</li>
+<li><strong>Preproc:</strong> PCM16→float; DC mean removal; clamp to ±0.95; stats (min/max/rms).</li>
+<li><strong>Params:</strong></li>
+</ul>
+<p><code>cpp
+  auto wparams = whisper_full_default_params(WHISPER_SAMPLING_GREEDY);
+  wparams.n_threads     = 2;
+  wparams.no_timestamps = true;
+  wparams.duration_ms   = 3000;</code>
+* <strong>Per-call isolation:</strong> <code>whisper_state* state = whisper_init_state(g_ctx); ... whisper_free_state(state);</code>
+* <strong>Abort logging:</strong> once/sec via <code>on_abort</code> (kept for visibility).
+* <strong>Deprecated API note:</strong> using <code>whisper_init_from_file(...)</code> (warning) — <strong>migration planned</strong> to <code>with_params</code>.</p>
+<h3 id="42-mainactivitykt-committed">4.2 <code>MainActivity.kt</code> (committed)</h3>
+<ul>
+<li><strong>OAuth flow fixed by you:</strong> extracts code, sends to backend via <code>OauthApi</code>, logs errors cleanly, user toasts adjusted.</li>
+<li><strong>Minor UI polish / onboarding code formatting</strong> (as per your diff).</li>
+<li><strong>Whisper init logs:</strong> version + dev flag, and model load path logged.</li>
+</ul>
+<h3 id="43-pulsebuttonkt">4.3 <code>PulseButton.kt</code></h3>
+<ul>
+<li><strong>Null-safety compile error fixed:</strong> ensured non-nullable <code>String</code> usage; DEV mic path now clean.</li>
+<li><strong>DEV flow:</strong> long-press starts <code>DevPcmRecorder(16k)</code>; tap stops → JNI transcription; dumps <code>/files/dev/last.pcm</code>.</li>
+</ul>
+<hr />
+<h2 id="5-pm-directive-a3-stabilization-status">5) PM Directive — a3 Stabilization (Status)</h2>
+<p><strong>Baseline (locked):</strong> ✅</p>
+<ul>
+<li>JNI returns text rc=0; valid model &amp; checksum; OAuth/calendar verified good; no auth/gradle changes bleeding in.</li>
+</ul>
+<p><strong>Tasks:</strong></p>
+<ol>
+<li>
+<p><strong>Model pin + checksum guard</strong> (WhisperEngine.ensureDevModel)</p>
+</li>
+<li>
+<p><strong>Planned:</strong> verify filename + SHA; if mismatch → log and disable Whisper (no auto overwrite).</p>
+</li>
+<li>
+<p><strong>Status:</strong> ❌ <strong>Not yet implemented</strong> (currently mirrored file manually; guard is pending).</p>
+</li>
+<li>
+<p><strong>Init modernization</strong> (<code>whisper_init_from_file_with_params</code>)</p>
+</li>
+<li>
+<p>Params to apply: <code>n_threads=2</code>, <code>no_timestamps=true</code>, <code>duration_ms=5000</code>.</p>
+</li>
+<li>
+<p><strong>Status:</strong> ❌ Pending (still using deprecated <code>...from_file</code>).</p>
+</li>
+<li>
+<p><strong>Proofs / Receipts</strong></p>
+</li>
+<li>
+<p><code>proof/model-check.txt</code> ✅</p>
+</li>
+<li><code>proof/logcat-rc0.txt</code> ✅ (clean start→ASR→stop; rc=0)</li>
+<li><code>proof/run-matrix.txt</code> ❌ (needs two passes: screen on/off, rc=0 both)</li>
+<li>
+<p><code>proof/apk-libs.txt</code> ✅ (shows <code>lib/arm64-v8a/libwhisper_jni.so</code> + byte size)</p>
+</li>
+<li>
+<p><strong>Tag on success</strong>: <code>accept/whisper-a3-stable-2025-11-12</code></p>
+</li>
+<li>
+<p><strong>Status:</strong> ⏳ Not created yet (we created a <strong>prep</strong> checkpoint tag instead—see below).</p>
+</li>
+</ol>
+<p><strong>Guardrails followed:</strong></p>
+<ul>
+<li>No OAuth/Gradle IDs touched.</li>
+<li>Checkpoint tagged before further native edits.</li>
+</ul>
+<hr />
+<h2 id="6-pm-hotfix-directive-kill-3045s-lag-plan">6) PM Hotfix Directive — Kill 30–45s Lag (Plan)</h2>
+<p><strong>Goal:</strong> TTFX ≤ 3s; total ≤ 5s; no main-thread jank.</p>
+<p><strong>Cause (observed):</strong> cold start + debug build + synchronous JNI decode; model reloads avoided now, but decode still blocking.</p>
+<p><strong>Planned changes (Kotlin &amp; JNI), not yet applied:</strong></p>
+<ol>
+<li><strong>Keep model warm</strong>: load <code>g_ctx</code> once on app start when DEV flag present.</li>
+<li><strong>State reuse</strong>: small pool (1–2) <code>whisper_state</code> (JNI), or re-init state per run but keep context hot.</li>
+<li><strong>Move ASR off main</strong>: <strong>single ASR executor</strong> (<code>Executors.newSingleThreadExecutor</code>) → <code>transcribeAsync(...)</code>.</li>
+<li><strong>Prewarm once</strong>: 1-second dummy decode to prime cache; log <code>prewarm ok t=&lt;ms&gt;</code>.</li>
+<li><strong>Tune params</strong>: <code>n_threads=4</code>; <code>duration_ms=5000</code>; keep <code>no_timestamps=true</code>; retain DC removal + clamp.</li>
+<li><strong>Build for timing</strong>: release flags (<code>-O3 -DNDEBUG -ffast-math -fno-finite-math-only</code>), arm64 only for timing runs.</li>
+</ol>
+<p><strong>Receipts to collect after applying:</strong></p>
+<ul>
+<li><code>proof/latency-a3.txt</code> — 3 runs: <code>TTFX_ms=… total_ms=… threads=… warmed=true</code>.</li>
+<li><code>proof/logcat-a3.txt</code> — includes prewarm/start/ASR/stop and durations.</li>
+<li><code>proof/build-type.txt</code> — confirm <strong>Release</strong> for timing run.</li>
+</ul>
+<hr />
+<h2 id="7-artifacts-evidence-in-repo">7) Artifacts / Evidence in Repo</h2>
+<ul>
+<li><strong>Good tag (working):</strong> <code>v4.0a3-whisper-ok-2025-11-12</code> ✅</li>
+<li><strong>Prep checkpoint tag (before hotfix work):</strong> <code>accept/whisper-a3-prep-2025-11-12</code> ✅</li>
+<li>
+<p><strong>Logs:</strong></p>
+</li>
+<li>
+<p><code>logs/2025-11-12-whisper-rc0.log</code> ✅</p>
+</li>
+<li><code>proof/logcat-rc0.txt</code> ✅</li>
+<li>
+<p><strong>Model checks:</strong></p>
+</li>
+<li>
+<p><code>proof/model-check.txt</code> ✅ (sizes + SHA-256 for both models)</p>
+</li>
+<li>
+<p><strong>APK libs:</strong></p>
+</li>
+<li>
+<p><code>proof/apk-libs.txt</code> ✅</p>
+</li>
+<li>
+<p><strong>Handover summary of recovery:</strong></p>
+</li>
+<li>
+<p><code>logs/HANDOVER-2025-11-12-whisper-recover.md</code> ✅</p>
+</li>
+</ul>
+<p><strong>Notable commits (examples):</strong></p>
+<ul>
+<li><code>bbc4518</code> — Whisper JNI rework (guard, preproc, params).</li>
+<li><code>6808954</code> — Add rc=0 log receipt.</li>
+<li><code>91c351c</code> — Auth: Google sign-in fixed (send code to backend; better toasts).</li>
+<li><code>39677cb</code> — Proofs: rc=0 + model checksum.</li>
+<li><code>8f6a26b</code> — Proof: APK contains <code>libwhisper_jni.so</code>.</li>
+<li><code>af052a2</code> — Recovery handover doc commit.</li>
+</ul>
+<hr />
+<h2 id="8-exact-commands-for-reproducibility">8) Exact Commands (for reproducibility)</h2>
+<h3 id="model-ops-app-sandbox">Model ops (app sandbox)</h3>
+<pre><code class="language-bash"># Remove corrupt model
+adb shell &quot;run-as app.chief.app sh -lc 'rm -f files/whisper/ggml-tiny.en.bin'&quot;
+
+# Mirror good quantized → plain name
+adb shell &quot;run-as app.chief.app sh -lc 'cp files/whisper/ggml-tiny.en-q5_1.bin files/whisper/ggml-tiny.en.bin'&quot;
+
+# Verify sizes + hashes
+adb shell &quot;run-as app.chief.app sh -lc 'cd files/whisper &amp;&amp; ls -lh &amp;&amp; sha256sum ggml-tiny.en.bin ggml-tiny.en-q5_1.bin'&quot;
+</code></pre>
+<h3 id="unified-logcat-jni-crashes">Unified logcat (JNI + crashes)</h3>
+<pre><code class="language-bash">adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S | tee crash.log
+</code></pre>
+<h3 id="install-proof">Install &amp; proof</h3>
+<pre><code class="language-bash">./gradlew :app:assembleDebug -x lint
+./gradlew :app:installDebug
+
+# Log a clean rc=0 run
+adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S | tee proof/logcat-rc0.txt
+
+# Confirm APK contains JNI lib &amp; record size
+APK=&quot;app/build/outputs/apk/debug/app-debug.apk&quot;
+unzip -l &quot;$APK&quot; | grep -E &quot;lib/(arm64-v8a|x86_64)/libwhisper_jni\.so&quot; &gt; proof/apk-libs.txt
+printf &quot;\narm64-v8a/libwhisper_jni.so size (bytes): &quot; &gt;&gt; proof/apk-libs.txt
+unzip -p &quot;$APK&quot; lib/arm64-v8a/libwhisper_jni.so | wc -c &gt;&gt; proof/apk-libs.txt
+</code></pre>
+<h3 id="git-tags-pushes">Git tags &amp; pushes</h3>
+<pre><code class="language-bash">git tag -a v4.0a3-whisper-ok-2025-11-12 -m &quot;Whisper JNI rc=0; fixed corrupted tiny.en; params n_threads=2,no_timestamps=1,duration_ms=3000&quot;
+git push origin v4.0a3-whisper-ok-2025-11-12
+
+git tag -a accept/whisper-a3-prep-2025-11-12 -m &quot;Checkpoint before Whisper v4.0a3 stabilization per PM directive&quot;
+git push origin accept/whisper-a3-prep-2025-11-12
+</code></pre>
+<hr />
+<h2 id="9-known-warnings-risks">9) Known Warnings / Risks</h2>
+<ul>
+<li><strong>Deprecated init:</strong> <code>whisper_init_from_file</code> emits warning; migration to <code>...with_params</code> pending.</li>
+<li><strong>Latency (debug):</strong> ~48–50s total in current debug builds; expected to drop sharply with <strong>executor + prewarm + release</strong>.</li>
+<li><strong>Reload attempts while busy:</strong> guarded and logged (skip reload) — correct behavior.</li>
+<li><strong>DEV flag behavior:</strong> <code>USE_WHISPER_DEV</code> file toggles dev pathway; remember to test <strong>DEV off</strong> for regression.</li>
+</ul>
+<hr />
+<h2 id="10-next-actions-for-the-next-worker">10) Next Actions (for the next worker)</h2>
+<h3 id="a-finish-a3-stabilization-low-risk">A. Finish a3 Stabilization (low-risk)</h3>
+<ol>
+<li>
+<p><strong>Checksum guard in <code>WhisperEngine.ensureDevModel(...)</code></strong></p>
+</li>
+<li>
+<p>Compute SHA-256 of selected model; compare to canonical (<code>921e4c...20b1f</code>); if mismatch → log error, <strong>disable Whisper</strong>, show dev toast.</p>
+</li>
+<li>
+<p>Do <strong>not</strong> auto-copy/overwrite.</p>
+</li>
+<li>
+<p><strong>Switch to <code>whisper_init_from_file_with_params</code></strong></p>
+</li>
+<li>
+<p>Keep current preprocess; set <code>duration_ms=5000</code>, keep <code>no_timestamps=true</code>, start with <code>n_threads=2</code> (will bump to 4 in hotfix step).</p>
+</li>
+<li>
+<p>Commit with checkpoint tag.</p>
+</li>
+<li>
+<p><strong>Receipts</strong></p>
+</li>
+<li>
+<p>Add <code>proof/run-matrix.txt</code> with two rc=0 runs (screen on/off).</p>
+</li>
+<li>
+<p><strong>Tag:</strong> <code>accept/whisper-a3-stable-2025-11-12</code>.</p>
+</li>
+</ol>
+<h3 id="b-apply-latency-hotfix-a3-scope-no-auth-touches">B. Apply Latency Hotfix (a3 scope, no auth touches)</h3>
+<ol>
+<li>
+<p><strong>Kotlin: single-thread ASR executor</strong></p>
+</li>
+<li>
+<p><code>WhisperEngine.transcribeAsync(...)</code> running JNI call off main thread.</p>
+</li>
+<li>
+<p>Log per-run total ms (TTFX approximation and total).</p>
+</li>
+<li>
+<p><strong>Warm model on app start (DEV)</strong></p>
+</li>
+<li>
+<p><code>WhisperEngine.preloadIfNeeded(context)</code>; <strong>prewarm</strong> with 1-sec dummy decode once; log <code>prewarm ok t=...</code>.</p>
+</li>
+<li>
+<p><strong>Threads &amp; duration</strong></p>
+</li>
+<li>
+<p>Set <code>n_threads=4</code>, <code>duration_ms=5000</code>.</p>
+</li>
+<li>
+<p>Keep <code>no_timestamps=true</code>.</p>
+</li>
+<li>
+<p><strong>Receipts</strong></p>
+</li>
+<li>
+<p><code>proof/latency-a3.txt</code>: 3 runs with <code>TTFX_ms</code>, <code>total_ms</code>, <code>threads</code>, <code>warmed=true</code>.</p>
+</li>
+<li><code>proof/logcat-a3.txt</code>: shows prewarm/start/ASR/stop with durations.</li>
+<li>
+<p><code>proof/build-type.txt</code>: confirm <strong>Release</strong> build for timing run.</p>
+</li>
+<li>
+<p><strong>If still slow (&gt;5s):</strong></p>
+</li>
+<li>
+<p>Verify <strong>no model reloads</strong> per press; bump to <code>n_threads=6</code> on high-end; confirm arm64-only; check no lock contention.</p>
+</li>
+</ol>
+<h3 id="c-parked-for-a4-do-after-a3-acceptance">C. Parked for a4+ (do <strong>after</strong> a3 acceptance)</h3>
+<ul>
+<li>Re-enable timestamps behind dev toggle; expand <code>duration_ms</code> as needed.</li>
+<li>Device self-test (NEON/RAM), kill-switch rollout.</li>
+</ul>
+<hr />
+<h2 id="11-rollback-plan">11) Rollback Plan</h2>
+<ul>
+<li>
+<p>If any crash or regression appears, <strong>hard revert</strong> to:</p>
+</li>
+<li>
+<p>Tag: <code>v4.0a3-whisper-ok-2025-11-12</code> (known good).</p>
+</li>
+<li>Attach the diff of the failing change to the PR per guardrails.</li>
+</ul>
+<hr />
+<h2 id="12-useful-snippets">12) Useful Snippets</h2>
+<h3 id="jni-progress-stats-already-in-place">JNI progress &amp; stats (already in place)</h3>
+<pre><code class="language-cpp">LOGI(&quot;nativeTranscribe: stats min=%.3f max=%.3f rms=%.3f n=%zu&quot;, minv, maxv, rms, samples.size());
+LOGI(&quot;nativeTranscribe: begin whisper_full_with_state samples=%zu sr=%d threads=%d dur_ms=%d&quot;, ...);
+</code></pre>
+<h3 id="unified-logcat-receipt-quality">Unified logcat (receipt quality)</h3>
+<pre><code class="language-bash">adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S | tee proof/logcat-rc0.txt
+</code></pre>
+<h3 id="dev-mic-happy-path-pulsebutton">DEV mic happy path (PulseButton)</h3>
+<ul>
+<li>Long-press → start capture</li>
+<li>Tap → stop, dump <code>last.pcm</code>, call JNI, toast first 60 chars.</li>
+</ul>
+<hr />
+<h2 id="13-open-questions-assumptions">13) Open Questions / Assumptions</h2>
+<ul>
+<li><strong>Thermals vs threads:</strong> We plan <code>n_threads=4</code>; adjust to device if throttling observed.</li>
+<li><strong>Release timing runs:</strong> Latency targets measured on <strong>Release</strong> build; current receipts were <strong>Debug</strong>.</li>
+<li><strong>Checksum list:</strong> Only tiny.en/tiny.q5_1 covered; if we introduce additional models, extend the allowed checksum list.</li>
+</ul>
+<hr />
+<h2 id="14-whats-done-vs-pending-checkboxes">14) What’s Done vs Pending (checkboxes)</h2>
+<p><strong>Done ✅</strong></p>
+<ul>
+<li>Crash root cause identified (corrupt model).</li>
+<li>Model fixed &amp; checksum-verified.</li>
+<li>JNI stabilized (rc=0), concurrency guard, preprocessing, logging.</li>
+<li>OAuth/calendar flow working.</li>
+<li>Proofs: <code>model-check</code>, <code>logcat-rc0</code>, <code>apk-libs</code>.</li>
+<li>Tags pushed: working tag + prep checkpoint.</li>
+</ul>
+<p><strong>Pending ⏳</strong></p>
+<ul>
+<li>Checksum guard in Kotlin loader.</li>
+<li>Migrate to <code>whisper_init_from_file_with_params</code>.</li>
+<li>Run-matrix receipts (screen on/off).</li>
+<li>Latency hotfix: executor, prewarm, threads=4, receipts (<code>latency-a3</code>, <code>logcat-a3</code>, <code>build-type</code>).</li>
+<li>Acceptance tag: <code>accept/whisper-a3-stable-2025-11-12</code>.</li>
+</ul>
+<hr />
 <hr />
 <h1 id="handover-whisper-rebuild-pulse-mic-nov-12-2025">Handover — Whisper Rebuild / Pulse Mic — Nov 12, 2025</h1>
 <h2 id="tldr-very-next-step-first">TL;DR (Very-next step first)</h2>
