@@ -211,6 +211,63 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="1"><a href="#handover-chief-android-app" class="nav-link">Handover — Chief Android App</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#tldr-current-status" class="nav-link">TL;DR / Current Status</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#the-very-next-step-for-the-next-worker" class="nav-link">The Very Next Step (for the next worker)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#what-we-changed-this-session-surgical-summary" class="nav-link">What We Changed This Session (surgical summary)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#files-touched-with-anchors" class="nav-link">Files Touched (with anchors)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#verified-behaviors-latest" class="nav-link">Verified Behaviors (latest)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#known-issues-open-questions" class="nav-link">Known Issues / Open Questions</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#triage-next-playbook" class="nav-link">Triage Next (playbook)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#rollback-safety" class="nav-link">Rollback / Safety</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#command-snippets-used-key-ones" class="nav-link">Command Snippets Used (key ones)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#why-we-did-it-reasoning-highlights" class="nav-link">Why We Did It (reasoning highlights)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#readytorun-verification-posthandover" class="nav-link">Ready‑To‑Run Verification (post‑handover)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#optional-cleanups-after-stability" class="nav-link">Optional Cleanups (after stability)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#notes" class="nav-link">Notes</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#eg-14277-12746-17857-etc" class="nav-link">e.g. 14277, 12746, 17857, etc.</a>
               <ul class="nav flex-column">
               </ul>
@@ -871,6 +928,224 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h1 id="handover-chief-android-app">Handover — Chief Android App</h1>
+<p><strong>Branch:</strong> <code>feat/v4.0a3-whisper-rebuild</code>
+<strong>Date:</strong> 2025‑11‑11 (America/Vancouver)
+<strong>Scope:</strong> Whisper integration via PulseButton (DEV pathway), crash triage, OAuth call wiring, MainActivity header fix, log &amp; toast wiring.</p>
+<hr />
+<h2 id="tldr-current-status">TL;DR / Current Status</h2>
+<ul>
+<li><strong>Build/Install:</strong> ✅ <code>BUILD SUCCESSFUL</code> and installs to device.</li>
+<li><strong>Whisper Engine:</strong> ✅ JNI loads, model loads (<code>ggml-tiny.en-q5_1.bin</code>). Long‑press on Pulse starts capture; <strong>tap</strong> stops + triggers transcription.</li>
+<li><strong>UI Feedback:</strong> ✅ Added Toast showing transcription text on DEV path after tap.</li>
+<li><strong>Crashes:</strong> Repro not captured yet in <code>AndroidRuntime</code> (no stack seen in latest run). User reported earlier crash on tap after a few presses; we now have a capture procedure ready (see <strong>Triage Next</strong>).</li>
+<li><strong>Mic Permission:</strong> Logs show <code>Mic permission granted: 0</code> (Android constant <code>PERMISSION_GRANTED == 0</code>). Spam indicates check running multiple times (recompositions). Functional, but noisy.</li>
+<li><strong>OAuth:</strong> Replaced missing call with <code>oauthApi.sendAuthCode(code, deviceIdForSession)</code>; user previously saw “zero auth error null.” Our code now shows <code>"Auth err: ${t.message}"</code> on exceptions; needs verification.</li>
+</ul>
+<hr />
+<h2 id="the-very-next-step-for-the-next-worker">The Very Next Step (for the next worker)</h2>
+<p>Run, launch, and tail focused logs:</p>
+<pre><code class="language-bash">./gradlew :app:assembleDebug :app:installDebug \
+  &amp;&amp; adb shell am start -n app.chief.app/.MainActivity \
+  &amp;&amp; adb logcat -c \
+  &amp;&amp; adb logcat -v threadtime WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I AndroidRuntime:E *:S
+</code></pre>
+<p><strong>Then:</strong></p>
+<ol>
+<li>Long‑press Pulse ~3s (start capture), release.</li>
+<li>Tap Pulse once (stop + transcribe).
+   <strong>Expect:</strong> Toast with transcript (or “(no speech detected)”), Whisper logs, no crash.
+   If a crash occurs, capture with the <strong>Crash Capture</strong> command in <em>Triage Next</em>.</li>
+</ol>
+<hr />
+<h2 id="what-we-changed-this-session-surgical-summary">What We Changed This Session (surgical summary)</h2>
+<h3 id="1-mainactivitykt-header-helpers">1) <code>MainActivity.kt</code> header &amp; helpers</h3>
+<ul>
+<li>Fixed illegal header ordering and duplicate <code>package</code> lines.</li>
+<li>Ensured <code>package app.chief.app</code> is first; imports next.</li>
+<li>Added top‑level helpers (now safe to remove after refactor):</li>
+</ul>
+<p><code>kotlin
+  fun getProp(map: Map&lt;String, Any?&gt;, key: String): Any? = map[key]
+  fun safeListSize(list: Any?): Int = (list as? List&lt;*&gt;)?.size ?: 0</code>
+* <strong>Refactor:</strong> Replaced uses on <code>SyncDiff</code> with type-safe properties instead of <code>getProp/safeListSize</code>:</p>
+<p><code>kotlin
+  val updated = diff.updated.size
+  val deleted = diff.deleted.size
+  val added   = diff.added.size</code></p>
+<h3 id="2-oauth-send-code">2) OAuth send code</h3>
+<ul>
+<li>Replaced missing <code>sendGoogleAuthCode(...)</code> with <code>oauthApi.sendAuthCode(code, deviceIdForSession)</code> in <code>signInLauncher</code>.</li>
+<li>Surrounding try/catch shows Toast: <code>"Signed in"</code> on success or <code>"Auth err: ${t.message}"</code> on failure.</li>
+</ul>
+<h3 id="3-pulsebutton-dev-whisper-path">3) PulseButton (DEV Whisper path)</h3>
+<ul>
+<li>Removed broken debounce and stray state passing.</li>
+<li>
+<p>Kept DEV path:</p>
+</li>
+<li>
+<p><strong>Long‑press</strong> → start <code>DevPcmRecorder(16 kHz)</code> with permission gate.</p>
+</li>
+<li><strong>Tap</strong> (while <code>devRecording==true</code>) → stop &amp; fetch PCM → ensure model → <strong>transcribe</strong>.</li>
+<li>Added coroutine offload + UI Toast:</li>
+</ul>
+<p><code>kotlin
+  scope.launch(Dispatchers.Default) {
+      val text = WhisperEngine.transcribe(pcm, 16_000)
+      withContext(Dispatchers.Main) {
+          Toast.makeText(ctx, if (text.isBlank()) "(no speech detected)" else text, Toast.LENGTH_LONG).show()
+      }
+  }</code>
+* Added imports and <code>rememberCoroutineScope()</code>.</p>
+<h3 id="4-minor-logging-verification-hooks">4) Minor logging &amp; verification hooks</h3>
+<ul>
+<li>Added <code>MicPermission</code> logs where permission is checked (no functional change, but verbose due to recomposition).</li>
+</ul>
+<hr />
+<h2 id="files-touched-with-anchors">Files Touched (with anchors)</h2>
+<ul>
+<li>
+<p><strong><code>app/src/main/java/app/chief/app/MainActivity.kt</code></strong></p>
+</li>
+<li>
+<p>Header normalized (package/imports order).</p>
+</li>
+<li><code>signInLauncher</code> → <code>oauthApi.sendAuthCode(code, deviceIdForSession)</code> (around L100–L115).</li>
+<li>Sync diffs Toast logic → sizes from <code>diff.updated/deleted/added</code> (around L330–L356).</li>
+<li>
+<p>Top‑level helpers currently placed after imports (search <code>fun getProp(</code> and <code>fun safeListSize(</code>).</p>
+</li>
+<li>
+<p><strong><code>app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code></strong></p>
+</li>
+<li>
+<p>Signature back to: <code>fun PulseButton(modifier, isActive, label, onTap, onLongPress)</code>.</p>
+</li>
+<li>DEV path on <strong>tap</strong> now launches transcription on <code>Dispatchers.Default</code> and shows Toast on main.</li>
+<li>Imports added: <code>rememberCoroutineScope</code>, <code>launch</code>, <code>Dispatchers</code>, <code>withContext</code>, <code>Toast</code>.</li>
+<li><strong>Note:</strong> Debounce block removed to avoid undefined globals; consider adding a proper stateful guard later (Compose state or ViewModel) if double‑taps are an issue.</li>
+</ul>
+<hr />
+<h2 id="verified-behaviors-latest">Verified Behaviors (latest)</h2>
+<ul>
+<li>
+<p><strong>Model load:</strong></p>
+</li>
+<li>
+<p><code>WhisperEngine: JNI loaded</code></p>
+</li>
+<li><code>WhisperJNI: nativeLoadModel: success</code></li>
+<li>
+<p><strong>Record/Stop:</strong></p>
+</li>
+<li>
+<p><code>Mic{state=START, engine=whisper, sr=16000}</code> on long‑press.</p>
+</li>
+<li><code>Mic{state=STOP}</code> and <code>nativeTranscribe: calling whisper_full (samples=...)</code> on tap.</li>
+<li><strong>UI:</strong> Toast shows transcription after this change (DEV path only).</li>
+</ul>
+<hr />
+<h2 id="known-issues-open-questions">Known Issues / Open Questions</h2>
+<ol>
+<li><strong>Crash not captured</strong>: User reported crash after multiple taps previously. We now have a capture flow but didn’t record an <code>AndroidRuntime</code> stack yet.</li>
+<li><strong>Permission logs spam:</strong> <code>Mic permission granted: 0</code> repeats on composition; harmless but noisy. We can move the check to the long‑press path or gate with <code>remember</code>.</li>
+<li><strong>OAuth toast:</strong> Earlier user saw “zero auth error null.” With the new call we expect either <strong>“Signed in”</strong> or <strong>“Auth err: …”</strong>. Needs a live test.</li>
+<li><strong>Helpers leftover:</strong> <code>getProp/safeListSize</code> now unused post‑refactor. Safe to remove once confirmed.</li>
+</ol>
+<hr />
+<h2 id="triage-next-playbook">Triage Next (playbook)</h2>
+<h3 id="a-crash-capture-if-it-happens-again">A) Crash capture if it happens again</h3>
+<pre><code class="language-bash">adb logcat -c &amp;&amp; adb logcat -v threadtime AndroidRuntime:E libc:F WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I *:S | tee crash.log
+</code></pre>
+<ul>
+<li>Reproduce: long‑press (start), tap (stop/transcribe). On crash, <strong>Ctrl+C</strong> and attach <code>crash.log</code>.</li>
+</ul>
+<h3 id="b-verify-oauth-exchange">B) Verify OAuth exchange</h3>
+<ol>
+<li>Trigger Google sign‑in (existing UI flow).</li>
+<li>Watch for <strong>"Signed in"</strong> vs <strong>"Auth err: …"</strong>.</li>
+<li>If error, inspect backend URL <code>POST /auth/google/mobile-exchange</code> (client uses <code>authCode</code> + <code>x-user-id</code> header). Confirm BASE_URL and deviceId header are correct.</li>
+</ol>
+<h3 id="c-reduce-log-spam-optional-polish">C) Reduce log spam (optional polish)</h3>
+<ul>
+<li>Gate permission logging behind <code>if (BuildConfig.DEBUG)</code> or move it inside the long‑press <code>granted</code> branch.</li>
+</ul>
+<hr />
+<h2 id="rollback-safety">Rollback / Safety</h2>
+<ul>
+<li>All edits are file-local Kotlin changes. No Gradle, no package renames, no IDs touched.</li>
+<li>Quick revert any file with:</li>
+</ul>
+<p><code>bash
+  git checkout -- app/src/main/java/app/chief/app/MainActivity.kt \
+                  app/src/main/java/app/chief/app/ui/common/PulseButton.kt</code></p>
+<hr />
+<h2 id="command-snippets-used-key-ones">Command Snippets Used (key ones)</h2>
+<ul>
+<li>
+<p><strong>Header fixes / inspections</strong></p>
+</li>
+<li>
+<p><code>head -n 40 app/src/main/java/app/chief/app/MainActivity.kt</code></p>
+</li>
+<li><code>nl -ba … | sed -n '1,60p'</code></li>
+<li>
+<p><strong>MainActivity fixes</strong></p>
+</li>
+<li>
+<p>Removed duplicate <code>package</code>, cleaned illegal <code>import fun ...</code> artifact.</p>
+</li>
+<li>Replaced <code>sendGoogleAuthCode</code> → <code>oauthApi.sendAuthCode</code>.</li>
+<li>Replaced <code>safeListSize(getProp(diff, …))</code> → <code>diff.….size</code>.</li>
+<li>
+<p><strong>PulseButton edits</strong></p>
+</li>
+<li>
+<p>Removed incorrect params &amp; debounce; added coroutine transcription + Toast.</p>
+</li>
+<li>Inserted imports and <code>rememberCoroutineScope()</code>.</li>
+<li>
+<p><strong>Run &amp; logs</strong></p>
+</li>
+<li>
+<p><code>./gradlew :app:assembleDebug :app:installDebug</code></p>
+</li>
+<li><code>adb shell am start -n app.chief.app/.MainActivity</code></li>
+<li><code>adb logcat -v threadtime WhisperJNI:I WhisperEngine:I Mic:I DevPcmRecorder:I ASR:I AndroidRuntime:E *:S</code></li>
+<li>Crash capture command (see <em>Triage Next</em>).</li>
+</ul>
+<hr />
+<h2 id="why-we-did-it-reasoning-highlights">Why We Did It (reasoning highlights)</h2>
+<ul>
+<li><strong>Header ordering</strong> broke Kotlin parsing; fixed to restore builds.</li>
+<li><strong>Missing <code>sendGoogleAuthCode</code></strong>: canonicalized to the existing <code>OauthApi.sendAuthCode</code> method to match backend.</li>
+<li><strong><code>SyncDiff</code> typing</strong>: Using direct properties removes brittle map‑like access and avoids type mismatches.</li>
+<li><strong>UI feedback</strong>: Toast on DEV transcription shortens the debug loop and proves E2E flow.</li>
+<li><strong>Threading</strong>: Offloaded Whisper decode from UI to avoid ANRs/crashes.</li>
+</ul>
+<hr />
+<h2 id="readytorun-verification-posthandover">Ready‑To‑Run Verification (post‑handover)</h2>
+<ol>
+<li><strong>Run the Very Next Step</strong> command above.</li>
+<li>Long‑press → Tap. Expect Toast with transcript.</li>
+<li>If crash: capture with Crash Capture command and attach <code>crash.log</code>.</li>
+<li>Trigger Google sign‑in and confirm success toast.</li>
+</ol>
+<hr />
+<h2 id="optional-cleanups-after-stability">Optional Cleanups (after stability)</h2>
+<ul>
+<li>Remove unused helpers <code>getProp/safeListSize</code> if confirmed unused.</li>
+<li>Consolidate <code>MicPermission</code> logging into a single guarded point.</li>
+<li>Consider a proper Compose debouncer or state guard if users double‑tap frequently.</li>
+</ul>
+<hr />
+<h2 id="notes">Notes</h2>
+<ul>
+<li><strong>OAuth/IDs/Gradle:</strong> untouched except for calling existing <code>OauthApi</code>. No auth configs altered.</li>
+<li><strong>Model path:</strong> <code>/data/user/0/app.chief.app/files/whisper/ggml-tiny.en-q5_1.bin</code> (from logs).</li>
+</ul>
 <hr />
 <p>Handover — Chief (feat/v4.0a3-whisper-rebuild) — Whisper JNI / ANR / Model-load
 Overview</p>
