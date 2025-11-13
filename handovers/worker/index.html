@@ -211,6 +211,11 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            <li class="nav-item" data-bs-level="2"><a href="#worker-handover-v50-repo-branch-setup-w0-complete" class="nav-link">Worker Handover — v5.0 Repo &amp; Branch Setup (W0 Complete)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#chief-android-whisper-a31-a4-handover-nov-12-2025" class="nav-link">Chief Android — Whisper a3.1 → a4 Handover (Nov 12, 2025)</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#overview" class="nav-link">Overview</a>
@@ -1242,6 +1247,628 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<h2 id="worker-handover-v50-repo-branch-setup-w0-complete">Worker Handover — v5.0 Repo &amp; Branch Setup (W0 Complete)</h2>
+<p><strong>Date:</strong> 2025-11-12
+<strong>Worker:</strong> GPT-5.1 (this session)
+<strong>Track:</strong> Chief Android — <strong>v5.0 “Chat Screen V0 + Reply Pipeline”</strong>
+<strong>Current Phase:</strong> <strong>W0 — Repo/Branch Setup</strong> (COMPLETED)
+<strong>Next Phase:</strong> W3.1 — Restore navigation Brief → Chat (NOT STARTED YET)</p>
+<hr />
+<h3 id="1-context-pm-directives-high-level">1. Context &amp; PM Directives (High-Level)</h3>
+<ul>
+<li>
+<p>Whisper v4.0 (a3.1 + a4) is <strong>accepted and frozen</strong>.</p>
+</li>
+<li>
+<p>PM explicitly: treat Whisper as a <strong>black box</strong>: <em>audio in → text out</em>.</p>
+</li>
+<li>
+<p>No more Whisper tuning, model swaps, or device gating in this track.</p>
+</li>
+<li>
+<p>New PM directive (this session) defines v5.0 track:</p>
+</li>
+<li>
+<p><strong>W0 (this doc):</strong> Safe repo + branch setup on top of accepted Whisper state.</p>
+</li>
+<li><strong>W3.1:</strong> Restore navigation from Brief → Chat.</li>
+<li><strong>W3.2:</strong> Build Chat Screen V0.</li>
+<li>
+<p><strong>W3.3:</strong> Wire Reply Pipeline V0.</p>
+</li>
+<li>
+<p>PM also added a meta directive: <strong>proof files are for the repo, not for PM chat</strong>.</p>
+</li>
+<li>
+<p>Worker should log short summaries + commit receipts.</p>
+</li>
+<li>
+<p>PM doesn’t want raw log dumps unless there’s a discrepancy.</p>
+</li>
+<li>
+<p>User warning (very important):</p>
+</li>
+<li>
+<p>Previous sessions had <strong>catastrophic branch / package mixups</strong> (wrong tree, lost files, mis-scoped packages).</p>
+</li>
+<li>
+<p>We treat git as <strong>hazardous</strong>:</p>
+<ul>
+<li>No speculative checkouts.</li>
+<li>Back up first, then clean, then branch.</li>
+<li>We already followed that procedure here.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="2-canonical-repo-default-branch-w01-w02">2. Canonical Repo &amp; Default Branch (W0.1 + W0.2)</h3>
+<p><strong>Canonical app repo (Active):</strong></p>
+<ul>
+<li>
+<p>Path:
+  <code>~/AndroidStudioProjects/Chief</code>
+  → From <code>pwd</code> output: <code>/c/Users/User/AndroidStudioProjects/Chief</code></p>
+</li>
+<li>
+<p>Contents (top level, abbreviated):</p>
+</li>
+<li>
+<p><code>app/</code>, <code>build.gradle.kts</code>, <code>settings.gradle.kts</code></p>
+</li>
+<li>NDK logs (<code>build-ndk-*.log</code>), <code>models/</code>, <code>proof/</code>, <code>whisper_run.log</code>, etc.</li>
+</ul>
+<p><strong>Archive / reference repos (DO NOT use as active bases):</strong></p>
+<ul>
+<li><code>~/AndroidStudioProjects/Chief-a2</code></li>
+<li><code>~/AndroidStudioProjects/Chief-a4</code></li>
+<li>Others like that are considered <strong>archive/reference only</strong> going forward.</li>
+</ul>
+<p><strong>Remote &amp; default branch:</strong></p>
+<ul>
+<li>
+<p>Remote:</p>
+</li>
+<li>
+<p><code>origin  git@github.com:Rybanook/chief-android.git (fetch)</code></p>
+</li>
+<li>
+<p><code>origin  git@github.com:Rybanook/chief-android.git (push)</code></p>
+</li>
+<li>
+<p>Default branch (per <code>git remote show origin</code>):</p>
+</li>
+<li>
+<p><code>HEAD branch: master</code></p>
+</li>
+<li>
+<p>Remote branches include:</p>
+<ul>
+<li><code>master</code></li>
+<li><code>feat/v4.0a3-whisper-rebuild</code></li>
+<li><code>feat/v4.0a4-whisper-timestamps</code></li>
+<li>multiple <code>feat/v3.x-*</code>, <code>safety/post-rescue-*</code>, etc.</li>
+</ul>
+</li>
+</ul>
+<p><strong>Rules respected:</strong></p>
+<ul>
+<li>We did <strong>not</strong> rename default branch.</li>
+<li>We did <strong>not</strong> rewrite history or force-push.</li>
+<li>v5.0 work is on a dedicated feature branch, <strong>not</strong> on <code>master</code> or <code>feat/v4.0*</code>.</li>
+</ul>
+<hr />
+<h3 id="3-accepted-whisper-base-w03">3. Accepted Whisper Base (W0.3)</h3>
+<p>We inspected Whisper-related tags:</p>
+<pre><code class="language-bash">git tag --list | grep -i whisper
+</code></pre>
+<p>Result (key ones):</p>
+<ul>
+<li><code>accept/whisper-a3-perf-2025-11-12</code></li>
+<li><code>accept/whisper-a3-prep-2025-11-12</code></li>
+<li><code>accept/whisper-a3.1-freeze-2025-11-12</code></li>
+<li><code>accept/whisper-a4-freeze-2025-11-12</code></li>
+<li><code>accept/whisper-a4-prep-2025-11-12</code></li>
+<li><code>accept/whisper-a4-text-proof-2025-11-12</code></li>
+<li><code>safety/whisper-dev-gesture-moved-2025-11-10</code></li>
+<li><code>v4.0a3-whisper-ok-2025-11-12</code></li>
+</ul>
+<p>We then inspected key tags with:</p>
+<pre><code class="language-bash">git show --no-patch --oneline &lt;tag&gt;
+</code></pre>
+<ul>
+<li>
+<p><code>v4.0a3-whisper-ok-2025-11-12</code> → early NDK skeleton commit (<code>feat(v4.0a3): NDK skeleton + JNI stubs…</code>)</p>
+</li>
+<li>
+<p>That’s not the final accepted enablement state.</p>
+</li>
+<li>
+<p><code>accept/whisper-a3.1-freeze-2025-11-12</code> → deterministic q5_1 pin, SHA allow-list, <code>*_with_params</code>, reusable <code>whisper_state</code>.</p>
+</li>
+<li>
+<p><code>accept/whisper-a4-freeze-2025-11-12</code> → <strong>a4 freeze</strong>: timestamps ON (<code>no_ts=false</code>), truncation path proven, receipts logged.</p>
+</li>
+</ul>
+<p><strong>Chosen base for v5.0:</strong></p>
+<ul>
+<li><strong>Tag:</strong> <code>accept/whisper-a4-freeze-2025-11-12</code></li>
+<li>
+<p><strong>Justification:</strong></p>
+</li>
+<li>
+<p>PM said a3.1 + a4 are both verified and frozen, and Whisper integration is core-stable at a4.</p>
+</li>
+<li>a4 adds timestamps + truncation behavior; that’s what we want beneath v5.0.</li>
+</ul>
+<hr />
+<h3 id="4-protecting-existing-work-before-branching-safety-measures">4. Protecting Existing Work Before Branching (Safety Measures)</h3>
+<p>When we started, the user was on <strong>branch</strong>:</p>
+<ul>
+<li><code>feat/v4.0a3-whisper-rebuild</code></li>
+</ul>
+<p>We ran:</p>
+<pre><code class="language-bash">git status -sb
+</code></pre>
+<p>Result showed a <strong>dirty tree</strong>:</p>
+<ul>
+<li>
+<p>Modified:</p>
+</li>
+<li>
+<p><code>M app/build.gradle.kts</code></p>
+</li>
+<li><code>M last.wav</code></li>
+<li>
+<p>Untracked:</p>
+</li>
+<li>
+<p><code>THIRD_PARTY.md</code></p>
+</li>
+<li><code>app/src/main/java/app/chief/app/asr/DevPcmRecorder.kt</code> (old dev helper)</li>
+<li><code>app/src/main/cpp/third_party/</code> (vendored whisper sources)</li>
+<li>Various logs (<code>build-ndk-*.log</code>, <code>build_whisper*.log</code>, <code>crash.log</code>, <code>sigquit.log</code>, <code>whisper*.log</code>, etc.)</li>
+<li><code>models/</code>, <code>ggml-tiny.en.bin</code>, <code>last.pcm</code></li>
+<li><code>proof/*</code> with whisper-related logs</li>
+</ul>
+<p>Given the user’s history of branch catastrophes, we <strong>refused</strong> to change branches until we had:</p>
+<ol>
+<li>A full <strong>filesystem backup</strong> of the repo.</li>
+<li>A full <strong>git stash</strong> of the dirty state.</li>
+<li>A <strong>clean working tree</strong>.</li>
+</ol>
+<h4 id="41-filesystem-backup-raw-copy">4.1 Filesystem backup (raw copy)</h4>
+<p>From <code>~/AndroidStudioProjects</code>:</p>
+<pre><code class="language-bash">cp -r Chief Chief-pre-v5-20251112
+</code></pre>
+<p>This created a full folder backup:</p>
+<ul>
+<li><code>~/AndroidStudioProjects/Chief-pre-v5-20251112</code></li>
+</ul>
+<blockquote>
+<p>This holds the exact pre-v5 state, including all untracked files and logs.
+If anything ever looks wrong, future workers can diff against or restore from here.</p>
+</blockquote>
+<h4 id="42-git-stash-of-dirty-state">4.2 Git stash of dirty state</h4>
+<p>Still on <code>feat/v4.0a3-whisper-rebuild</code>, we ran:</p>
+<pre><code class="language-bash">git stash push -u -m &quot;safety: pre-v5.0-working-tree-2025-11-12&quot;
+</code></pre>
+<ul>
+<li>This stashed all tracked + untracked changes (except paths ignored by git, like some vendor bits).</li>
+<li>You will see this in <code>git stash list</code> if you want to recover that state on <strong><code>feat/v4.0a3-whisper-rebuild</code></strong> later.</li>
+</ul>
+<h4 id="43-handling-the-vendored-third_party-folder">4.3 Handling the vendored <code>third_party</code> folder</h4>
+<p>After stashing, <code>git status -sb</code> still showed:</p>
+<ul>
+<li><code>?? app/src/main/cpp/third_party/</code></li>
+</ul>
+<p>Git ignored <code>third_party/whisper.cpp/*</code> contents but the top-level dir remained as untracked.</p>
+<p>To avoid branch checkout with a stray native dir, we <strong>moved</strong> it (not deleted) <strong>out of the repo tree</strong>:</p>
+<pre><code class="language-bash">mv app/src/main/cpp/third_party ../third_party-backup-20251112
+</code></pre>
+<p>Then:</p>
+<pre><code class="language-bash">git status -sb
+# clean on feat/v4.0a3-whisper-rebuild
+</code></pre>
+<p>Now the tree was clean and safe to branch.</p>
+<hr />
+<h3 id="5-creating-checking-out-the-v50-branch-w04-w05">5. Creating &amp; Checking Out the v5.0 Branch (W0.4 + W0.5)</h3>
+<h4 id="51-create-branch-pointer-no-checkout-yet">5.1 Create branch pointer (no checkout yet)</h4>
+<p>From <code>~/AndroidStudioProjects/Chief</code>:</p>
+<pre><code class="language-bash">git branch feat/v5.0-chat-screen-and-reply accept/whisper-a4-freeze-2025-11-12
+git branch --list &quot;feat/v5.0*&quot;
+# -&gt; feat/v5.0-chat-screen-and-reply
+</code></pre>
+<p>This only created the branch ref; it did <strong>not</strong> touch working files.</p>
+<h4 id="52-checkout-v50-branch-once-tree-was-clean">5.2 Checkout v5.0 branch (once tree was clean)</h4>
+<p>After confirming clean status on <code>feat/v4.0a3-whisper-rebuild</code>, we checked out:</p>
+<pre><code class="language-bash">git checkout feat/v5.0-chat-screen-and-reply
+# -&gt; Switched to branch 'feat/v5.0-chat-screen-and-reply'
+</code></pre>
+<p>Verification:</p>
+<pre><code class="language-bash">git status -sb
+# -&gt; ## feat/v5.0-chat-screen-and-reply
+# (clean)
+</code></pre>
+<p>At this point:</p>
+<ul>
+<li>On <strong>feat/v5.0-chat-screen-and-reply</strong></li>
+<li>Based on <code>accept/whisper-a4-freeze-2025-11-12</code></li>
+<li>Tree initially clean (except we hadn’t restored the vendored third_party yet).</li>
+</ul>
+<hr />
+<h3 id="6-fixing-ndk-dev-recorder-on-v50-branch-minimal-code-work">6. Fixing NDK &amp; Dev Recorder on v5.0 Branch (Minimal Code Work)</h3>
+<h4 id="61-restoring-the-vendored-whisper-sources">6.1 Restoring the vendored whisper sources</h4>
+<p>When we first tried to build v5.0, we hit NDK errors:</p>
+<ul>
+<li>
+<p>Missing paths like:</p>
+</li>
+<li>
+<p><code>app/src/main/cpp/third_party/whisper.cpp/src/whisper.cpp</code></p>
+</li>
+<li><code>app/src/main/cpp/third_party/whisper.cpp/ggml/src/ggml.cpp</code></li>
+<li>And <code>whisper_jni.cpp</code> failed to include <code>whisper.h</code>.</li>
+</ul>
+<p>This was expected because we had moved the vendor dir out earlier.</p>
+<p>We restored it with:</p>
+<pre><code class="language-bash">mv ../third_party-backup-20251112 app/src/main/cpp/third_party
+</code></pre>
+<p>Result: NDK now sees <code>third_party/whisper.cpp</code> sources again.</p>
+<blockquote>
+<p>Note: <code>app/src/main/cpp/third_party/</code> stays untracked (vendored code, ignore is expected).
+We did <strong>not</strong> modify these vendor files.</p>
+</blockquote>
+<h4 id="62-missing-devpcmrecorder-on-v50">6.2 Missing DevPcmRecorder on v5.0</h4>
+<p>Next <code>:app:compileDebugKotlin</code> failed with errors in <code>PulseButton.kt</code>:</p>
+<ul>
+<li><code>Unresolved reference 'DevPcmRecorder'</code></li>
+<li><code>Unresolved reference 'isRunning'</code>, <code>start</code>, <code>stopAndGet</code></li>
+<li>Some noise from type inference due to the missing class.</li>
+</ul>
+<p>On v5.0, we have a <code>PulseButton</code> wired to <strong>Whisper dev tooling</strong> that expects:</p>
+<ul>
+<li><code>app.chief.app.asr.DevPcmRecorder</code> (dev-only helper class) to exist.</li>
+</ul>
+<p>This file existed in earlier work but was not present on this clean a4 base.</p>
+<p><strong>Fix:</strong> add a minimal, dev-only implementation of <code>DevPcmRecorder</code> that matches what PulseButton expects:</p>
+<ul>
+<li>Constructor: <code>DevPcmRecorder(sampleRate: Int)</code></li>
+<li>
+<p>Methods:</p>
+</li>
+<li>
+<p><code>fun isRunning(): Boolean</code></p>
+</li>
+<li><code>fun start()</code></li>
+<li><code>fun stopAndGet(): ShortArray</code></li>
+</ul>
+<h5 id="621-directory-create">6.2.1 Directory create</h5>
+<p>We ensured the package path exists:</p>
+<pre><code class="language-bash">mkdir -p app/src/main/java/app/chief/app/asr
+</code></pre>
+<h5 id="622-new-file-devpcmrecorderkt">6.2.2 New file: <code>DevPcmRecorder.kt</code></h5>
+<p>Opened via:</p>
+<pre><code class="language-bash">notepad.exe app/src/main/java/app/chief/app/asr/DevPcmRecorder.kt
+</code></pre>
+<p>Contents (this is the <strong>exact</strong> file we created and committed):</p>
+<pre><code class="language-kotlin">package app.chief.app.asr
+
+import android.media.AudioFormat
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.util.Log
+
+/**
+ * DevPcmRecorder
+ *
+ * Minimal dev-only helper for PulseButton:
+ *  - sampleRate: usually 16_000
+ *  - start() begins background capture from MIC
+ *  - isRunning() tells if capture is active
+ *  - stopAndGet() stops capture and returns all samples as ShortArray
+ *
+ * This is not user-facing and is only used in the Whisper DEV flow.
+ */
+class DevPcmRecorder(
+    private val sampleRate: Int
+) {
+    private val tag = &quot;DevPcmRecorder&quot;
+
+    @Volatile
+    private var running: Boolean = false
+
+    @Volatile
+    private var audioRecord: AudioRecord? = null
+
+    private val bufferLock = Any()
+    private val captured = ArrayList&lt;Short&gt;(16_000) // start with ~1s capacity
+
+    fun isRunning(): Boolean = running
+
+    fun start() {
+        if (running) {
+            Log.i(tag, &quot;start(): already running&quot;)
+            return
+        }
+
+        val minBuf = AudioRecord.getMinBufferSize(
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT
+        )
+        if (minBuf &lt;= 0) {
+            Log.e(tag, &quot;start(): invalid minBufferSize=$minBuf&quot;)
+            return
+        }
+
+        val bufSize = minBuf * 2
+        val rec = AudioRecord(
+            MediaRecorder.AudioSource.MIC,
+            sampleRate,
+            AudioFormat.CHANNEL_IN_MONO,
+            AudioFormat.ENCODING_PCM_16BIT,
+            bufSize
+        )
+
+        if (rec.state != AudioRecord.STATE_INITIALIZED) {
+            Log.e(tag, &quot;start(): AudioRecord not initialized, state=${rec.state}&quot;)
+            rec.release()
+            return
+        }
+
+        synchronized(bufferLock) {
+            captured.clear()
+        }
+
+        audioRecord = rec
+        running = true
+
+        Thread({
+            try {
+                rec.startRecording()
+                Log.i(tag, &quot;record loop: START (sr=$sampleRate, buf=$bufSize)&quot;)
+
+                val shortBuf = ShortArray(bufSize / 2)
+                while (running) {
+                    val n = rec.read(shortBuf, 0, shortBuf.size)
+                    if (n &gt; 0) {
+                        synchronized(bufferLock) {
+                            for (i in 0 until n) {
+                                captured.add(shortBuf[i])
+                            }
+                        }
+                    }
+                }
+
+                Log.i(tag, &quot;record loop: STOP (running=false)&quot;)
+            } catch (t: Throwable) {
+                Log.e(tag, &quot;record loop: error&quot;, t)
+            } finally {
+                try {
+                    rec.stop()
+                } catch (_: Throwable) {}
+                rec.release()
+                audioRecord = null
+                running = false
+                Log.i(tag, &quot;record loop: RELEASED&quot;)
+            }
+        }, &quot;DevPcmRecorder&quot;).start()
+    }
+
+    /**
+     * Stop capture and return all collected samples.
+     * Safe to call even if start() was never successful.
+     */
+    fun stopAndGet(): ShortArray {
+        // Signal the loop to stop
+        running = false
+
+        val result: ShortArray
+        synchronized(bufferLock) {
+            if (captured.isEmpty()) {
+                result = ShortArray(0)
+            } else {
+                result = ShortArray(captured.size)
+                for (i in captured.indices) {
+                    result[i] = captured[i]
+                }
+                captured.clear()
+            }
+        }
+
+        Log.i(tag, &quot;stopAndGet(): returning ${result.size} samples&quot;)
+        return result
+    }
+}
+</code></pre>
+<p>This aligns with how <code>PulseButton</code> uses it:</p>
+<ul>
+<li><code>DevPcmRecorder(sampleRate = 16_000)</code></li>
+<li><code>recorder.isRunning()</code>, <code>recorder.start()</code>, <code>recorder.stopAndGet()</code>.</li>
+</ul>
+<h4 id="63-build-verification-on-v50">6.3 Build verification on v5.0</h4>
+<p>After adding <code>DevPcmRecorder</code> and restoring vendored <code>third_party</code>, we ran:</p>
+<pre><code class="language-bash">./gradlew :app:assembleDebug
+</code></pre>
+<p>Result: <strong>BUILD SUCCESSFUL</strong></p>
+<ul>
+<li>44 actionable tasks, all OK.</li>
+</ul>
+<h4 id="64-commit-on-v50-w05-commit-hygiene">6.4 Commit on v5.0 (W0.5 commit hygiene)</h4>
+<p>Status after adding file:</p>
+<pre><code class="language-bash">git status -sb
+# ?? app/src/main/java/app/chief/app/asr/DevPcmRecorder.kt
+# ?? app/src/main/cpp/third_party/
+</code></pre>
+<p>We intentionally committed <strong>only</strong> <code>DevPcmRecorder.kt</code>:</p>
+<pre><code class="language-bash">git add app/src/main/java/app/chief/app/asr/DevPcmRecorder.kt
+git commit -m &quot;feat(whisper-dev): add DevPcmRecorder helper for PulseButton&quot;
+</code></pre>
+<p>Result:</p>
+<ul>
+<li>
+<p>New commit on <code>feat/v5.0-chat-screen-and-reply</code>:</p>
+</li>
+<li>
+<p><code>feat(whisper-dev): add DevPcmRecorder helper for PulseButton</code></p>
+</li>
+<li>
+<p><code>git status -sb</code> now:</p>
+</li>
+<li>
+<p><code>?? app/src/main/cpp/third_party/</code> (still untracked vendor dir — as intended)</p>
+</li>
+<li>No modified tracked files.</li>
+</ul>
+<hr />
+<h3 id="7-current-state-summary-for-next-worker">7. Current State Summary (For Next Worker)</h3>
+<p><strong>Repo:</strong></p>
+<ul>
+<li><code>~/AndroidStudioProjects/Chief</code></li>
+</ul>
+<p><strong>Branches:</strong></p>
+<ul>
+<li>Default: <code>master</code></li>
+<li>
+<p>Active v5.0 branch: <code>feat/v5.0-chat-screen-and-reply</code></p>
+</li>
+<li>
+<p>Created from: <code>accept/whisper-a4-freeze-2025-11-12</code></p>
+</li>
+<li>First commit on v5.0: <code>feat(whisper-dev): add DevPcmRecorder helper for PulseButton</code></li>
+</ul>
+<p><strong>Backups &amp; Safety Nets:</strong></p>
+<ol>
+<li>
+<p><strong>Filesystem backup:</strong></p>
+</li>
+<li>
+<p><code>~/AndroidStudioProjects/Chief-pre-v5-20251112</code>
+     → Full copy of repo before any v5.0 branch work.</p>
+</li>
+<li>
+<p><strong>Git stash on old branch:</strong></p>
+</li>
+<li>
+<p>Branch: <code>feat/v4.0a3-whisper-rebuild</code></p>
+</li>
+<li>Stash entry: <code>"safety: pre-v5.0-working-tree-2025-11-12"</code></li>
+<li>
+<p>Contains previous local changes (including old DevPcmRecorder, logs, etc.)</p>
+</li>
+<li>
+<p><strong>Vendored whisper sources:</strong></p>
+</li>
+<li>
+<p>Path: <code>app/src/main/cpp/third_party/</code></p>
+</li>
+<li>Restored into place.</li>
+<li>Still <strong>untracked</strong>, which is expected for vendor code in this tree.</li>
+</ol>
+<p><strong>Whisper status (v5.0 track):</strong></p>
+<ul>
+<li>
+<p>We treat Whisper as a <strong>stable, accepted black box</strong>:</p>
+</li>
+<li>
+<p>JNI + models from a4 accepted state.</p>
+</li>
+<li>No changes to Whisper core in this handover.</li>
+<li><code>DevPcmRecorder</code> + <code>PulseButton</code> are dev-only helpers using that black box.</li>
+</ul>
+<p><strong>Build:</strong></p>
+<ul>
+<li><code>./gradlew :app:assembleDebug</code> → <strong>SUCCESSFUL</strong> on <code>feat/v5.0-chat-screen-and-reply</code>.</li>
+</ul>
+<hr />
+<h3 id="8-what-has-not-been-started-important">8. What Has NOT Been Started (Important)</h3>
+<p>Per PM directive for v5.0:</p>
+<ul>
+<li>
+<p><strong>W3.1 — Restore navigation from Brief → Chat</strong></p>
+</li>
+<li>
+<p><strong>NOT started</strong> yet on this branch.</p>
+</li>
+<li>No navigation code touched.</li>
+<li>
+<p>No UI changes made to Brief or Chat.</p>
+</li>
+<li>
+<p><strong>W3.2 — Chat Screen V0</strong></p>
+</li>
+<li>
+<p>No layout or screen work done.</p>
+</li>
+<li>
+<p><strong>W3.3 — Reply Pipeline V0</strong></p>
+</li>
+<li>
+<p>No pipeline functions or LLM call stubs added yet.</p>
+</li>
+</ul>
+<p>All work in this session was <strong>W0 (repo/branch setup + minimal compile fix)</strong> to ensure v5.0 sits on top of the correct accepted Whisper base and builds cleanly.</p>
+<hr />
+<h3 id="9-next-steps-for-the-next-worker-concrete-plan">9. Next Steps for the Next Worker (Concrete Plan)</h3>
+<p>You can resume directly from here.</p>
+<ol>
+<li><strong>Confirm environment &amp; branch</strong></li>
+</ol>
+<p><code>bash
+   cd ~/AndroidStudioProjects/Chief
+   git status -sb
+   # Expect: ## feat/v5.0-chat-screen-and-reply</code></p>
+<ol>
+<li><strong>W3.1 — Restore Brief → Chat navigation (PM blocking step)</strong></li>
+</ol>
+<p>High-level plan:</p>
+<ul>
+<li>Locate <code>BriefScreen</code> and existing navigation setup (NavHost, routes, etc.).</li>
+<li>Identify the <strong>Chat destination</strong> (composable/route/fragment).</li>
+<li>Add a calm, simple <code>Chat</code> / <code>Open Chat</code> entry point on Brief.</li>
+<li>Wire it to the real Chat destination (not a throwaway screen).</li>
+<li>
+<p>Verify:</p>
+<ul>
+<li>App builds.</li>
+<li>Launch → Brief → tap Chat → Chat screen appears.</li>
+<li>No crashes or weird back stack behavior.</li>
+</ul>
+</li>
+</ul>
+<p>First concrete command you should run:</p>
+<p><code>bash
+   git ls-files "*BriefScreen*" "*Chat*"</code></p>
+<p>Then inspect <code>app/src/main/java/app/chief/app/ui/brief/BriefScreen.kt</code> and navigation code to find/restore the Chat route.</p>
+<ol>
+<li>
+<p><strong>Keep the guardrails:</strong></p>
+</li>
+<li>
+<p><strong>Do not touch</strong>:</p>
+<ul>
+<li>OAuth</li>
+<li>Auth client IDs</li>
+<li><code>build.gradle</code> / app IDs / namespaces</li>
+<li>
+<p>Keep all new work on:</p>
+</li>
+<li>
+<p><code>feat/v5.0-chat-screen-and-reply</code></p>
+</li>
+<li>
+<p>Keep commits small and named like:</p>
+</li>
+<li>
+<p><code>feat(chat): restore brief-to-chat navigation</code></p>
+</li>
+<li><code>feat(chat): add chat screen v0 layout</code></li>
+<li><code>feat(reply): wire reply pipeline v0</code></li>
+</ul>
+</li>
+</ol>
+<hr />
+<p>If you follow this, you can pick up <strong>exactly where we left off</strong>: a clean, stable v5.0 branch on top of the accepted Whisper state, ready to start <strong>W3.1 Brief → Chat</strong> without risking another git disaster.</p>
 <hr />
 <h1 id="chief-android-whisper-a31-a4-handover-nov-12-2025">Chief Android — Whisper a3.1 → a4 Handover (Nov 12, 2025)</h1>
 <h2 id="overview">Overview</h2>
