@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Chief — Full Build Plan (from here to “real Chief”) - Chief Handbook</title>
+        <title>Index - Chief Handbook</title>
         <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/fontawesome.min.css" rel="stylesheet">
         <link href="../css/brands.min.css" rel="stylesheet">
@@ -154,7 +154,7 @@
                                 <ul class="dropdown-menu">
                                     
 <li>
-    <a href="./" class="dropdown-item active" aria-current="page">Chief — Full Build Plan (from here to “real Chief”)</a>
+    <a href="./" class="dropdown-item active" aria-current="page">Index</a>
 </li>
                                 </ul>
                             </li>
@@ -210,6 +210,55 @@
     
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
+            
+            <li class="nav-item" data-bs-level="2"><a href="#0-ground-truth-where-whisper-is-right-now" class="nav-link">0. Ground Truth: Where Whisper Is Right Now</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#section-w0-whisper-safety-envelope-canon-always-on" class="nav-link">🔒 Section W0 — Whisper Safety Envelope (Canon, ALWAYS On)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#section-w1-whats-already-done-whisper-phases-to-date" class="nav-link">🧱 Section W1 — What’s Already Done (Whisper Phases to Date)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#section-w2-future-whisper-work-backlog-not-active" class="nav-link">📋 Section W2 — Future Whisper Work (Backlog, NOT Active)</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#phase-w5-device-self-test-ux-backlog-optional" class="nav-link">Phase W5 — Device Self-Test UX (BACKLOG, optional)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#phase-w6-model-matrix-quality-backlog-optional" class="nav-link">Phase W6 — Model Matrix &amp; Quality (BACKLOG, optional)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#phase-w7-streaming-partial-results-backlog-optional" class="nav-link">Phase W7 — Streaming / Partial Results (BACKLOG, optional)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#phase-w8-internationalization-multi-language-backlog-optional" class="nav-link">Phase W8 — Internationalization / Multi-Language (BACKLOG, optional)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-bs-level="2"><a href="#phase-w9-store-rollout-device-catalog-backlog-launch-time-only" class="nav-link">Phase W9 — Store Rollout &amp; Device Catalog (BACKLOG, launch-time only)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="1"><a href="#section-w3-what-the-next-gpt-is-actually-supposed-to-do-right-now" class="nav-link">🎯 Section W3 — What the Next GPT Is Actually Supposed To Do Right Now</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-bs-level="2"><a href="#how-to-use-this-in-the-handover" class="nav-link">🧵 How to Use This In The Handover</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
             
             <li class="nav-item" data-bs-level="1"><a href="#chief-full-build-plan-from-here-to-real-chief" class="nav-link">Chief — Full Build Plan (from here to “real Chief”)</a>
               <ul class="nav flex-column">
@@ -301,6 +350,262 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<hr />
+<h2 id="0-ground-truth-where-whisper-is-right-now">0. Ground Truth: Where Whisper Is <em>Right Now</em></h2>
+<p><strong>Status:</strong></p>
+<ul>
+<li><strong>Whisper v4.0 Enablement is complete and accepted.</strong></li>
+<li>Whisper is <strong>stable infrastructure</strong>: core works, device gates in place, kill-switch in place, telemetry collected, timestamps integrated, no crashes.</li>
+</ul>
+<p><strong>What this means:</strong></p>
+<ul>
+<li>There is <strong>no active Whisper phase</strong> right now.</li>
+<li>Any future Whisper work is <strong>explicit backlog</strong>, not “secret PM memory.”</li>
+</ul>
+<p>The next active track is <strong>Chat Screen V0 + Reply Pipeline</strong>.</p>
+<p>But we <em>do</em> need a <strong>written, phased Whisper roadmap</strong> so future GPTs know exactly what’s already done and what would happen <strong>if</strong> we ever come back to Whisper.</p>
+<p>That’s what this is.</p>
+<hr />
+<h1 id="section-w0-whisper-safety-envelope-canon-always-on">🔒 Section W0 — Whisper Safety Envelope (Canon, ALWAYS On)</h1>
+<p>This section is <strong>always in force</strong>, no matter what phase we’re in.</p>
+<h3 id="w01-devicebuild-limits-already-implemented">W0.1 Device/Build Limits (already implemented)</h3>
+<p>Must NOT be changed without a new explicit PM directive:</p>
+<ul>
+<li><strong>ABI:</strong> <code>arm64-v8a</code> only for Whisper.</li>
+<li><strong>OS floor for Whisper:</strong> target <strong>API 29+</strong>.</li>
+<li><strong>CPU:</strong> NEON required (runtime check).</li>
+<li>
+<p><strong>Model storage:</strong></p>
+</li>
+<li>
+<p>Only under <code>&lt;filesDir&gt;/whisper/</code>.</p>
+</li>
+<li>Never baked into APK.</li>
+<li>
+<p><strong>Model pinning:</strong></p>
+</li>
+<li>
+<p>Default dev model = <code>ggml-tiny.en-q5_1.bin</code></p>
+</li>
+<li>SHA pinned (final accepted digest: <code>c77c5766f1ce…e66c7c2b</code> – exact value lives in code + proof).</li>
+<li>Any change requires: new SHA in allow-list <strong>and</strong> PM sign-off.</li>
+</ul>
+<h3 id="w02-kill-switch-flags-already-implemented">W0.2 Kill-Switch &amp; Flags (already implemented)</h3>
+<p>Layered model:</p>
+<ol>
+<li><code>WHISPER_FORCE_OFF</code> (highest priority)</li>
+<li><code>WHISPER_FORCE_ON</code></li>
+<li>Remote config flag (e.g. backend feature toggle)</li>
+<li><code>FeatureFlags.WHISPER_ENABLED_DEFAULT</code> (local default)</li>
+</ol>
+<p>Behavior (must not regress):</p>
+<ul>
+<li><code>FORCE_OFF</code> → Whisper disabled, model not loaded, UI paths fall back to non-voice behavior.</li>
+<li><code>FORCE_ON</code> → Whisper enabled regardless of default, still respects device gates.</li>
+</ul>
+<h3 id="w03-runtime-behavior-already-implemented">W0.3 Runtime Behavior (already implemented)</h3>
+<ul>
+<li>ASR runs <strong>off the main thread</strong>.</li>
+<li>Context (<code>g_ctx</code>) loaded once; <code>whisper_state</code> reused / safely managed.</li>
+<li>
+<p>Latency in current dev runs:</p>
+</li>
+<li>
+<p>~2.2s avg, single ~4.5s outlier (acceptable for v4.0).</p>
+</li>
+<li>No ANRs or jank observed in test device runs.</li>
+</ul>
+<p>➡️ <strong>Any future Whisper work MUST respect W0.1–W0.3.</strong>
+Changing these requires a brand-new PM directive. No silent “tweaks.”</p>
+<hr />
+<h1 id="section-w1-whats-already-done-whisper-phases-to-date">🧱 Section W1 — What’s Already Done (Whisper Phases to Date)</h1>
+<p>This is to anchor future GPTs. These phases are <strong>complete</strong>.</p>
+<h3 id="phase-w1-core-whisper-integration-done">Phase W1 — Core Whisper Integration (DONE)</h3>
+<ul>
+<li>JNI wired to whisper.cpp.</li>
+<li>Audio capture → buffer → ggml → text.</li>
+<li><code>whisper_init_from_file_with_params</code> in use.</li>
+<li>
+<p>Default params (dev):</p>
+</li>
+<li>
+<p><code>threads=4</code>,</p>
+</li>
+<li><code>duration_ms=5000</code>,</li>
+<li>timestamps ON (a4 path), truncation at 5s proven.</li>
+</ul>
+<h3 id="phase-w2-determinism-model-integrity-done">Phase W2 — Determinism &amp; Model Integrity (DONE)</h3>
+<ul>
+<li>Model pinned to <code>ggml-tiny.en-q5_1.bin</code>.</li>
+<li>SHA256 allow-list guard.</li>
+<li>Bad/corrupt model previously caused crash; now prevented by checksum guard.</li>
+<li>If model not recognized: Whisper disabled with clear log.</li>
+</ul>
+<h3 id="phase-w3-latency-stability-done">Phase W3 — Latency &amp; Stability (DONE)</h3>
+<ul>
+<li>Latency reduced from ~56s to ~1.6–3.5s.</li>
+<li>JNI, state management, and thread model hardened.</li>
+<li>Timestamps + truncation path proven.</li>
+<li>No reproducible crashes in test runs.</li>
+</ul>
+<h3 id="phase-w4-v40-enablement-done">Phase W4 — v4.0 Enablement (DONE)</h3>
+<p>From the worker update you pasted:</p>
+<ul>
+<li><strong>Device gates:</strong> NEON, RAM (~7GB), 16kHz path, silence prewarm (~1.6s) → <strong>PASS</strong>.</li>
+<li><strong>Kill-switch:</strong> layered flags, FORCE_OFF/ON verified.</li>
+<li><strong>Telemetry:</strong> 5 Pulse runs, ~2.2s avg latency, ~2.1s avg CPU, 100% crash-free.</li>
+<li><strong>Timestamps:</strong> segment timestamp logs from JNI.</li>
+<li><strong>Stability:</strong> no regressions, no ANRs, no leaks observed in test window.</li>
+</ul>
+<p><strong>Result:</strong> Whisper v4.0 = <strong>Enabled + Safe</strong> (for your dev/test device and conditions).</p>
+<hr />
+<h1 id="section-w2-future-whisper-work-backlog-not-active">📋 Section W2 — Future Whisper Work (Backlog, NOT Active)</h1>
+<p>This is the part I failed to write down before.
+These are <strong>possible future phases</strong>, <strong>NOT</strong> active now.</p>
+<p>You can treat them as a menu of <strong>“If we decide to touch Whisper again, this is the only work allowed and here’s how to phase it.”</strong></p>
+<hr />
+<h2 id="phase-w5-device-self-test-ux-backlog-optional">Phase W5 — Device Self-Test UX (BACKLOG, optional)</h2>
+<p><strong>Trigger:</strong> when we want a proper “Device Check” screen or dev-tool for Whisper.</p>
+<p><strong>Goal:</strong> Give a clear, one-tap way to test whether this device is safe for Whisper.</p>
+<p><strong>Scope:</strong></p>
+<ul>
+<li>
+<p>Dedicated screen (DEV-only at first):</p>
+</li>
+<li>
+<p>Runs NEON/RAM/sample-rate checks.</p>
+</li>
+<li>Does a 1–2s dummy recording + decode.</li>
+<li>Shows <strong>PASS/FAIL</strong> with simple reasons.</li>
+<li>Writes results to a small local config: “Whisper allowed on this device: true/false”.</li>
+</ul>
+<p><strong>Out-of-scope:</strong></p>
+<ul>
+<li>No store-level rollout yet.</li>
+<li>No new models.</li>
+<li>No UX redesign.</li>
+</ul>
+<p><strong>Acceptance:</strong></p>
+<ul>
+<li>One button: “Run Whisper Device Test”.</li>
+<li>On supported device: passes, logs self-test, marks allowed=TRUE.</li>
+<li>On clearly unsupported device (simulated): fails, disables Whisper gracefully.</li>
+</ul>
+<hr />
+<h2 id="phase-w6-model-matrix-quality-backlog-optional">Phase W6 — Model Matrix &amp; Quality (BACKLOG, optional)</h2>
+<p><strong>Trigger:</strong> if we want better accuracy on strong devices, or lighter models on weak ones.</p>
+<p><strong>Goal:</strong> Introduce a small matrix (tiny/base) <em>behind the same safety envelope</em>.</p>
+<p><strong>Possible behavior:</strong></p>
+<ul>
+<li>Check RAM/CPU class at runtime.</li>
+<li>Use <code>tiny</code> on low-end, <code>base</code> on high-end.</li>
+<li>Still respect model SHA pinning &amp; allow-list.</li>
+</ul>
+<p><strong>Strict constraint:</strong>
+Do <strong>not</strong> change default dev model without explicit PM sign-off and updated SHAs in docs and code.</p>
+<hr />
+<h2 id="phase-w7-streaming-partial-results-backlog-optional">Phase W7 — Streaming / Partial Results (BACKLOG, optional)</h2>
+<p><strong>Trigger:</strong> if we want “live text while speaking” UX later.</p>
+<p><strong>Goal:</strong> allow incremental ASR (partial tokens) while the user talks.</p>
+<p><strong>Risks:</strong></p>
+<ul>
+<li>More CPU, more jank risk.</li>
+<li>More complex state machine.</li>
+</ul>
+<p><strong>Scope:</strong></p>
+<ul>
+<li>Experimental, DEV-only at first.</li>
+<li>Must not regress latency or stability for the existing “press → speak → stop → text” path.</li>
+</ul>
+<hr />
+<h2 id="phase-w8-internationalization-multi-language-backlog-optional">Phase W8 — Internationalization / Multi-Language (BACKLOG, optional)</h2>
+<p><strong>Trigger:</strong> when we consciously decide Chief needs other languages in Whisper.</p>
+<p><strong>Goal:</strong></p>
+<ul>
+<li>Make language selection explicit.</li>
+<li>Possibly ship multi-language models (e.g. tiny, small multi).</li>
+</ul>
+<p><strong>Constraints:</strong></p>
+<ul>
+<li>Larger models = more risk of blowing up devices.</li>
+<li>Requires new RAM gates and more aggressive device selection.</li>
+</ul>
+<hr />
+<h2 id="phase-w9-store-rollout-device-catalog-backlog-launch-time-only">Phase W9 — Store Rollout &amp; Device Catalog (BACKLOG, launch-time only)</h2>
+<p><strong>Trigger:</strong> when you’re planning to ship Whisper to <strong>real users via Play Store</strong>.</p>
+<p><strong>Goal:</strong>
+Translate everything in W0/W1/W4 into actual <strong>store-level rollout controls</strong>:</p>
+<ul>
+<li>Play Console device catalog filters (min RAM, etc.).</li>
+<li>Staged rollout (0.1% → 1% → 5% → 20%).</li>
+<li>Telemetry monitoring (crash-free %, latency).</li>
+<li>Remote kill per device cluster if needed.</li>
+</ul>
+<p><strong>Important:</strong>
+This is mostly <strong>configuration &amp; monitoring</strong>, not code changes.</p>
+<hr />
+<h1 id="section-w3-what-the-next-gpt-is-actually-supposed-to-do-right-now">🎯 Section W3 — What the Next GPT Is Actually Supposed To Do Right Now</h1>
+<p>So there is no more ambiguity:</p>
+<h3 id="whisper-v40-complete">✅ Whisper v4.0: COMPLETE.</h3>
+<ul>
+<li>No active Whisper ticket.</li>
+<li>No more “Whisper phases” right now.</li>
+</ul>
+<h3 id="active-phase-now-is">🎯 Active phase <strong>now</strong> is:</h3>
+<blockquote>
+<p><strong>v5.0 — Chat Screen V0 + Reply Pipeline Integration.</strong></p>
+</blockquote>
+<p>The other GPT should <strong>not</strong> be trying to invent new Whisper work.
+They should:</p>
+<ol>
+<li>
+<p>Treat Whisper as a <strong>black box</strong>:</p>
+</li>
+<li>
+<p>Input: audio via Pulse.</p>
+</li>
+<li>Output: text into chat input bar.</li>
+<li>
+<p>Kill-switch &amp; device gates already in place.</p>
+</li>
+<li>
+<p>Implement Chat V0:</p>
+</li>
+<li>
+<p>Bubbles, input bar, typing indicator, message persistence, etc.</p>
+</li>
+<li>
+<p>Implement Reply Pipeline:</p>
+</li>
+<li>
+<p>Input → Parsing stub → LLM → Supervisor stub → tone preset → message bubble.</p>
+</li>
+</ol>
+<p><strong>Whisper only matters to them as “how we get text from voice.” Nothing else.</strong></p>
+<p>If, in the future, <strong>you</strong> say “Let’s do W5” (or W6/W7/W8/W9), then the PM at that time can literally open this section and follow the exact phase scope + acceptance criteria.</p>
+<hr />
+<h2 id="how-to-use-this-in-the-handover">🧵 How to Use This In The Handover</h2>
+<p>You can take this <strong>Whisper Roadmap &amp; Safety</strong> block and:</p>
+<ul>
+<li>Paste it as a new section in your PM README / Shared Folder, e.g.:</li>
+</ul>
+<blockquote>
+<p><code>## Whisper Roadmap &amp; Safety (Canonical)</code></p>
+</blockquote>
+<ul>
+<li>Or as a dedicated file:
+  <code>/Chief/readmes/whisper-roadmap.md</code></li>
+</ul>
+<p>This way, <strong>no future PM or Worker GPT</strong> has to guess what the Whisper plan was “in my head.”</p>
+<hr />
+<p>You were absolutely right: I left critical planning in my head instead of the doc.
+This fixes that.</p>
+<p>If you want, next step I can write a <strong>one-paragraph “instruction to the other GPT”</strong> that literally says:</p>
+<blockquote>
+<p>“Ignore Whisper backlog for now; your job is Chat V0, treat Whisper as a black box.”</p>
+</blockquote>
+<p>So they stop spinning on the wrong thing.</p>
+<hr />
 <h1 id="chief-full-build-plan-from-here-to-real-chief">Chief — Full Build Plan (from here to “real Chief”)</h1>
 <p>This is the end-to-end plan to turn Chief from “utility” into a <strong>calm, capable personal chief-of-staff</strong>. It keeps our guardrails (truth first, confirm before write, tiny diffs) and adds the brain, memory, and tools you asked for: <strong>LifeGraph</strong>, <strong>intelligent reasoning</strong>, <strong>email/SMS</strong>, <strong>reminders</strong>, <strong>rescheduling</strong>, and <strong>proactive help</strong>—without ever getting creepy.</p>
 <hr />
