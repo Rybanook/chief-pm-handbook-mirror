@@ -211,6 +211,47 @@
     <div id="toc-collapse" class="navbar-collapse collapse card bg-body-tertiary">
         <ul class="nav flex-column">
             
+            
+            <li class="nav-item" data-bs-level="2"><a href="#1-phase-scope" class="nav-link">1. Phase / Scope</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#2-repos-branches-and-working-tree-state" class="nav-link">2. Repos, Branches, and Working Tree State</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#3-w5-recap-backend-calendarevents-chat-save" class="nav-link">3. W5 Recap — Backend /calendar/events + Chat Save</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#4-w6-rules-first-parser-and-real-chat-draft" class="nav-link">4. W6 — Rules-First Parser and Real Chat → Draft</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#5-testing-current-behavior" class="nav-link">5. Testing / Current Behavior</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#6-known-issues-tech-debt-explicit" class="nav-link">6. Known Issues / Tech Debt (Explicit)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#7-suggested-next-steps-for-pm-to-decide" class="nav-link">7. Suggested Next Steps (for PM to decide)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-bs-level="2"><a href="#8-command-cheat-sheet" class="nav-link">8. Command Cheat Sheet</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
             <li class="nav-item" data-bs-level="1"><a href="#handover-w4-conversational-intent-calendar-draft-v0" class="nav-link">Handover — W4: Conversational Intent &amp; Calendar Draft V0</a>
               <ul class="nav flex-column">
             <li class="nav-item" data-bs-level="2"><a href="#0-starting-point-at-time-of-w4-directive" class="nav-link">0. Starting Point (at time of W4 directive)</a>
@@ -1287,6 +1328,882 @@
 </div></div>
                     <div class="col-md-9" role="main">
 
+<h3 id="worker-handover-w5-w6-chat-calendar-draft-save">Worker Handover — W5 + W6 (Chat → Calendar Draft → Save)</h3>
+<hr />
+<h2 id="1-phase-scope">1. Phase / Scope</h2>
+<p><strong>PM directives covered in this chat:</strong></p>
+<ul>
+<li><strong>W5: Calendar Save V1 (Draft → Real Calendar Event)</strong></li>
+<li><strong>W6: Real Chat → Calendar Draft (Rules-First Parser)</strong></li>
+</ul>
+<p>This handover covers <strong>everything done since the W5 directive you pasted</strong>, including:</p>
+<ul>
+<li>Finalizing <code>/calendar/events</code> on the backend.</li>
+<li>Wiring Chat “Save” → backend event create.</li>
+<li>Implementing a rules-based parser that turns real chat messages into <code>CalendarEventDraft</code>.</li>
+<li>Wiring parsed drafts into the Chat UI so draft cards appear <strong>from user messages</strong>, not just the dev sample button.</li>
+</ul>
+<p>OAuth / ZeroAuth behavior was <strong>not changed</strong> in this phase. All auth-sensitive pieces stayed within existing patterns.</p>
+<hr />
+<h2 id="2-repos-branches-and-working-tree-state">2. Repos, Branches, and Working Tree State</h2>
+<h3 id="android-app">Android app</h3>
+<ul>
+<li><strong>Repo:</strong> <code>~/AndroidStudioProjects/Chief</code></li>
+<li><strong>Branch:</strong> <code>feat/v5.0-chat-screen-and-reply</code></li>
+</ul>
+<p><strong>Working tree at handover:</strong></p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief
+git status -sb
+## feat/v5.0-chat-screen-and-reply
+ m app/src/main/cpp/third_party/whisper.cpp
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li>The only modified path is <code>app/src/main/cpp/third_party/whisper.cpp</code> as a <strong>submodule pointer</strong> (<code>-dirty</code> vs clean).
+  We deliberately did <strong>not</strong> commit changes inside the Whisper submodule in this branch. It remains treated as a black box.</li>
+<li>All app code changes for W5/W6 are <strong>committed</strong>.</li>
+</ul>
+<p>Relevant commit for W5 app work:</p>
+<pre><code class="language-bash">git log -1
+W5: wire Chat Save button to /calendar/events
+</code></pre>
+<p>W6 changes are included in subsequent commits in this same branch (no separate tag yet).</p>
+<hr />
+<h3 id="backend">Backend</h3>
+<ul>
+<li><strong>Repo:</strong> <code>~/AndroidStudioProjects/chief-tts-backend</code></li>
+<li><strong>Branch:</strong> <code>feat/v3.9-onboarding-consent-backend</code></li>
+</ul>
+<p><strong>Working tree at handover:</strong></p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/chief-tts-backend
+git status -sb
+## feat/v3.9-onboarding-consent-backend...origin/feat/v3.9-onboarding-consent-backend
+ M data/users_auth.db
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li><code>data/users_auth.db</code> is <strong>local dev data</strong> only; it’s intentionally <strong>not staged</strong>.</li>
+<li>Backend route changes for W5 are committed.</li>
+</ul>
+<p>Relevant commit:</p>
+<pre><code class="language-bash">git log -1
+W5: add /calendar/events backend route
+</code></pre>
+<hr />
+<h2 id="3-w5-recap-backend-calendarevents-chat-save">3. W5 Recap — Backend <code>/calendar/events</code> + Chat Save</h2>
+<h3 id="31-backend-new-calendarevents-route">3.1 Backend: new <code>/calendar/events</code> route</h3>
+<p><strong>Files touched:</strong></p>
+<ul>
+<li><strong>Created:</strong> <code>routes/calendarEvents.cjs</code></li>
+<li><strong>Edited:</strong> <code>server.cjs</code></li>
+</ul>
+<h4 id="311-route-mounting-servercjs">3.1.1 Route mounting (<code>server.cjs</code>)</h4>
+<p>We mounted the new router under <code>/calendar</code>:</p>
+<pre><code class="language-js">const authRouter = require(&quot;./routes/auth.cjs&quot;);
+const profileRoutes = require(&quot;./routes/profile.cjs&quot;);
+const intentRoutes = require(&quot;./routes/intent.cjs&quot;);
+
+// ... other requires ...
+
+const app = express();
+
+// ...
+
+app.use(&quot;/auth&quot;, authRouter);
+app.use(&quot;/profile&quot;, profileRoutes);
+app.use(&quot;/intent&quot;, intentRoutes);
+
+// NEW calendar events router (W5)
+const calendarEventsRouter = require(&quot;./routes/calendarEvents.cjs&quot;);
+app.use(&quot;/calendar&quot;, calendarEventsRouter);
+
+// NEW OAUTH ROUTER MOUNT (pre-existing)
+const oauthRouter = require(&quot;./routes/oauth.cjs&quot;);
+app.use(&quot;/oauth&quot;, oauthRouter);
+</code></pre>
+<p>We <strong>did not</strong> modify any OAuth / 0auth logic; just added a new <code>app.use</code>.</p>
+<h4 id="312-calendar-client">3.1.2 Calendar client</h4>
+<p>We created a dedicated client:</p>
+<ul>
+<li><strong>File:</strong> <code>lib/calendarClient.cjs</code> (you pasted its contents)
+  It exposes:</li>
+</ul>
+<pre><code class="language-js">async function listEvents({ timeMin, timeMax, maxResults })
+async function insertEvent({ summary, location, startIso, endIso, timeZone, description })
+async function updateEvent({ eventId, summary, location, startIso, endIso, timeZone, description })
+async function deleteEvent({ eventId })
+async function listEventsDelta({ timeMin, timeMax, syncToken, pageToken })
+</code></pre>
+<p>Key behaviors:</p>
+<ul>
+<li>Uses <strong>ADC / ACCESS_TOKEN</strong> for auth, via <code>google-auth-library</code> or <code>gcloud auth application-default print-access-token</code>.</li>
+<li>Targets a single calendar ID (<code>GOOGLE_CALENDAR_ID</code> or <code>primary</code>).</li>
+<li>Wraps axios calls with <strong>401 retry</strong> in dev mode via <code>axiosWith401Refresh</code>.</li>
+</ul>
+<p><strong>Important caveat (tech debt):</strong></p>
+<ul>
+<li>This is <strong>not</strong> per-user refresh-token auth. It writes to a single dev calendar.
+  W5’s goal was to create a thin, testable route; proper per-user ZeroAuth write is deferred.</li>
+</ul>
+<h4 id="313-new-route-handler-routescalendareventscjs">3.1.3 New route handler (<code>routes/calendarEvents.cjs</code>)</h4>
+<p>Core shape (simplified):</p>
+<pre><code class="language-js">const express = require(&quot;express&quot;);
+const router = express.Router();
+const { insertEvent } = require(&quot;../lib/calendarClient.cjs&quot;);
+const { DEFAULT_TZ } = require(&quot;../lib/calendarClient.cjs&quot;);
+
+router.post(&quot;/events&quot;, async (req, res) =&gt; {
+  try {
+    const userId = req.header(&quot;x-user-id&quot;) || &quot;unknown&quot;;
+
+    const {
+      summary,
+      location = null,
+      startIso,
+      endIso,
+      timeZone = DEFAULT_TZ,
+      source = &quot;chief-android-chat&quot;,
+    } = req.body || {};
+
+    // Basic validation
+    if (!summary || !startIso || !endIso) {
+      return res.status(400).json({
+        ok: false,
+        message: &quot;Missing summary/start/end for event.&quot;,
+      });
+    }
+
+    console.log(&quot;[/calendar/events] create request&quot;, {
+      userId,
+      summary,
+      startIso,
+      endIso,
+      timeZone,
+      source,
+    });
+
+    const { event } = await insertEvent({
+      summary,
+      location,
+      startIso,
+      endIso,
+      timeZone,
+      description: null,
+    });
+
+    return res.status(200).json({
+      ok: true,
+      eventId: event.id,
+      summary: event.summary,
+      startIso,
+      endIso,
+      timeZone,
+      message: `Added “${summary}” to your calendar.`,
+    });
+  } catch (err) {
+    console.error(&quot;[/calendar/events] error&quot;, err &amp;&amp; err.message ? err.message : err);
+    return res.status(500).json({
+      ok: false,
+      message: &quot;Sorry, I couldn't save that event. Please try again.&quot;,
+    });
+  }
+});
+
+module.exports = router;
+</code></pre>
+<p>Notes:</p>
+<ul>
+<li><code>x-user-id</code> is <strong>logged</strong> but not used for auth (ADC client ignores it).</li>
+<li>On success: <code>ok: true</code>, <code>eventId</code>, and a friendly message.</li>
+<li>On error: generic <code>ok:false</code> + user-safe <code>message</code>; raw details only logged server-side.</li>
+</ul>
+<h4 id="314-backend-test-commands">3.1.4 Backend test commands</h4>
+<p>To verify, we used:</p>
+<pre><code class="language-bash"># Test that /sync/calendar has real access to Google Calendar (ZeroAuth dev)
+curl -s -H &quot;x-user-id: ac48e84f-a8a5-45d7-a916-77b1e084f398&quot; \
+  http://localhost:8080/sync/calendar
+
+# Create a test event via W5 route
+curl -X POST http://localhost:8080/calendar/events \
+  -H &quot;Content-Type: application/json&quot; \
+  -H &quot;x-user-id: ac48e84f-a8a5-45d7-a916-77b1e084f398&quot; \
+  -d '{
+    &quot;summary&quot;: &quot;Doctor appointment (W5 test)&quot;,
+    &quot;location&quot;: &quot;Test Clinic&quot;,
+    &quot;startIso&quot;: &quot;2025-11-14T15:00:00Z&quot;,
+    &quot;endIso&quot;: &quot;2025-11-14T15:30:00Z&quot;,
+    &quot;timeZone&quot;: &quot;America/Vancouver&quot;,
+    &quot;source&quot;: &quot;chief-android-chat&quot;
+  }'
+</code></pre>
+<p>Observed response:</p>
+<pre><code class="language-json">{
+  &quot;ok&quot;: true,
+  &quot;eventId&quot;: &quot;diabvpdi0k3rqt26f3eouk6d3c&quot;,
+  &quot;summary&quot;: &quot;Doctor appointment (W5 test)&quot;,
+  &quot;startIso&quot;: &quot;2025-11-14T15:00:00Z&quot;,
+  &quot;endIso&quot;: &quot;2025-11-14T15:30:00Z&quot;,
+  &quot;timeZone&quot;: &quot;America/Vancouver&quot;,
+  &quot;message&quot;: &quot;Added “Doctor appointment (W5 test)” to your calendar.&quot;
+}
+</code></pre>
+<p>Confirmed this event appeared in the dev Google Calendar.</p>
+<hr />
+<h3 id="32-app-calendareventsapi-chat-save">3.2 App: <code>CalendarEventsApi</code> + Chat Save</h3>
+<p><strong>New file:</strong></p>
+<ul>
+<li><code>app/src/main/java/app/chief/app/network/CalendarEventsApi.kt</code></li>
+</ul>
+<p>Shape:</p>
+<pre><code class="language-kotlin">package app.chief.app.network
+
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import java.util.concurrent.TimeUnit
+
+data class CalendarEventCreateResult(
+    val ok: Boolean,
+    val eventId: String?,
+    val message: String?
+)
+
+class CalendarEventsApi(
+    private val baseUrl: String,
+    private val http: OkHttpClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .callTimeout(20, TimeUnit.SECONDS)
+        .build()
+) {
+    private val jsonMT = &quot;application/json&quot;.toMediaType()
+
+    suspend fun createEvent(
+        summary: String,
+        date: LocalDate,
+        start: LocalTime,
+        end: LocalTime?,
+        timeZone: String,
+        deviceId: String,
+        location: String?
+    ): CalendarEventCreateResult {
+        return runCatching {
+            val zone = ZoneId.of(timeZone)
+            val startZdt = ZonedDateTime.of(date, start, zone)
+            val endZdt = when (end) {
+                null -&gt; startZdt.plusMinutes(30) // default duration
+                else -&gt; ZonedDateTime.of(date, end, zone)
+            }
+
+            val payload = JSONObject().apply {
+                put(&quot;summary&quot;, summary)
+                put(&quot;location&quot;, location)
+                put(&quot;startIso&quot;, startZdt.toInstant().toString())
+                put(&quot;endIso&quot;, endZdt.toInstant().toString())
+                put(&quot;timeZone&quot;, timeZone)
+                put(&quot;source&quot;, &quot;chief-android-chat&quot;)
+            }.toString()
+
+            val url = &quot;${baseUrl.trimEnd('/')}/calendar/events&quot;
+            val req = Request.Builder()
+                .url(url)
+                .post(payload.toRequestBody(jsonMT))
+                .addHeader(&quot;x-user-id&quot;, deviceId) // dev identity
+                .build()
+
+            http.newCall(req).execute().use { resp -&gt;
+                val body = resp.body?.string().orEmpty()
+                if (!resp.isSuccessful) {
+                    return CalendarEventCreateResult(
+                        ok = false,
+                        eventId = null,
+                        message = &quot;Save failed (${resp.code}): ${body.take(120)}&quot;
+                    )
+                }
+                val json = JSONObject(body)
+                return CalendarEventCreateResult(
+                    ok = json.optBoolean(&quot;ok&quot;, false),
+                    eventId = json.optString(&quot;eventId&quot;, null),
+                    message = json.optString(&quot;message&quot;, null)
+                )
+            }
+        }.getOrElse { e -&gt;
+            CalendarEventCreateResult(
+                ok = false,
+                eventId = null,
+                message = &quot;Network error: ${e.message}&quot;
+            )
+        }
+    }
+}
+</code></pre>
+<p><strong>Important assumptions:</strong></p>
+<ul>
+<li>Uses <code>deviceId</code> as <code>x-user-id</code> (dev-only identity; see tech-debt section).</li>
+<li>Defaults event duration to <strong>30 minutes</strong> if <code>endTime</code> is null.</li>
+<li>Time zone is passed in from <code>MainActivity</code> (see below).</li>
+</ul>
+<hr />
+<h3 id="33-app-chatscreen-save-wiring">3.3 App: ChatScreen Save wiring</h3>
+<p><strong>File:</strong> <code>app/src/main/java/app/chief/app/ui/chat/ChatScreen.kt</code></p>
+<p>Key pieces (W5 part):</p>
+<ol>
+<li><strong>CalendarEventDraft model</strong>:</li>
+</ol>
+<pre><code class="language-kotlin">private data class CalendarEventDraft(
+    val title: String? = null,
+    val date: LocalDate? = null,
+    val startTime: LocalTime? = null,
+    val endTime: LocalTime? = null,
+    val location: String? = null
+)
+</code></pre>
+<ol>
+<li><strong>ChatScreen signature</strong>:</li>
+</ol>
+<pre><code class="language-kotlin">@Composable
+fun ChatScreen(
+    onBackToBrief: () -&gt; Unit,
+    deviceId: String,
+    timeZone: String,
+    calendarEventsApi: CalendarEventsApi
+)
+</code></pre>
+<ol>
+<li><strong>State</strong>:</li>
+</ol>
+<pre><code class="language-kotlin">var calendarDraft by remember { mutableStateOf&lt;CalendarEventDraft?&gt;(null) }
+var isSavingDraft by remember { mutableStateOf(false) }
+val scope = rememberCoroutineScope()
+</code></pre>
+<ol>
+<li>
+<p><strong>Draft card UI</strong> (<code>CalendarDraftCard</code>) shows title/date/time/location with <strong>Dismiss</strong> and <strong>Save</strong>.</p>
+</li>
+<li>
+<p><strong>Save handler</strong> (inside <code>CalendarDraftCard</code> usage):</p>
+</li>
+</ol>
+<pre><code class="language-kotlin">onSave = {
+    scope.launch {
+        val d = calendarDraft ?: return@launch
+
+        val title = d.title?.trim().orEmpty()
+        val date = d.date
+        val start = d.startTime
+
+        if (title.isBlank() || date == null || start == null) {
+            val msg = ChatMessage(
+                id = nextId++,
+                sender = Sender.CHIEF,
+                text = &quot;I need a title, date, and time before I can save this to your calendar.&quot;
+            )
+            messages = messages + msg
+            return@launch
+        }
+
+        isSavingDraft = true
+        val result = withContext(Dispatchers.IO) {
+            calendarEventsApi.createEvent(
+                summary = title,
+                date = date,
+                start = start,
+                end = d.endTime,
+                timeZone = timeZone,
+                deviceId = deviceId,
+                location = d.location
+            )
+        }
+        isSavingDraft = false
+
+        if (result.ok) {
+            val successText = result.message ?: &quot;Okay, I’ve added “$title” to your calendar.&quot;
+            val msg = ChatMessage(
+                id = nextId++,
+                sender = Sender.CHIEF,
+                text = successText
+            )
+            messages = messages + msg
+            calendarDraft = null // mark as saved
+        } else {
+            val errorText = result.message
+                ?: &quot;Sorry, I couldn’t save that event. Please try again.&quot;
+            val msg = ChatMessage(
+                id = nextId++,
+                sender = Sender.CHIEF,
+                text = errorText
+            )
+            messages = messages + msg
+        }
+    }
+}
+</code></pre>
+<ol>
+<li><strong>Dev sample button</strong> (still present, W5):</li>
+</ol>
+<p>Top bar includes:</p>
+<pre><code class="language-kotlin">TextButton(
+    onClick = {
+        calendarDraft = CalendarEventDraft(
+            title = &quot;Doctor appointment&quot;,
+            date = LocalDate.now(),
+            startTime = LocalTime.of(15, 0),
+            endTime = LocalTime.of(15, 30),
+            location = &quot;Test Clinic&quot;
+        )
+    }
+) {
+    Text(&quot;Dev: sample&quot;)
+}
+</code></pre>
+<p>This remains as a <strong>dev helper</strong> to spawn a draft card. W6 adds a real path; this button could later be gated behind <code>BuildConfig.DEBUG</code> if desired.</p>
+<hr />
+<h3 id="34-app-mainactivity-wiring-for-chatscreen">3.4 App: MainActivity wiring for ChatScreen</h3>
+<p><strong>File:</strong> <code>app/src/main/java/app/chief/app/MainActivity.kt</code></p>
+<p>Relevant pieces:</p>
+<ul>
+<li>We already had <code>BriefApi</code>, <code>SyncApi</code>, etc., instantiated with <code>BuildConfig.BASE_URL</code>.</li>
+<li>We added:</li>
+</ul>
+<pre><code class="language-kotlin">private val calendarEventsApi by lazy {
+    CalendarEventsApi(BuildConfig.BASE_URL)
+}
+</code></pre>
+<p>And the navigation branch now calls:</p>
+<pre><code class="language-kotlin">RootScreen.CHAT -&gt; ChatScreen(
+    onBackToBrief = { rootScreen = RootScreen.BRIEF },
+    deviceId = deviceId,
+    timeZone = timeZone,
+    calendarEventsApi = calendarEventsApi
+)
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>deviceId</code> is the per-device UUID used elsewhere (<code>x-user-id</code>).</li>
+<li><code>timeZone</code> is already determined and passed around for Brief / sync.</li>
+</ul>
+<hr />
+<h2 id="4-w6-rules-first-parser-and-real-chat-draft">4. W6 — Rules-First Parser and Real Chat → Draft</h2>
+<h3 id="41-data-model-stabilization">4.1 Data model stabilization</h3>
+<p>We reshaped the reply pipeline to carry <strong>parsed intent</strong> through.</p>
+<p><strong>New types (all private to ChatScreen.kt or nearby):</strong></p>
+<pre><code class="language-kotlin">private enum class ChatIntentType {
+    CHAT,
+    CREATE_CALENDAR_EVENT,
+    UNKNOWN
+}
+
+private data class ParsedMessage(
+    val rawText: String,
+    val intentType: ChatIntentType,
+    val calendarDraft: CalendarEventDraft? = null
+)
+
+private data class HandleResult(
+    val parsed: ParsedMessage,
+    val replyText: String
+)
+</code></pre>
+<p>CalendarEventDraft is the same data class as W5, now clearly treated as a <strong>domain object</strong>.</p>
+<h3 id="42-updated-pipeline-functions">4.2 Updated pipeline functions</h3>
+<pre><code class="language-kotlin">private fun handleUserMessage(input: String): HandleResult {
+    val parsed = parseUserMessage(input)
+    val llmResult = callLLM(parsed)
+    val supervised = applySupervisor(parsed, llmResult)
+    val toned = applyTonePreset(parsed, supervised)
+    return HandleResult(parsed = parsed, replyText = toned)
+}
+
+private fun parseUserMessage(raw: String): ParsedMessage {
+    val trimmed = raw.trim()
+    if (trimmed.isEmpty()) {
+        return ParsedMessage(
+            rawText = trimmed,
+            intentType = ChatIntentType.CHAT,
+            calendarDraft = null
+        )
+    }
+
+    val lower = trimmed.lowercase()
+
+    // Simple heuristic: looks like a calendar event?
+    val hasEventWord = listOf(
+        &quot;appointment&quot;, &quot;meeting&quot;, &quot;call&quot;, &quot;flight&quot;, &quot;practice&quot;,
+        &quot;dentist&quot;, &quot;doctor&quot;
+    ).any { lower.contains(it) }
+
+    val hasDayWord = listOf(
+        &quot;monday&quot;, &quot;tuesday&quot;, &quot;wednesday&quot;, &quot;thursday&quot;,
+        &quot;friday&quot;, &quot;saturday&quot;, &quot;sunday&quot;,
+        &quot;today&quot;, &quot;tomorrow&quot;, &quot;tonight&quot;, &quot;weekend&quot;
+    ).any { lower.contains(it) }
+
+    val timeRegex = Regex(&quot;&quot;&quot;\b(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b&quot;&quot;&quot;)
+    val timeMatch = timeRegex.find(lower)
+
+    if (!hasEventWord || !hasDayWord || timeMatch == null) {
+        // Plain chat
+        return ParsedMessage(
+            rawText = trimmed,
+            intentType = ChatIntentType.CHAT,
+            calendarDraft = null
+        )
+    }
+
+    // --- Build a calendar draft (rough V1) ---
+    val now = java.time.LocalDate.now()
+    val date = when {
+        lower.contains(&quot;today&quot;) -&gt; now
+        lower.contains(&quot;tomorrow&quot;) -&gt; now.plusDays(1)
+        else -&gt; {
+            // For weekday names, we currently treat &quot;friday&quot; as &quot;next occurrence of that weekday&quot;.
+            val daysOfWeek = mapOf(
+                &quot;monday&quot; to java.time.DayOfWeek.MONDAY,
+                &quot;tuesday&quot; to java.time.DayOfWeek.TUESDAY,
+                &quot;wednesday&quot; to java.time.DayOfWeek.WEDNESDAY,
+                &quot;thursday&quot; to java.time.DayOfWeek.THURSDAY,
+                &quot;friday&quot; to java.time.DayOfWeek.FRIDAY,
+                &quot;saturday&quot; to java.time.DayOfWeek.SATURDAY,
+                &quot;sunday&quot; to java.time.DayOfWeek.SUNDAY
+            )
+
+            val found = daysOfWeek.entries.firstOrNull { lower.contains(it.key) }
+            if (found != null) {
+                val targetDow = found.value
+                var candidate = now
+                var i = 0
+                while (candidate.dayOfWeek != targetDow &amp;&amp; i &lt; 7) {
+                    candidate = candidate.plusDays(1)
+                    i++
+                }
+                candidate
+            } else {
+                // If we can't parse a specific day, leave date null (incomplete draft)
+                null
+            }
+        }
+    }
+
+    // Time parsing
+    val hour = timeMatch.groupValues[1].toIntOrNull()
+    val minute = timeMatch.groupValues.getOrNull(2)?.toIntOrNull() ?: 0
+    val ampm = timeMatch.groupValues.getOrNull(3)
+
+    val resolvedHour = if (hour != null) {
+        when {
+            ampm == &quot;pm&quot; &amp;&amp; hour in 1..11 -&gt; hour + 12
+            ampm == &quot;am&quot; &amp;&amp; hour == 12 -&gt; 0
+            else -&gt; hour
+        }
+    } else null
+
+    val startTime = resolvedHour?.let { h -&gt;
+        runCatching { LocalTime.of(h, minute) }.getOrNull()
+    }
+
+    // Title (rough)
+    val title = when {
+        lower.contains(&quot;dentist&quot;) -&gt; &quot;Dentist appointment&quot;
+        lower.contains(&quot;doctor&quot;) -&gt; &quot;Doctor appointment&quot;
+        lower.contains(&quot;meeting&quot;) -&gt; &quot;Meeting&quot;
+        lower.contains(&quot;flight&quot;) -&gt; &quot;Flight&quot;
+        else -&gt; &quot;Event&quot;
+    }
+
+    val draft = CalendarEventDraft(
+        title = title,
+        date = date,
+        startTime = startTime,
+        endTime = null,   // duration handled later by CalendarEventsApi
+        location = null   // not yet extracted robustly
+    )
+
+    return ParsedMessage(
+        rawText = trimmed,
+        intentType = ChatIntentType.CREATE_CALENDAR_EVENT,
+        calendarDraft = draft
+    )
+}
+
+private fun callLLM(parsed: ParsedMessage): String {
+    // Still stubbed: echoes what the user said.
+    return &quot;Heard you: \&quot;${parsed.rawText}\&quot;&quot;
+}
+
+private fun applySupervisor(parsed: ParsedMessage, llmOutput: String): String {
+    // Placeholder for safety/guardrails; currently pass-through.
+    return llmOutput
+}
+
+private fun applyTonePreset(parsed: ParsedMessage, supervised: String): String {
+    // Placeholder for Chief tone shaping; currently pass-through.
+    return supervised
+}
+</code></pre>
+<p><strong>Limitations we’ve observed and accepted for now:</strong></p>
+<ul>
+<li>No robust natural-language date parser; we only handle “today”, “tomorrow”, weekday names, and simple times.</li>
+<li>“At 3” with <strong>no am/pm</strong> currently resolves to <strong>03:00 (3am)</strong> — we saw this in your screenshot.</li>
+<li>Location is not yet parsed; earlier heuristics that grabbed <code>"@ 3"</code> as location were removed/toned down.
+  (If any <code>@</code> heuristics remain, they should be treated as a <strong>known bug</strong>.)</li>
+</ul>
+<h3 id="43-chatscreen-wiring-parsed-intent-draft-card">4.3 ChatScreen: wiring parsed intent → draft card</h3>
+<p>We replaced the send button’s <code>onClick</code> to use <code>HandleResult</code>:</p>
+<pre><code class="language-kotlin">Button(
+    onClick = {
+        val trimmed = inputText.trim()
+        if (trimmed.isNotEmpty()) {
+            val userMsg = ChatMessage(
+                id = nextId++,
+                sender = Sender.USER,
+                text = trimmed
+            )
+
+            // --- Reply pipeline V0 entry point ---
+            val result = handleUserMessage(trimmed)
+            val parsed = result.parsed
+            val chiefReplyText = result.replyText
+            // --------------------------------------
+
+            val chiefMsg = ChatMessage(
+                id = nextId++,
+                sender = Sender.CHIEF,
+                text = chiefReplyText
+            )
+
+            if (parsed.intentType == ChatIntentType.CREATE_CALENDAR_EVENT &amp;&amp;
+                parsed.calendarDraft != null
+            ) {
+                calendarDraft = parsed.calendarDraft
+            }
+
+            messages = messages + userMsg + chiefMsg
+            inputText = &quot;&quot;
+        }
+    },
+    enabled = inputText.isNotBlank()
+) {
+    Text(&quot;Send&quot;)
+}
+</code></pre>
+<p>Behavior now:</p>
+<ol>
+<li>User types a message.</li>
+<li>
+<p>We build:</p>
+</li>
+<li>
+<p>User bubble.</p>
+</li>
+<li>Chief bubble (<code>Heard you: "...")</code>.</li>
+<li><strong>If</strong> parsed as <code>CREATE_CALENDAR_EVENT</code> with a non-null draft → we set <code>calendarDraft</code>, which causes the <strong>Calendar draft card</strong> to appear below the conversation.</li>
+</ol>
+<p>Save behavior is unchanged from W5 and still explicit (no auto-save).</p>
+<hr />
+<h2 id="5-testing-current-behavior">5. Testing / Current Behavior</h2>
+<h3 id="51-backend-running">5.1 Backend running</h3>
+<p>Assumed command (unchanged in this chat):</p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/chief-tts-backend
+node server.cjs
+# or your usual start script
+</code></pre>
+<p>When this is not running, tapping Save will hit <code>127.0.0.1:8080</code>, leading to <code>ConnectException</code> from OkHttp; we handle this as a soft error and show a Chief bubble instead of crashing.</p>
+<h3 id="52-app-buildinstall">5.2 App build/install</h3>
+<p>From the app repo:</p>
+<pre><code class="language-bash">cd ~/AndroidStudioProjects/Chief
+./gradlew installDebug
+</code></pre>
+<p>Observed output at the end:</p>
+<pre><code class="language-text">&gt; Task :app:installDebug
+Installing APK 'app-debug.apk' on 'SM-S918W - 15' for :app:debug
+Installed on 1 device.
+
+BUILD SUCCESSFUL ...
+</code></pre>
+<h3 id="53-end-to-end-flow-what-you-saw">5.3 End-to-end flow (what you saw)</h3>
+<ol>
+<li>Launch app, go to <strong>Chat</strong>.</li>
+<li>Type:
+   <code>I've got a doctors appointment on Friday at 3</code></li>
+<li>Tap <strong>Send</strong>.</li>
+</ol>
+<p>Observed UI:</p>
+<ul>
+<li>User bubble: <em>I’ve got a doctors appointment on Friday at 3</em></li>
+<li>Chief bubble: <em>Heard you: "I've got a doctors appointment on Friday at 3"</em></li>
+<li><strong>Calendar draft card</strong>, roughly:</li>
+</ul>
+<blockquote>
+<p>Calendar draft
+Doctor appointment — 2025-11-14 03:00 @ (location if any)
+[Dismiss] [Save]</p>
+</blockquote>
+<ol>
+<li>
+<p>Tap <strong>Save</strong>:</p>
+</li>
+<li>
+<p>Chief bubble:</p>
+</li>
+</ol>
+<blockquote>
+<p>Added “Doctor appointment” to your calendar.
+* Draft card disappears (we clear <code>calendarDraft</code> on success).
+* Backend <code>/calendar/events</code> creates a real event in the dev calendar.</p>
+</blockquote>
+<p>This matches the W5 + W6 acceptance criteria:</p>
+<ul>
+<li>Real user message → parsed → <code>CalendarEventDraft</code>.</li>
+<li>Draft shown in Chat.</li>
+<li>Save button calls <code>/calendar/events</code> → Google Calendar.</li>
+</ul>
+<hr />
+<h2 id="6-known-issues-tech-debt-explicit">6. Known Issues / Tech Debt (Explicit)</h2>
+<p>These are <strong>not</strong> bugs to fix inside W5/W6 but must be remembered for future phases.</p>
+<ol>
+<li>
+<p><strong>Identity: <code>x-user-id = deviceId</code> (dev-only).</strong></p>
+</li>
+<li>
+<p>All app → backend calls for calendar writes use the device UUID as <code>x-user-id</code>.</p>
+</li>
+<li>This is okay for single-device dev but is <strong>not</strong> a real user identity model.</li>
+<li>
+<p>Future ZeroAuth/account work must introduce a proper user ID separate from the device.</p>
+</li>
+<li>
+<p><strong>Backend auth: ADC/single-calendar.</strong></p>
+</li>
+<li>
+<p><code>/calendar/events</code> uses <code>calendarClient.cjs</code> which uses ADC / ACCESS_TOKEN + single <code>CALENDAR_ID</code>.</p>
+</li>
+<li>It does <strong>not</strong> use per-user refresh tokens like the newer <code>/sync/calendar</code> zero-auth path intends.</li>
+<li>
+<p>When we implement “real ZeroAuth writes”, we should:</p>
+<ul>
+<li>Reuse <code>/calendar/events</code> URL + response shape,</li>
+<li>But swap its implementation to per-user tokens.</li>
+</ul>
+</li>
+<li>
+<p><strong>Time parsing rough edges.</strong></p>
+</li>
+<li>
+<p>“Friday at 3” with no am/pm becomes <strong>03:00</strong> (3am).</p>
+</li>
+<li>There is no handling for “this afternoon”, “in two hours”, etc.</li>
+<li>
+<p>Future parser improvements should avoid breaking the <code>ParsedMessage</code> and <code>CalendarEventDraft</code> shapes.</p>
+</li>
+<li>
+<p><strong>Location parsing is minimal.</strong></p>
+</li>
+<li>
+<p>We currently do <strong>not</strong> robustly detect locations.</p>
+</li>
+<li>
+<p>For now, draft <code>location</code> is usually <code>null</code>; the backend still accepts this fine.</p>
+</li>
+<li>
+<p><strong>Dev sample button.</strong></p>
+</li>
+<li>
+<p><code>Dev: sample</code> button still exists in the Chat top bar, always visible.</p>
+</li>
+<li>
+<p>In a production build this should be hidden or gated behind <code>BuildConfig.DEBUG</code>.</p>
+</li>
+<li>
+<p><strong>Whisper submodule dirty.</strong></p>
+</li>
+<li>
+<p><code>app/src/main/cpp/third_party/whisper.cpp</code> shows a <code>-dirty</code> pointer.</p>
+</li>
+<li>
+<p>We intentionally did <strong>not</strong> commit any changes inside the Whisper subrepo in this phase.</p>
+</li>
+<li>
+<p><strong>Local DB changes (backend).</strong></p>
+</li>
+<li>
+<p><code>data/users_auth.db</code> is modified locally; not staged/committed.</p>
+</li>
+<li>This is expected dev state but should be kept in mind if someone checks out fresh.</li>
+</ol>
+<hr />
+<h2 id="7-suggested-next-steps-for-pm-to-decide">7. Suggested Next Steps (for PM to decide)</h2>
+<p>(These are <strong>not</strong> directives, just context for whoever writes W7.)</p>
+<ol>
+<li>
+<p><strong>Parser refinement (W6.1+ follow-up):</strong></p>
+</li>
+<li>
+<p>Better handling of 12h times without am/pm (“at 3” → likely 15:00 if afternoon).</p>
+</li>
+<li>
+<p>Smarter location extraction (“at the gym”, “at the clinic”).</p>
+</li>
+<li>
+<p><strong>Per-user calendar writes / ZeroAuth integration:</strong></p>
+</li>
+<li>
+<p>Move <code>/calendar/events</code> from ADC dev calendar to true per-user refresh-token flow, in line with <code>/sync/calendar</code> direction.</p>
+</li>
+<li>
+<p><strong>Dev UI cleanup:</strong></p>
+</li>
+<li>
+<p>Wrap <code>Dev: sample</code> behind a debug flag or move it to a hidden dev menu so production Chat feels clean.</p>
+</li>
+<li>
+<p><strong>Broader channel planning:</strong></p>
+</li>
+<li>
+<p>Reuse the <code>ChatIntentType</code> + <code>ParsedMessage</code> pattern to add <code>EmailDraft</code>, <code>SmsDraft</code>, etc., while keeping calendar as the first channel.</p>
+</li>
+</ol>
+<hr />
+<h2 id="8-command-cheat-sheet">8. Command Cheat Sheet</h2>
+<p>For the next worker:</p>
+<pre><code class="language-bash"># Backend: status
+cd ~/AndroidStudioProjects/chief-tts-backend
+git status -sb
+
+# Backend: run server
+node server.cjs     # or your existing start script
+
+# Backend: test calendar events endpoint (optional)
+curl -X POST http://localhost:8080/calendar/events \
+  -H &quot;Content-Type: application/json&quot; \
+  -H &quot;x-user-id: ac48e84f-a8a5-45d7-a916-77b1e084f398&quot; \
+  -d '{
+    &quot;summary&quot;: &quot;Test event from curl&quot;,
+    &quot;location&quot;: &quot;Test Location&quot;,
+    &quot;startIso&quot;: &quot;2025-11-14T15:00:00Z&quot;,
+    &quot;endIso&quot;: &quot;2025-11-14T15:30:00Z&quot;,
+    &quot;timeZone&quot;: &quot;America/Vancouver&quot;,
+    &quot;source&quot;: &quot;chief-android-chat&quot;
+  }'
+
+# App: status
+cd ~/AndroidStudioProjects/Chief
+git status -sb
+
+# App: open ChatScreen in Notepad
+notepad app/src/main/java/app/chief/app/ui/chat/ChatScreen.kt
+
+# App: build + install to device
+./gradlew installDebug
+</code></pre>
+<hr />
+<p><strong>Summary in one line:</strong>
+We now have a working path from <strong>real chat text → rules-based intent detection → <code>CalendarEventDraft</code> → draft card → backend <code>/calendar/events</code> → real Google Calendar event</strong>, with identity/auth still in dev-mode (deviceId + ADC) and clearly marked for future ZeroAuth hardening.</p>
 <hr />
 <h1 id="handover-w4-conversational-intent-calendar-draft-v0">Handover — W4: Conversational Intent &amp; Calendar Draft V0</h1>
 <p><strong>Project:</strong> Chief Android
@@ -1322,7 +2239,7 @@ handleUserMessage(input: String): String
 <p>but everything was still “string in / string out” with no structured intent or payload.</p>
 </li>
 </ul>
-<h3 id="backend">Backend</h3>
+<h3 id="backend_1">Backend</h3>
 <ul>
 <li>
 <p>We did not change backend before W4; it was already on:</p>
@@ -2015,7 +2932,7 @@ Branch: <code>feat/v3.9-onboarding-consent-backend</code></p>
 </ul>
 </li>
 </ul>
-<h3 id="backend_1">Backend</h3>
+<h3 id="backend_2">Backend</h3>
 <ul>
 <li>
 <p>Calendar infra already in place:</p>
